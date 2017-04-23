@@ -13,6 +13,7 @@ public:
 
 	Buffer Reserve(void* data, VkDeviceSize size);
 	void AllocateMemory();
+	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
 
 private:
 	std::vector<Buffer> Reservations;

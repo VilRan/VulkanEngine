@@ -1,6 +1,7 @@
 #include "VulkanHelper.h"
 
 #include <stdexcept>
+#include <vector>
 
 VulkanHelper::VulkanHelper()
 {
@@ -46,6 +47,25 @@ void VulkanHelper::CopyBuffer(VkDevice& device, VkCommandPool commandPool, VkQue
 	VkBufferCopy copyRegion = {};
 	copyRegion.size = size;
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	EndSingleTimeCommands(device, commandPool, graphicsQueue, commandBuffer);
+}
+
+void VulkanHelper::CopyBuffer(VkDevice& device, VkCommandPool commandPool, VkQueue graphicsQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, Buffer* buffers, size_t bufferCount)
+{
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(device, commandPool);
+
+	std::vector<VkBufferCopy> copyRegions;
+	for (size_t i = 0; i < bufferCount; i++)
+	{
+		VkBufferCopy copyRegion = {};
+		copyRegion.srcOffset = buffers[i].GetOffset();
+		copyRegion.dstOffset = buffers[i].GetOffset();
+		copyRegion.size = buffers[i].GetSize();
+		copyRegions.push_back(copyRegion);
+	}
+
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, bufferCount, copyRegions.data());
 
 	EndSingleTimeCommands(device, commandPool, graphicsQueue, commandBuffer);
 }

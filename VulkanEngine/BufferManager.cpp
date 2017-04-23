@@ -27,6 +27,12 @@ void BufferManager::AllocateMemory()
 		StagingBuffer, StagingBufferMemory
 	);
 
+	VulkanHelper::CreateBuffer(
+		PhysicalDevice, Device, TotalBufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		DeviceBuffer, DeviceBufferMemory
+	);
+
 	for (auto reservation : Reservations)
 	{
 		void* data;
@@ -35,11 +41,20 @@ void BufferManager::AllocateMemory()
 		vkUnmapMemory(Device, StagingBufferMemory);
 	}
 
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device, TotalBufferSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		DeviceBuffer, DeviceBufferMemory
-	);
-
 	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, StagingBuffer, DeviceBuffer, TotalBufferSize);
+}
+
+void BufferManager::UpdateBuffers(Buffer* buffers, size_t bufferCount)
+{
+	for (size_t i = 0; i < bufferCount; i++)
+	{
+		Buffer buffer = buffers[i];
+
+		void* data;
+		vkMapMemory(Device, StagingBufferMemory, buffer.GetOffset(), buffer.GetSize(), 0, &data);
+		memcpy(data, buffer.GetData(), (size_t)buffer.GetSize());
+		vkUnmapMemory(Device, StagingBufferMemory);
+	}
+
+	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, StagingBuffer, DeviceBuffer, buffers, bufferCount);
 }
