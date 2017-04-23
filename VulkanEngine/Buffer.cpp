@@ -18,22 +18,3 @@ Buffer::~Buffer()
 {
 }
 
-void* Buffer::GetData()
-{
-	return Data;
-}
-
-VkBuffer Buffer::GetDeviceBuffer()
-{
-	return *DeviceBuffer;
-}
-
-VkDeviceSize Buffer::GetOffset()
-{
-	return Offset;
-}
-
-VkDeviceSize Buffer::GetSize()
-{
-	return Size;
-}

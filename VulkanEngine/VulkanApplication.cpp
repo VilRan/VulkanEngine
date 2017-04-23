@@ -80,6 +80,7 @@ VulkanApplication::VulkanApplication()
 
 VulkanApplication::~VulkanApplication()
 {
+	delete Texture;
 	delete Model;
 	delete BufferManager;
 }
@@ -91,7 +92,15 @@ void VulkanApplication::Run()
 	MainLoop();
 }
 
-Model* VulkanApplication::LoadModel(const char * path)
+Texture* VulkanApplication::LoadTexture(const char* path)
+{
+	int width, height, channels;
+	stbi_uc* pixels = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
+	auto texture = new ::Texture(pixels, width, height, channels);
+	return texture;
+}
+
+Model* VulkanApplication::LoadModel(const char* path)
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
@@ -171,6 +180,7 @@ void VulkanApplication::InitVulkan()
 	CreateCommandPool();
 	CreateDepthResources();
 	CreateFramebuffers();
+	Texture = LoadTexture(TEXTURE_PATH.c_str());
 	CreateTextureImage();
 	CreateTextureImageView();
 	CreateTextureSampler();
@@ -756,18 +766,20 @@ bool VulkanApplication::HasStencilComponent(VkFormat format)
 
 void VulkanApplication::CreateTextureImage() 
 {
+	/*
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-	VkDeviceSize imageSize = texWidth * texHeight * 4;
+	*/
+	VkDeviceSize imageSize = Texture->GetWidth() * Texture->GetHeight() * 4;
 
-	if (!pixels) 
+	if (!Texture->GetPixels()) 
 	{
 		throw std::runtime_error("failed to load texture image!");
 	}
 
 	VDeleter<VkImage> stagingImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> stagingImageMemory{ Device, vkFreeMemory };
-	CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingImage, stagingImageMemory);
+	CreateImage(Texture->GetWidth(), Texture->GetHeight(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingImage, stagingImageMemory);
 
 	VkImageSubresource subresource = {};
 	subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -780,29 +792,29 @@ void VulkanApplication::CreateTextureImage()
 	void* data;
 	vkMapMemory(Device, stagingImageMemory, 0, imageSize, 0, &data);
 
-	if (stagingImageLayout.rowPitch == texWidth * 4) 
+	if (stagingImageLayout.rowPitch == Texture->GetWidth() * 4) 
 	{
-		memcpy(data, pixels, (size_t)imageSize);
+		memcpy(data, Texture->GetPixels(), (size_t)imageSize);
 	}
 	else 
 	{
 		uint8_t* dataBytes = reinterpret_cast<uint8_t*>(data);
 
-		for (int y = 0; y < texHeight; y++) 
+		for (int y = 0; y < Texture->GetHeight(); y++) 
 		{
-			memcpy(&dataBytes[y * stagingImageLayout.rowPitch], &pixels[y * texWidth * 4], texWidth * 4);
+			memcpy(&dataBytes[y * stagingImageLayout.rowPitch], &Texture->GetPixels()[y * Texture->GetWidth() * 4], Texture->GetWidth() * 4);
 		}
 	}
 
 	vkUnmapMemory(Device, stagingImageMemory);
 
-	stbi_image_free(pixels);
+	//stbi_image_free(pixels);
 
-	CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, TextureImage, TextureImageMemory);
+	CreateImage(Texture->GetWidth(), Texture->GetHeight(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, TextureImage, TextureImageMemory);
 
 	TransitionImageLayout(stagingImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	TransitionImageLayout(TextureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyImage(stagingImage, TextureImage, texWidth, texHeight);
+	CopyImage(stagingImage, TextureImage, Texture->GetWidth(), Texture->GetHeight());
 
 	TransitionImageLayout(TextureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }

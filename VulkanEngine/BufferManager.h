@@ -11,12 +11,12 @@ public:
 	BufferManager(VkPhysicalDevice& physicalDevice, VkDevice& device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	virtual ~BufferManager();
 
-	void AllocateMemory();
 	Buffer Reserve(void* data, VkDeviceSize size);
+	void AllocateMemory();
 
 private:
 	std::vector<Buffer> Reservations;
-	VkDeviceSize TotalSize = 0;
+	VkDeviceSize TotalBufferSize = 0;
 	VDeleter<VkBuffer> StagingBuffer;
 	VDeleter<VkDeviceMemory> StagingBufferMemory;
 	VDeleter<VkBuffer> DeviceBuffer;

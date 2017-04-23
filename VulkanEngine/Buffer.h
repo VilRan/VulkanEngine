@@ -9,10 +9,10 @@ public:
 	Buffer(void* data, VkBuffer* deviceBuffer, VkDeviceSize offset, VkDeviceSize size);
 	virtual ~Buffer();
 
-	void* GetData();
-	VkBuffer GetDeviceBuffer();
-	VkDeviceSize GetOffset();
-	VkDeviceSize GetSize();
+	inline const void* GetData() const { return Data; }
+	inline const VkBuffer GetDeviceBuffer() const { return *DeviceBuffer; }
+	inline const VkDeviceSize GetOffset() const { return Offset; }
+	inline const VkDeviceSize GetSize() const { return Size; }
 
 private:
 	void* Data;

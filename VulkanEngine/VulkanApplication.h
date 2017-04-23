@@ -19,6 +19,7 @@
 #include "Buffer.h"
 #include "BufferManager.h"
 #include "VulkanModel.h"
+#include "Actor.h"
 
 struct QueueFamilyIndices {
 	int GraphicsFamily = -1;
@@ -44,6 +45,7 @@ public:
 	~VulkanApplication();
 
 	virtual void Run();
+	virtual Texture* LoadTexture(const char* path);
 	virtual Model* LoadModel(const char* path);
 
 private:
@@ -77,6 +79,7 @@ private:
 	VDeleter<VkDeviceMemory> DepthImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
 
+	Texture* Texture;
 	VDeleter<VkImage> TextureImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> TextureImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };

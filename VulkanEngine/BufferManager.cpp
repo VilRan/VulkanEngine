@@ -11,10 +11,18 @@ BufferManager::~BufferManager()
 {
 }
 
+Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
+{
+	Buffer reservation(data, DeviceBuffer.GetPointer(), TotalBufferSize, size);
+	TotalBufferSize += size;
+	Reservations.push_back(reservation);
+	return reservation;
+}
+
 void BufferManager::AllocateMemory()
 {
 	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device, TotalSize,
+		PhysicalDevice, Device, TotalBufferSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		StagingBuffer, StagingBufferMemory
 	);
@@ -28,18 +36,10 @@ void BufferManager::AllocateMemory()
 	}
 
 	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device, TotalSize,
+		PhysicalDevice, Device, TotalBufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		DeviceBuffer, DeviceBufferMemory
 	);
 
-	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, StagingBuffer, DeviceBuffer, TotalSize);
-}
-
-Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
-{
-	auto buffer = Buffer(data, DeviceBuffer.GetPointer(), TotalSize, size);
-	TotalSize += size;
-	Reservations.push_back(buffer);
-	return buffer;
+	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, StagingBuffer, DeviceBuffer, TotalBufferSize);
 }
