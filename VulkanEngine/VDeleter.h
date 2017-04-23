@@ -1,4 +1,7 @@
 #pragma once
+
+#include <functional>
+
 template <typename T>
 class VDeleter
 {
@@ -22,6 +25,16 @@ public:
 	}
 
 	const T* operator &() const {
+		return &object;
+	}
+
+	T& Get()
+	{
+		return object;
+	}
+
+	T* GetPointer()
+	{
 		return &object;
 	}
 

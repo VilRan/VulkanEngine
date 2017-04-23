@@ -15,6 +15,10 @@
 #include <array>
 #include "VDeleter.h"
 #include "DebugReportCallback.h"
+#include "Vertex.h"
+#include "Buffer.h"
+#include "BufferManager.h"
+#include "VulkanModel.h"
 
 struct QueueFamilyIndices {
 	int GraphicsFamily = -1;
@@ -32,54 +36,15 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> PresentModes;
 };
 
-struct Vertex {
-	glm::vec3 Position;
-	glm::vec3 Color;
-	glm::vec2 TextureCoordinates;
-
-	static VkVertexInputBindingDescription GetBindingDescription() 
-	{
-		VkVertexInputBindingDescription bindingDescription = {};
-		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(Vertex);
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-		return bindingDescription;
-	}
-
-	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() 
-	{
-		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
-
-		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[0].offset = offsetof(Vertex, Position);
-
-		attributeDescriptions[1].binding = 0;
-		attributeDescriptions[1].location = 1;
-		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(Vertex, Color);
-
-		attributeDescriptions[2].binding = 0;
-		attributeDescriptions[2].location = 2;
-		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[2].offset = offsetof(Vertex, TextureCoordinates);
-
-		return attributeDescriptions;
-	}
-
-	bool operator==(const Vertex& other) const 
-	{
-		return Position == other.Position && Color == other.Color && TextureCoordinates == other.TextureCoordinates;
-	}
-};
-
 class VulkanApplication :
 	public IApplication
 {
 public:
+	VulkanApplication();
+	~VulkanApplication();
+
 	virtual void Run();
+	virtual Model* LoadModel(const char* path);
 
 private:
 	GLFWwindow* Window;
@@ -117,13 +82,16 @@ private:
 	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 
-	std::vector<Vertex> Vertices;
-	std::vector<uint32_t> Indices;
+	//std::vector<Vertex> Vertices;
+	//std::vector<uint32_t> Indices;
+	BufferManager* BufferManager;
+	VulkanModel* Model;
+	/*
 	VDeleter<VkBuffer> VertexBuffer{ Device, vkDestroyBuffer };
 	VDeleter<VkDeviceMemory> VertexBufferMemory{ Device, vkFreeMemory };
 	VDeleter<VkBuffer> IndexBuffer{ Device, vkDestroyBuffer };
 	VDeleter<VkDeviceMemory> IndexBufferMemory{ Device, vkFreeMemory };
-
+	*/
 	VDeleter<VkBuffer> UniformStagingBuffer{ Device, vkDestroyBuffer };
 	VDeleter<VkDeviceMemory> UniformStagingBufferMemory{ Device, vkFreeMemory };
 	VDeleter<VkBuffer> UniformBuffer{ Device, vkDestroyBuffer };
@@ -136,6 +104,7 @@ private:
 
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
+	
 
 	void InitWindow();
 	void InitVulkan();
@@ -165,17 +134,11 @@ private:
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VDeleter<VkImage>& image, VDeleter<VkDeviceMemory>& imageMemory);
 	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height);
-	void LoadModel();
-	void CreateVertexBuffer();
-	void CreateIndexBuffer();
+	//void CreateVertexBuffer();
+	//void CreateIndexBuffer();
 	void CreateUniformBuffer();
 	void CreateDescriptorPool();
 	void CreateDescriptorSet();
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VDeleter<VkBuffer>& buffer, VDeleter<VkDeviceMemory>& bufferMemory);
-	VkCommandBuffer BeginSingleTimeCommands();
-	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
-	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void CreateCommandBuffers();
 	void CreateSemaphores();
 	void UpdateUniformBuffer();
