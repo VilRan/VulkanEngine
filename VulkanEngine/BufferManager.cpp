@@ -14,8 +14,8 @@ BufferManager::~BufferManager()
 Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 {
 	Buffer reservation(data, DeviceBuffer.GetPointer(), TotalBufferSize, size);
-	TotalBufferSize += size;
 	Reservations.push_back(reservation);
+	TotalBufferSize += size;
 	return reservation;
 }
 

@@ -20,8 +20,8 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/Icosphere.obj";
-const std::string TEXTURE_PATH = "textures/BlackAndWhiteTriangle.png";
+const std::string MODEL_PATH = "models/Cube.obj";
+const std::string TEXTURE_PATH = "textures/ColoredCube.png";
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -1223,7 +1223,7 @@ void VulkanApplication::UpdateUniformBuffer()
 
 	UniformBufferObject ubo = {};
 	ubo.Model = glm::rotate(glm::mat4(), time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	ubo.View = glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	ubo.View = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	ubo.Projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.Projection[1][1] *= -1;
 
