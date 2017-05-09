@@ -1104,7 +1104,7 @@ void VulkanApplication::CreateCommandBuffers()
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-
+		/*
 		VkBuffer vertexBuffer = Model->GetVertexBuffer().GetDeviceBuffer();
 		VkDeviceSize vertexBufferOffset = Model->GetVertexBuffer().GetOffset();
 		VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -1114,6 +1114,8 @@ void VulkanApplication::CreateCommandBuffers()
 		VkBuffer indexBuffer = Model->GetIndexBuffer().GetDeviceBuffer();
 		VkDeviceSize indexBufferOffset = Model->GetIndexBuffer().GetOffset();
 		vkCmdBindIndexBuffer(CommandBuffers[i], indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
+		*/
+		Model->Bind(CommandBuffers[i]);
 
 		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
 

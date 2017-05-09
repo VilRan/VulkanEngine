@@ -13,6 +13,7 @@ public:
 	virtual ~VulkanModel();
 
 	void ReserveBuffers(BufferManager& bufferManager);
+	void Bind(VkCommandBuffer commandBuffer);
 	Buffer GetVertexBuffer();
 	Buffer GetIndexBuffer();
 

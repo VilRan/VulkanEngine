@@ -16,6 +16,19 @@ void VulkanModel::ReserveBuffers(BufferManager& bufferManager)
 	IndexBuffer = bufferManager.Reserve(GetIndexData(), GetIndexBufferSize());
 }
 
+void VulkanModel::Bind(VkCommandBuffer commandBuffer)
+{
+	VkBuffer vertexBuffer = VertexBuffer.GetDeviceBuffer();
+	VkDeviceSize vertexBufferOffset = VertexBuffer.GetOffset();
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { vertexBufferOffset };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+	VkBuffer indexBuffer = IndexBuffer.GetDeviceBuffer();
+	VkDeviceSize indexBufferOffset = IndexBuffer.GetOffset();
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
+}
+
 Buffer VulkanModel::GetVertexBuffer()
 {
 	return VertexBuffer;
