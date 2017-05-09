@@ -20,9 +20,6 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/Cube.obj";
-const std::string TEXTURE_PATH = "textures/ColoredCube.png";
-
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
 };
@@ -80,8 +77,9 @@ VulkanApplication::VulkanApplication()
 
 VulkanApplication::~VulkanApplication()
 {
-	delete Texture;
+	//delete Texture;
 	delete Model;
+	delete Textures;
 	delete BufferManager;
 }
 
@@ -91,7 +89,7 @@ void VulkanApplication::Run()
 	InitVulkan();
 	MainLoop();
 }
-
+/*
 Texture* VulkanApplication::LoadTexture(const char* path)
 {
 	int width, height, channels;
@@ -99,7 +97,7 @@ Texture* VulkanApplication::LoadTexture(const char* path)
 	auto texture = new ::Texture(pixels, width, height, channels);
 	return texture;
 }
-
+*/
 Model* VulkanApplication::LoadModel(const char* path)
 {
 	std::vector<Vertex> vertices;
@@ -180,16 +178,15 @@ void VulkanApplication::InitVulkan()
 	CreateCommandPool();
 	CreateDepthResources();
 	CreateFramebuffers();
-	Texture = LoadTexture(TEXTURE_PATH.c_str());
+	Textures = new VulkanTextureManager();
+	Texture = static_cast<VulkanTexture*>(Textures->Load("textures/ColoredCube.png"));
 	CreateTextureImage();
 	CreateTextureImageView();
 	CreateTextureSampler();
-	BufferManager = new ::BufferManager(PhysicalDevice, Device.Get(), CommandPool, GraphicsQueue);
-	Model = static_cast<VulkanModel*>(LoadModel(MODEL_PATH.c_str()));
-	BufferManager->AllocateMemory();
-	//CreateVertexBuffer();
-	//CreateIndexBuffer();
+	BufferManager = new ::BufferManager(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	Model = static_cast<VulkanModel*>(LoadModel("models/Cube.obj"));
 	CreateUniformBuffer();
+	BufferManager->AllocateMemory();
 	CreateDescriptorPool();
 	CreateDescriptorSet();
 	CreateCommandBuffers();
@@ -766,16 +763,7 @@ bool VulkanApplication::HasStencilComponent(VkFormat format)
 
 void VulkanApplication::CreateTextureImage() 
 {
-	/*
-	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-	*/
-	VkDeviceSize imageSize = Texture->GetWidth() * Texture->GetHeight() * 4;
-
-	if (!Texture->GetPixels()) 
-	{
-		throw std::runtime_error("failed to load texture image!");
-	}
+	VkDeviceSize imageSize = Texture->GetSize();
 
 	VDeleter<VkImage> stagingImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> stagingImageMemory{ Device, vkFreeMemory };
@@ -906,7 +894,7 @@ void VulkanApplication::CreateImage(uint32_t width, uint32_t height, VkFormat fo
 
 void VulkanApplication::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) 
 {
-	VkCommandBuffer commandBuffer = VulkanHelper::BeginSingleTimeCommands(Device.Get(), CommandPool);
+	VkCommandBuffer commandBuffer = VulkanHelper::BeginSingleTimeCommands(Device.GetReference(), CommandPool);
 
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -969,12 +957,12 @@ void VulkanApplication::TransitionImageLayout(VkImage image, VkFormat format, Vk
 		1, &barrier
 	);
 
-	VulkanHelper::EndSingleTimeCommands(Device.Get(), CommandPool, GraphicsQueue, commandBuffer);
+	VulkanHelper::EndSingleTimeCommands(Device.GetReference(), CommandPool, GraphicsQueue, commandBuffer);
 }
 
 void VulkanApplication::CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height)
 {
-	VkCommandBuffer commandBuffer = VulkanHelper::BeginSingleTimeCommands(Device.Get(), CommandPool);
+	VkCommandBuffer commandBuffer = VulkanHelper::BeginSingleTimeCommands(Device.GetReference(), CommandPool);
 
 	VkImageSubresourceLayers subResource = {};
 	subResource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -998,75 +986,13 @@ void VulkanApplication::CopyImage(VkImage srcImage, VkImage dstImage, uint32_t w
 		1, &region
 	);
 
-	VulkanHelper::EndSingleTimeCommands(Device.Get(), CommandPool, GraphicsQueue, commandBuffer);
-}
-/*
-void VulkanApplication::CreateVertexBuffer() 
-{
-	VkDeviceSize bufferSize = Model->GetVertexBufferSize();
-
-	VDeleter<VkBuffer> stagingBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> stagingBufferMemory{ Device, vkFreeMemory };
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize, 
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		stagingBuffer, stagingBufferMemory
-	);
-
-	void* data;
-	vkMapMemory(Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, Model->GetVertexData(), (size_t)bufferSize);
-	vkUnmapMemory(Device, stagingBufferMemory);
-
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-		VertexBuffer, VertexBufferMemory
-	);
-
-	VulkanHelper::CopyBuffer(Device.Get(), CommandPool, GraphicsQueue, stagingBuffer, VertexBuffer, bufferSize);
+	VulkanHelper::EndSingleTimeCommands(Device.GetReference(), CommandPool, GraphicsQueue, commandBuffer);
 }
 
-void VulkanApplication::CreateIndexBuffer() 
-{
-	VkDeviceSize bufferSize = Model->GetIndexBufferSize();
-
-	VDeleter<VkBuffer> stagingBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> stagingBufferMemory{ Device, vkFreeMemory };
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-		stagingBuffer, stagingBufferMemory
-	);
-
-	void* data;
-	vkMapMemory(Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, Model->GetIndexData(), (size_t)bufferSize);
-	vkUnmapMemory(Device, stagingBufferMemory);
-
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize, 
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-		IndexBuffer, IndexBufferMemory
-	);
-
-	VulkanHelper::CopyBuffer(Device.Get(), CommandPool, GraphicsQueue, stagingBuffer, IndexBuffer, bufferSize);
-}
-*/
 void VulkanApplication::CreateUniformBuffer()
 {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize, 
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-		UniformStagingBuffer, UniformStagingBufferMemory
-	);
-	VulkanHelper::CreateBuffer(
-		PhysicalDevice, Device.Get(), bufferSize, 
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-		UniformBuffer, UniformBufferMemory
-	);
+	UniformBufferObject ubo;
+	UniformBuffer = BufferManager->Reserve(&ubo, sizeof(ubo));
 }
 
 void VulkanApplication::CreateDescriptorPool() 
@@ -1104,9 +1030,9 @@ void VulkanApplication::CreateDescriptorSet()
 	}
 
 	VkDescriptorBufferInfo bufferInfo = {};
-	bufferInfo.buffer = UniformBuffer;
-	bufferInfo.offset = 0;
-	bufferInfo.range = sizeof(UniformBufferObject);
+	bufferInfo.buffer = UniformBuffer.GetDeviceBuffer();
+	bufferInfo.offset = UniformBuffer.GetOffset();
+	bufferInfo.range = UniformBuffer.GetSize();
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -1227,12 +1153,8 @@ void VulkanApplication::UpdateUniformBuffer()
 	ubo.Projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.Projection[1][1] *= -1;
 
-	void* data;
-	vkMapMemory(Device, UniformStagingBufferMemory, 0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(Device, UniformStagingBufferMemory);
-
-	VulkanHelper::CopyBuffer(Device.Get(), CommandPool, GraphicsQueue, UniformStagingBuffer, UniformBuffer, sizeof(ubo));
+	UniformBuffer.SetData(&ubo);
+	BufferManager->UpdateBuffers(&UniformBuffer, 1);
 }
 
 void VulkanApplication::DrawFrame() 

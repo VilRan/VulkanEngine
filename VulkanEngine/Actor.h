@@ -13,8 +13,8 @@ public:
 	Actor(Model* model, Texture* texture);
 	virtual ~Actor();
 
-	Model& GetModel();
-	Texture& GetTexture();
+	inline Model& GetModel();
+	inline Texture& GetTexture();
 	inline glm::vec3 GetPosition();
 	inline void SetPosition(glm::vec3 position);
 	inline glm::quat GetRotation();

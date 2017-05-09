@@ -17,6 +17,7 @@
 #include "DebugReportCallback.h"
 #include "Vertex.h"
 #include "Buffer.h"
+#include "VulkanTextureManager.h"
 #include "BufferManager.h"
 #include "VulkanModel.h"
 #include "Actor.h"
@@ -45,7 +46,6 @@ public:
 	~VulkanApplication();
 
 	virtual void Run();
-	virtual Texture* LoadTexture(const char* path);
 	virtual Model* LoadModel(const char* path);
 
 private:
@@ -79,26 +79,16 @@ private:
 	VDeleter<VkDeviceMemory> DepthImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
 
-	Texture* Texture;
+	VulkanTextureManager* Textures;
+	VulkanTexture* Texture;
 	VDeleter<VkImage> TextureImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> TextureImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 
-	//std::vector<Vertex> Vertices;
-	//std::vector<uint32_t> Indices;
 	BufferManager* BufferManager;
 	VulkanModel* Model;
-	/*
-	VDeleter<VkBuffer> VertexBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> VertexBufferMemory{ Device, vkFreeMemory };
-	VDeleter<VkBuffer> IndexBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> IndexBufferMemory{ Device, vkFreeMemory };
-	*/
-	VDeleter<VkBuffer> UniformStagingBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> UniformStagingBufferMemory{ Device, vkFreeMemory };
-	VDeleter<VkBuffer> UniformBuffer{ Device, vkDestroyBuffer };
-	VDeleter<VkDeviceMemory> UniformBufferMemory{ Device, vkFreeMemory };
+	Buffer UniformBuffer;
 
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet DescriptorSet;

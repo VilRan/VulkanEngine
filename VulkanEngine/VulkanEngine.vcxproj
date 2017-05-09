@@ -23,26 +23,34 @@
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="DebugReportCallback.h" />
+    <ClInclude Include="DeviceBuffer.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VDeleter.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanApplication.h" />
     <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanModel.h" />
+    <ClInclude Include="VulkanTexture.h" />
+    <ClInclude Include="VulkanTextureManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="DebugReportCallback.cpp" />
+    <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VulkanApplication.cpp" />
     <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanModel.cpp" />
+    <ClCompile Include="VulkanTexture.cpp" />
+    <ClCompile Include="VulkanTextureManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{34a81716-ae06-4443-afa3-3a8d6e4fdcd8}</ProjectGuid>

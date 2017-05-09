@@ -9,7 +9,7 @@ Actor::Actor(::Model* model, ::Texture* texture)
 }
 
 
-inline Actor::~Actor()
+Actor::~Actor()
 {
 }
 

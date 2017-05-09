@@ -28,7 +28,12 @@ public:
 		return &object;
 	}
 
-	T& Get()
+	T GetHandle()
+	{
+		return object;
+	}
+
+	T& GetReference()
 	{
 		return object;
 	}
