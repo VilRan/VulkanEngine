@@ -13,7 +13,8 @@ public:
 	void Initialize(BufferManager* bufferManager, size_t sizePerBuffer, size_t numberOfBuffers);
 	DynamicBuffer Reserve(void* data);
 	void Release(DynamicBuffer buffer);
-	const Buffer GetBuffer() const { return Buffer; }
+	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
+	inline const Buffer GetBuffer() const { return Buffer; }
 
 private:
 	BufferManager* BufferManager = nullptr;

@@ -32,3 +32,8 @@ DynamicBuffer DynamicBufferPool::Reserve(void* data)
 void DynamicBufferPool::Release(DynamicBuffer buffer)
 {
 }
+
+void DynamicBufferPool::UpdateBuffers(::Buffer* buffers, size_t bufferCount)
+{
+	BufferManager->UpdateBuffers(buffers, bufferCount);
+}

@@ -11,7 +11,7 @@ public:
 
 	inline const void* GetData() const { return Data; }
 	inline void SetData(void* data) { Data = data; }
-	inline const VkBuffer GetDeviceBuffer() const { return *DeviceBuffer; }
+	inline const VkBuffer GetHandle() const { return *DeviceBuffer; }
 	inline VkBuffer* GetHandlePointer() const { return DeviceBuffer; }
 	inline const VkDeviceSize GetOffset() const { return Offset; }
 	inline const VkDeviceSize GetSize() const { return Size; }

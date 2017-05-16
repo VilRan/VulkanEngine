@@ -22,6 +22,7 @@
 #include "DynamicBufferPool.h"
 #include "VulkanModel.h"
 #include "Actor.h"
+#include "VulkanScene.h"
 
 struct QueueFamilyIndices {
 	int GraphicsFamily = -1;
@@ -48,6 +49,7 @@ public:
 
 	virtual void Run();
 	virtual Model* LoadModel(const char* path);
+	inline virtual Scene* GetRootScene() { return RootScene; }
 
 private:
 	GLFWwindow* Window;
@@ -80,7 +82,7 @@ private:
 	VDeleter<VkDeviceMemory> DepthImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
 
-	VulkanTextureManager* Textures;
+	VulkanTextureManager Textures;
 	VulkanTexture* Texture;
 	VDeleter<VkImage> TextureImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> TextureImageMemory{ Device, vkFreeMemory };
@@ -89,25 +91,25 @@ private:
 
 	BufferManager BufferManager;
 	DynamicBufferPool DynamicBufferPool;
-	VulkanModel* Model;
+	//VulkanModel* Model;
 	//Buffer UniformBuffer;
 	Buffer ViewProjectionUniformBuffer;
 	//Buffer ModelUniformBuffer;
-	DynamicBuffer TestInstance;
-	DynamicBuffer TestInstance2;
+	//DynamicBuffer TestInstance;
+	//DynamicBuffer TestInstance2;
 
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet DescriptorSet;
+
+	VulkanScene* RootScene;
 
 	std::vector<VkCommandBuffer> CommandBuffers;
 
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
 	
-
 	void InitWindow();
 	void InitVulkan();
-	void MainLoop();
 	static void OnWindowResized(GLFWwindow* window, int width, int height);
 	void RecreateSwapChain();
 	void CreateInstance();

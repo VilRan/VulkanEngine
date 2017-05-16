@@ -28,13 +28,16 @@
     <ClInclude Include="DynamicBufferPool.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VDeleter.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VulkanActor.h" />
     <ClInclude Include="VulkanApplication.h" />
     <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanModel.h" />
+    <ClInclude Include="VulkanScene.h" />
     <ClInclude Include="VulkanTexture.h" />
     <ClInclude Include="VulkanTextureManager.h" />
   </ItemGroup>
@@ -48,11 +51,14 @@
     <ClCompile Include="DynamicBufferPool.cpp" />
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="VulkanActor.cpp" />
     <ClCompile Include="VulkanApplication.cpp" />
     <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanModel.cpp" />
+    <ClCompile Include="VulkanScene.cpp" />
     <ClCompile Include="VulkanTexture.cpp" />
     <ClCompile Include="VulkanTextureManager.cpp" />
   </ItemGroup>

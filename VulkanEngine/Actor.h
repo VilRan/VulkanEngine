@@ -13,21 +13,25 @@ public:
 	Actor(Model* model, Texture* texture);
 	virtual ~Actor();
 
-	inline Model& GetModel();
+	inline Model& GetModel() { return *Model; }
 	inline Texture& GetTexture();
 	inline glm::vec3 GetPosition();
-	inline void SetPosition(glm::vec3 position);
+	inline virtual void SetPosition(glm::vec3 position);
 	inline glm::quat GetRotation();
-	inline void SetRotation(glm::quat rotation);
+	inline virtual void SetRotation(glm::quat rotation);
 	inline glm::vec3 GetScale();
-	inline void SetScale(glm::vec3 scale);
-	inline glm::mat4 GetTransform();
+	inline virtual void SetScale(glm::vec3 scale);
+	glm::mat4 GetTransform();
+	inline virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
-private:
+protected:
 	Model* Model;
 	Texture* Texture;
 	glm::vec3 Position;
 	glm::quat Rotation;
 	glm::vec3 Scale;
+	glm::mat4 Transform;
+
+	void UpdateTransform();
 };
 

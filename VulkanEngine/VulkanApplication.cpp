@@ -53,15 +53,27 @@ VulkanApplication::VulkanApplication()
 
 VulkanApplication::~VulkanApplication()
 {
-	delete Model;
-	delete Textures;
+	delete RootScene;
+	//delete Model;
 }
 
 void VulkanApplication::Run()
 {
 	InitWindow();
 	InitVulkan();
-	MainLoop();
+
+	while (!glfwWindowShouldClose(Window))
+	{
+		glfwPollEvents();
+		OnUpdate();
+		RootScene->Update();
+		UpdateUniformBuffer();
+		DrawFrame();
+	}
+
+	vkDeviceWaitIdle(Device);
+	glfwDestroyWindow(Window);
+	glfwTerminate();
 }
 
 Model* VulkanApplication::LoadModel(const char* path)
@@ -144,37 +156,23 @@ void VulkanApplication::InitVulkan()
 	CreateCommandPool();
 	CreateDepthResources();
 	CreateFramebuffers();
-	Textures = new VulkanTextureManager();
-	Texture = static_cast<VulkanTexture*>(Textures->Load("textures/ColoredCube.png"));
+	Texture = static_cast<VulkanTexture*>(Textures.Load("textures/ColoredCube.png"));
 	CreateTextureImage();
 	CreateTextureImageView();
 	CreateTextureSampler();
 	BufferManager.Initialize(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	OnLoadContent();
 	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 100);
-	Model = static_cast<VulkanModel*>(LoadModel("models/Cube.obj"));
+	//Model = static_cast<VulkanModel*>(LoadModel("models/Cube.obj"));
 	CreateUniformBuffer();
 	BufferManager.AllocateMemory();
 	CreateDescriptorPool();
 	CreateDescriptorSet();
+	RootScene = new VulkanScene(Device, CommandPool, GraphicsPipeline, PipelineLayout, DescriptorSet, DynamicBufferPool, RenderPass);
+	OnStart();
+	RootScene->BuildCommandBuffer();
 	CreateCommandBuffers();
 	CreateSemaphores();
-}
-
-void VulkanApplication::MainLoop() 
-{
-	while (!glfwWindowShouldClose(Window)) 
-	{
-		glfwPollEvents();
-
-		UpdateUniformBuffer();
-		DrawFrame();
-	}
-
-	vkDeviceWaitIdle(Device);
-
-	glfwDestroyWindow(Window);
-
-	glfwTerminate();
 }
 
 void VulkanApplication::OnWindowResized(GLFWwindow* window, int width, int height) 
@@ -198,6 +196,7 @@ void VulkanApplication::RecreateSwapChain()
 	CreateGraphicsPipeline();
 	CreateDepthResources();
 	CreateFramebuffers();
+	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass);
 	CreateCommandBuffers();
 }
 
@@ -210,7 +209,7 @@ void VulkanApplication::CreateInstance()
 
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Hello Triangle";
+	appInfo.pApplicationName = "Vulkan Application";
 	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.pEngineName = "No Engine";
 	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -969,11 +968,12 @@ void VulkanApplication::CreateUniformBuffer()
 	//UniformBuffer = BufferManager->Reserve(&ubo, sizeof(ubo));
 	glm::mat4 viewProjectionMatrix;
 	ViewProjectionUniformBuffer = BufferManager.Reserve(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
-
+	/*
 	glm::mat4 modelMatrix;
 	TestInstance = DynamicBufferPool.Reserve(&modelMatrix);
 	TestInstance2 = DynamicBufferPool.Reserve(&modelMatrix);
 	//ModelUniformBuffer = BufferManager.Reserve(&modelMatrix, sizeof(modelMatrix));
+	*/
 }
 
 void VulkanApplication::CreateDescriptorPool() 
@@ -1013,12 +1013,12 @@ void VulkanApplication::CreateDescriptorSet()
 	}
 
 	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
-	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetDeviceBuffer();
+	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetHandle();
 	viewProjectionUniformBufferInfo.offset = ViewProjectionUniformBuffer.GetOffset();
 	viewProjectionUniformBufferInfo.range = ViewProjectionUniformBuffer.GetSize();
 
 	VkDescriptorBufferInfo modelUniformBufferInfo = {};
-	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetDeviceBuffer();
+	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
 	modelUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
 	modelUniformBufferInfo.range = DynamicBufferPool.GetBuffer().GetSize();
 
@@ -1073,7 +1073,7 @@ void VulkanApplication::CreateCommandBuffers()
 
 	if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS) 
 	{
-		throw std::runtime_error("failed to allocate command buffers!");
+		throw std::runtime_error("Failed to allocate command buffers!");
 	}
 
 	VkCommandBufferBeginInfo beginInfo = {};
@@ -1097,8 +1097,17 @@ void VulkanApplication::CreateCommandBuffers()
 		vkBeginCommandBuffer(CommandBuffers[i], &beginInfo);
 
 		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
-		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		//vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+		//RootScene->BuildInlineCommandBuffer(CommandBuffers[i]);
+
+		
+		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+		VkCommandBuffer* rootSceneCommandBuffer = RootScene->GetCommandBufferPointer();
+		vkCmdExecuteCommands(CommandBuffers[i], 1, rootSceneCommandBuffer);
+		
+		/*
 		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 
 		Model->Bind(CommandBuffers[i]);
@@ -1110,7 +1119,7 @@ void VulkanApplication::CreateCommandBuffers()
 		dynamicOffset = TestInstance2.GetDynamicOffset();
 		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 1, &dynamicOffset);
 		vkCmdDrawIndexed(CommandBuffers[i], Model->GetIndexCount(), 1, 0, 0, 0);
-
+		*/
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
 		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) 
@@ -1138,21 +1147,22 @@ void VulkanApplication::UpdateUniformBuffer()
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
-
+	/*
 	//UniformBufferObject ubo = {};
 	glm::mat4 model = glm::rotate(glm::mat4(), time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	TestInstance.SetData(&model);
 
 	glm::mat4 model2 = glm::scale(glm::mat4(), glm::vec3(1.1f, 1.1f, 1.1f));
 	TestInstance2.SetData(&model2);
-
+	*/
 	glm::mat4 view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
 	projection[1][1] *= -1;
 	glm::mat4 viewProjection = projection * view;
 	ViewProjectionUniformBuffer.SetData(&viewProjection);
 
-	std::array<Buffer, 3> buffers = { TestInstance, TestInstance2, ViewProjectionUniformBuffer };
+	//std::array<Buffer, 3> buffers = { TestInstance, TestInstance2, ViewProjectionUniformBuffer };
+	std::array<Buffer, 1> buffers = { ViewProjectionUniformBuffer };
 
 	BufferManager.UpdateBuffers(buffers.data(), buffers.size());
 }

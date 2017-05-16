@@ -8,14 +8,8 @@ Actor::Actor(::Model* model, ::Texture* texture)
 	Texture = texture;
 }
 
-
 Actor::~Actor()
 {
-}
-
-inline Model& Actor::GetModel()
-{
-	return *Model;
 }
 
 inline Texture& Actor::GetTexture()
@@ -31,6 +25,7 @@ inline glm::vec3 Actor::GetPosition()
 inline void Actor::SetPosition(glm::vec3 position)
 {
 	Position = position;
+	UpdateTransform();
 }
 
 inline glm::quat Actor::GetRotation()
@@ -41,6 +36,7 @@ inline glm::quat Actor::GetRotation()
 inline void Actor::SetRotation(glm::quat rotation)
 {
 	Rotation = rotation;
+	UpdateTransform();
 }
 
 inline glm::vec3 Actor::GetScale()
@@ -51,12 +47,26 @@ inline glm::vec3 Actor::GetScale()
 inline void Actor::SetScale(glm::vec3 scale)
 {
 	Scale = scale;
+	UpdateTransform();
 }
 
-inline glm::mat4 Actor::GetTransform()
+glm::mat4 Actor::GetTransform()
+{
+	return Transform;
+}
+
+inline void Actor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+{
+	Position = position;
+	Rotation = rotation;
+	Scale = scale;
+	UpdateTransform();
+}
+
+void Actor::UpdateTransform()
 {
 	glm::mat4 translationMatrix = glm::translate(Position);
 	glm::mat4 rotationMatrix = glm::toMat4(Rotation);
 	glm::mat4 scaleMatrix = glm::scale(Scale);
-	return translationMatrix * rotationMatrix * scaleMatrix;
+	Transform = translationMatrix * rotationMatrix * scaleMatrix;
 }
