@@ -19,6 +19,7 @@
 #include "Buffer.h"
 #include "VulkanTextureManager.h"
 #include "BufferManager.h"
+#include "DynamicBufferPool.h"
 #include "VulkanModel.h"
 #include "Actor.h"
 
@@ -86,9 +87,14 @@ private:
 	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 
-	BufferManager* BufferManager;
+	BufferManager BufferManager;
+	DynamicBufferPool DynamicBufferPool;
 	VulkanModel* Model;
-	Buffer UniformBuffer;
+	//Buffer UniformBuffer;
+	Buffer ViewProjectionUniformBuffer;
+	//Buffer ModelUniformBuffer;
+	DynamicBuffer TestInstance;
+	DynamicBuffer TestInstance2;
 
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet DescriptorSet;

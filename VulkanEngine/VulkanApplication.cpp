@@ -47,40 +47,14 @@ namespace std
 	};
 }
 
-struct UniformBufferObject {
-	glm::mat4 Model;
-	glm::mat4 View;
-	glm::mat4 Projection;
-};
-/*
-const std::vector<Vertex> vertices = {
-{ { -0.5f, -0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } },
-{ { 0.5f, -0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 1.0f, 0.0f } },
-{ { 0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 1.0f, 1.0f } },
-{ { -0.5f, 0.5f, 0.0f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } },
-
-{ { -0.5f, -0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } },
-{ { 0.5f, -0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 1.0f, 0.0f } },
-{ { 0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 1.0f, 1.0f } },
-{ { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 1.0f } }
-};
-
-const std::vector<uint16_t> indices = {
-0, 1, 2, 2, 3, 0,
-4, 5, 6, 6, 7, 4
-};
-*/
-
 VulkanApplication::VulkanApplication()
 {
 }
 
 VulkanApplication::~VulkanApplication()
 {
-	//delete Texture;
 	delete Model;
 	delete Textures;
-	delete BufferManager;
 }
 
 void VulkanApplication::Run()
@@ -89,15 +63,7 @@ void VulkanApplication::Run()
 	InitVulkan();
 	MainLoop();
 }
-/*
-Texture* VulkanApplication::LoadTexture(const char* path)
-{
-	int width, height, channels;
-	stbi_uc* pixels = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-	auto texture = new ::Texture(pixels, width, height, channels);
-	return texture;
-}
-*/
+
 Model* VulkanApplication::LoadModel(const char* path)
 {
 	std::vector<Vertex> vertices;
@@ -147,7 +113,7 @@ Model* VulkanApplication::LoadModel(const char* path)
 	}
 
 	auto model = new VulkanModel(vertices, indices);
-	model->ReserveBuffers(*BufferManager);
+	model->ReserveBuffers(BufferManager);
 	return model;
 }
 
@@ -183,10 +149,11 @@ void VulkanApplication::InitVulkan()
 	CreateTextureImage();
 	CreateTextureImageView();
 	CreateTextureSampler();
-	BufferManager = new ::BufferManager(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	BufferManager.Initialize(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 100);
 	Model = static_cast<VulkanModel*>(LoadModel("models/Cube.obj"));
 	CreateUniformBuffer();
-	BufferManager->AllocateMemory();
+	BufferManager.AllocateMemory();
 	CreateDescriptorPool();
 	CreateDescriptorSet();
 	CreateCommandBuffers();
@@ -518,21 +485,28 @@ void VulkanApplication::CreateRenderPass()
 
 void VulkanApplication::CreateDescriptorSetLayout() 
 {
-	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.pImmutableSamplers = nullptr;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	VkDescriptorSetLayoutBinding viewProjectionLayoutBinding = {};
+	viewProjectionLayoutBinding.binding = 0;
+	viewProjectionLayoutBinding.descriptorCount = 1;
+	viewProjectionLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	viewProjectionLayoutBinding.pImmutableSamplers = nullptr;
+	viewProjectionLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+	VkDescriptorSetLayoutBinding modelLayoutBinding = {};
+	modelLayoutBinding.binding = 1;
+	modelLayoutBinding.descriptorCount = 1;
+	modelLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	modelLayoutBinding.pImmutableSamplers = nullptr;
+	modelLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.binding = 2;
 	samplerLayoutBinding.descriptorCount = 1;
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+	std::array<VkDescriptorSetLayoutBinding, 3> bindings = { viewProjectionLayoutBinding, modelLayoutBinding, samplerLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = bindings.size();
@@ -991,17 +965,26 @@ void VulkanApplication::CopyImage(VkImage srcImage, VkImage dstImage, uint32_t w
 
 void VulkanApplication::CreateUniformBuffer()
 {
-	UniformBufferObject ubo;
-	UniformBuffer = BufferManager->Reserve(&ubo, sizeof(ubo));
+	//UniformBufferObject ubo;
+	//UniformBuffer = BufferManager->Reserve(&ubo, sizeof(ubo));
+	glm::mat4 viewProjectionMatrix;
+	ViewProjectionUniformBuffer = BufferManager.Reserve(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
+
+	glm::mat4 modelMatrix;
+	TestInstance = DynamicBufferPool.Reserve(&modelMatrix);
+	TestInstance2 = DynamicBufferPool.Reserve(&modelMatrix);
+	//ModelUniformBuffer = BufferManager.Reserve(&modelMatrix, sizeof(modelMatrix));
 }
 
 void VulkanApplication::CreateDescriptorPool() 
 {
-	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = 1;
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	poolSizes[1].descriptorCount = 1;
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[2].descriptorCount = 1;
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -1029,17 +1012,22 @@ void VulkanApplication::CreateDescriptorSet()
 		throw std::runtime_error("failed to allocate descriptor set!");
 	}
 
-	VkDescriptorBufferInfo bufferInfo = {};
-	bufferInfo.buffer = UniformBuffer.GetDeviceBuffer();
-	bufferInfo.offset = UniformBuffer.GetOffset();
-	bufferInfo.range = UniformBuffer.GetSize();
+	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
+	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetDeviceBuffer();
+	viewProjectionUniformBufferInfo.offset = ViewProjectionUniformBuffer.GetOffset();
+	viewProjectionUniformBufferInfo.range = ViewProjectionUniformBuffer.GetSize();
+
+	VkDescriptorBufferInfo modelUniformBufferInfo = {};
+	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetDeviceBuffer();
+	modelUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
+	modelUniformBufferInfo.range = DynamicBufferPool.GetBuffer().GetSize();
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = TextureImageView;
 	imageInfo.sampler = TextureSampler;
 
-	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+	std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
 
 	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[0].dstSet = DescriptorSet;
@@ -1047,15 +1035,23 @@ void VulkanApplication::CreateDescriptorSet()
 	descriptorWrites[0].dstArrayElement = 0;
 	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descriptorWrites[0].descriptorCount = 1;
-	descriptorWrites[0].pBufferInfo = &bufferInfo;
+	descriptorWrites[0].pBufferInfo = &viewProjectionUniformBufferInfo;
 
 	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[1].dstSet = DescriptorSet;
 	descriptorWrites[1].dstBinding = 1;
 	descriptorWrites[1].dstArrayElement = 0;
-	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pImageInfo = &imageInfo;
+	descriptorWrites[1].pBufferInfo = &modelUniformBufferInfo;
+
+	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[2].dstSet = DescriptorSet;
+	descriptorWrites[2].dstBinding = 2;
+	descriptorWrites[2].dstArrayElement = 0;
+	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[2].descriptorCount = 1;
+	descriptorWrites[2].pImageInfo = &imageInfo;
 
 	vkUpdateDescriptorSets(Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
@@ -1104,21 +1100,15 @@ void VulkanApplication::CreateCommandBuffers()
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-		/*
-		VkBuffer vertexBuffer = Model->GetVertexBuffer().GetDeviceBuffer();
-		VkDeviceSize vertexBufferOffset = Model->GetVertexBuffer().GetOffset();
-		VkBuffer vertexBuffers[] = { vertexBuffer };
-		VkDeviceSize offsets[] = { vertexBufferOffset };
-		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-		VkBuffer indexBuffer = Model->GetIndexBuffer().GetDeviceBuffer();
-		VkDeviceSize indexBufferOffset = Model->GetIndexBuffer().GetOffset();
-		vkCmdBindIndexBuffer(CommandBuffers[i], indexBuffer, indexBufferOffset, VK_INDEX_TYPE_UINT32);
-		*/
 		Model->Bind(CommandBuffers[i]);
 
-		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
+		uint32_t dynamicOffset = TestInstance.GetDynamicOffset();
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 1, &dynamicOffset);
+		vkCmdDrawIndexed(CommandBuffers[i], Model->GetIndexCount(), 1, 0, 0, 0);
 
+		dynamicOffset = TestInstance2.GetDynamicOffset();
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 1, &dynamicOffset);
 		vkCmdDrawIndexed(CommandBuffers[i], Model->GetIndexCount(), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
@@ -1149,14 +1139,22 @@ void VulkanApplication::UpdateUniformBuffer()
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
-	UniformBufferObject ubo = {};
-	ubo.Model = glm::rotate(glm::mat4(), time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	ubo.View = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	ubo.Projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
-	ubo.Projection[1][1] *= -1;
+	//UniformBufferObject ubo = {};
+	glm::mat4 model = glm::rotate(glm::mat4(), time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	TestInstance.SetData(&model);
 
-	UniformBuffer.SetData(&ubo);
-	BufferManager->UpdateBuffers(&UniformBuffer, 1);
+	glm::mat4 model2 = glm::scale(glm::mat4(), glm::vec3(1.1f, 1.1f, 1.1f));
+	TestInstance2.SetData(&model2);
+
+	glm::mat4 view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
+	projection[1][1] *= -1;
+	glm::mat4 viewProjection = projection * view;
+	ViewProjectionUniformBuffer.SetData(&viewProjection);
+
+	std::array<Buffer, 3> buffers = { TestInstance, TestInstance2, ViewProjectionUniformBuffer };
+
+	BufferManager.UpdateBuffers(buffers.data(), buffers.size());
 }
 
 void VulkanApplication::DrawFrame() 

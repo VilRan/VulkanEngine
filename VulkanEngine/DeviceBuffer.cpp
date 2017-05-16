@@ -22,6 +22,11 @@ void DeviceBuffer::Create(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
 
 void DeviceBuffer::Update(::Buffer buffer)
 {
+	if (buffer.GetData() == nullptr)
+	{
+		return;
+	}
+
 	void* data;
 	vkMapMemory(Device, Memory, buffer.GetOffset(), buffer.GetSize(), 0, &data);
 	memcpy(data, buffer.GetData(), (size_t)buffer.GetSize());

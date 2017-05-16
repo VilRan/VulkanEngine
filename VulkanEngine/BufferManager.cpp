@@ -1,21 +1,63 @@
 #include "BufferManager.h"
 #include "VulkanHelper.h"
 
-BufferManager::BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
-	: PhysicalDevice(physicalDevice), Device(device), CommandPool(commandPool), GraphicsQueue(graphicsQueue)
+BufferManager::BufferManager()
 {
+}
+
+BufferManager::BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+{
+	Initialize(physicalDevice, device, commandPool, graphicsQueue);
 }
 
 BufferManager::~BufferManager()
 {
 }
 
+void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+{
+	PhysicalDevice = physicalDevice;
+	Device = device;
+	CommandPool = commandPool;
+	GraphicsQueue = graphicsQueue;
+}
+
 Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 {
+	if (Vacancies.size() > 0)
+	{
+		for (size_t i = 0; i < Vacancies.size(); i++)
+		{
+			Buffer vacancy = Vacancies[i];
+			if (vacancy.GetSize() == size)
+			{
+				Buffer reservation(data, LocalBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
+				Vacancies.erase(Vacancies.begin() + i);
+				Reservations.push_back(reservation);
+				return reservation;
+			}
+		}
+	}
+
 	Buffer reservation(data, LocalBuffer.GetHandlePointer(), TotalBufferSize, size);
 	Reservations.push_back(reservation);
 	TotalBufferSize += size;
 	return reservation;
+}
+
+void BufferManager::Release(Buffer buffer)
+{
+	if (buffer == Reservations.back())
+	{
+		Reservations.pop_back();
+		TotalBufferSize -= buffer.GetSize();
+	}
+	else
+	{
+		auto position = std::find(Reservations.begin(), Reservations.end(), buffer);
+		Reservations.erase(position);
+		Vacancies.push_back(buffer);
+	}
 }
 
 void BufferManager::AllocateMemory()

@@ -16,3 +16,11 @@ Buffer::~Buffer()
 {
 }
 
+bool Buffer::operator==(const Buffer other) const
+{
+	return
+		Data == other.Data &&
+		DeviceBuffer == other.DeviceBuffer &&
+		Offset == other.Offset &&
+		Size == other.Size;
+}
