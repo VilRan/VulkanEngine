@@ -74,6 +74,10 @@ void BufferManager::UpdateBuffers(Buffer* buffers, size_t bufferCount)
 		StagingBuffer.Update(buffers[i]);
 	}
 	
+	StagingBuffer.CopyTo(LocalBuffer, buffers, bufferCount, CommandPool, GraphicsQueue);
+	//TODO: Find out if it's actually faster to copy the entire buffer at once or only the necessary regions.
+
+	/*
 	if (bufferCount == Reservations.size())
 	{
 		StagingBuffer.CopyTo(LocalBuffer, CommandPool, GraphicsQueue);
@@ -82,4 +86,5 @@ void BufferManager::UpdateBuffers(Buffer* buffers, size_t bufferCount)
 	{
 		StagingBuffer.CopyTo(LocalBuffer, buffers, bufferCount, CommandPool, GraphicsQueue);
 	}
+	*/
 }

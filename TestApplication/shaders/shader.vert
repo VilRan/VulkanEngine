@@ -1,12 +1,12 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 0) uniform Camera 
+layout(set = 0, binding = 0) uniform Camera 
 {
 	mat4 viewProjection;
 } camera;
 
-layout(binding = 1) uniform Instance
+layout(set = 1, binding = 0) uniform Instance
 {
 	mat4 model;
 } instance;

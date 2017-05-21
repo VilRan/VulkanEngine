@@ -17,6 +17,7 @@ public:
 	inline const Buffer GetBuffer() const { return Buffer; }
 
 private:
+	std::vector<DynamicBuffer> Vacancies;
 	BufferManager* BufferManager = nullptr;
 	Buffer Buffer;
 	size_t SizePerBuffer = 0;

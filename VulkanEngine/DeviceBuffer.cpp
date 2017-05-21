@@ -16,8 +16,8 @@ void DeviceBuffer::Create(VkPhysicalDevice physicalDevice, VkDevice device, VkDe
 	Free();
 	PhysicalDevice = physicalDevice;
 	Device = device;
-	VulkanHelper::CreateBuffer(PhysicalDevice, Device, size, usage, properties, &Buffer, &Memory);
 	Size = size;
+	VulkanHelper::CreateBuffer(PhysicalDevice, Device, size, usage, properties, &Buffer, &Memory);
 }
 
 void DeviceBuffer::Update(::Buffer buffer)

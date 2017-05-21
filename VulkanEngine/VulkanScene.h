@@ -17,7 +17,11 @@ class VulkanScene :
 	public Scene
 {
 public:
-	VulkanScene(VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet, DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass);
+	VulkanScene(
+		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
+		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, VkDescriptorSet imageDescriptorSet, 
+		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+	);
 	virtual ~VulkanScene();
 
 	virtual Actor* AddActor(Model* model, Texture* texture);
@@ -40,7 +44,9 @@ private:
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
 	VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
-	VkDescriptorSet DescriptorSet = VK_NULL_HANDLE;
+	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
+	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
+	VkDescriptorSet ImageDescriptorSet = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 	SceneStatus Status = Changed;
 

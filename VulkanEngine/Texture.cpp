@@ -1,14 +1,9 @@
 #include "Texture.h"
 
-Texture::Texture(stbi_uc* pixels, int width, int height, int channels)
+Texture::Texture()
 {
-	Pixels = pixels;
-	Width = width;
-	Height = height;
-	Channels = channels;
 }
 
 Texture::~Texture()
 {
-	stbi_image_free(Pixels);
 }

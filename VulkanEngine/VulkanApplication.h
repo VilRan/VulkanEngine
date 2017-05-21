@@ -72,7 +72,9 @@ private:
 	std::vector<VDeleter<VkFramebuffer>> SwapChainFramebuffers;
 
 	VDeleter<VkRenderPass> RenderPass{ Device, vkDestroyRenderPass };
-	VDeleter<VkDescriptorSetLayout> DescriptorSetLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ViewProjectionLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ModelLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ImageLayout{ Device, vkDestroyDescriptorSetLayout };
 	VDeleter<VkPipelineLayout> PipelineLayout{ Device, vkDestroyPipelineLayout };
 	VDeleter<VkPipeline> GraphicsPipeline{ Device, vkDestroyPipeline };
 
@@ -84,22 +86,15 @@ private:
 
 	VulkanTextureManager Textures;
 	VulkanTexture* Texture;
-	VDeleter<VkImage> TextureImage{ Device, vkDestroyImage };
-	VDeleter<VkDeviceMemory> TextureImageMemory{ Device, vkFreeMemory };
-	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
-
 	BufferManager BufferManager;
 	DynamicBufferPool DynamicBufferPool;
-	//VulkanModel* Model;
-	//Buffer UniformBuffer;
 	Buffer ViewProjectionUniformBuffer;
-	//Buffer ModelUniformBuffer;
-	//DynamicBuffer TestInstance;
-	//DynamicBuffer TestInstance2;
 
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
-	VkDescriptorSet DescriptorSet;
+	VkDescriptorSet ViewProjectionDescriptorSet;
+	VkDescriptorSet ModelDescriptorSet;
+	VkDescriptorSet ImageDescriptorSet;
 
 	VulkanScene* RootScene;
 
@@ -127,14 +122,7 @@ private:
 	void CreateDepthResources();
 	VkFormat FindDepthFormat();
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& canditates, VkImageTiling tiling, VkFormatFeatureFlags features);
-	bool HasStencilComponent(VkFormat format);
-	void CreateTextureImage();
-	void CreateTextureImageView();
 	void CreateTextureSampler();
-	void CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VDeleter<VkImageView>& imageView);
-	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VDeleter<VkImage>& image, VDeleter<VkDeviceMemory>& imageMemory);
-	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyImage(VkImage srcImage, VkImage dstImage, uint32_t width, uint32_t height);
 	void CreateUniformBuffer();
 	void CreateDescriptorPool();
 	void CreateDescriptorSet();

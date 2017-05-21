@@ -22,11 +22,13 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="BufferManager.h" />
+    <ClInclude Include="Camera3D.h" />
     <ClInclude Include="DebugReportCallback.h" />
     <ClInclude Include="DeviceBuffer.h" />
     <ClInclude Include="DynamicBuffer.h" />
     <ClInclude Include="DynamicBufferPool.h" />
     <ClInclude Include="IApplication.h" />
+    <ClInclude Include="ICamera.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Texture.h" />
@@ -45,11 +47,13 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="BufferManager.cpp" />
+    <ClCompile Include="Camera3D.cpp" />
     <ClCompile Include="DebugReportCallback.cpp" />
     <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="DynamicBuffer.cpp" />
     <ClCompile Include="DynamicBufferPool.cpp" />
     <ClCompile Include="IApplication.cpp" />
+    <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Texture.cpp" />

@@ -1,25 +1,22 @@
 #pragma once
 #include "Texture.h"
 #include <vulkan/vulkan.h>
-#include "VDeleter.h"
 
 class VulkanTexture :
 	public Texture
 {
 public:
-	VulkanTexture(stbi_uc* pixels, int width, int height, int channels);
+	VulkanTexture();
 	virtual ~VulkanTexture();
 
 	VkDeviceSize GetSize();
+	inline const VkImageView GetImageView() const { return ImageView; }
+	void Create(const char* path, VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
+	void Destroy(VkDevice device);
 
 private:
-	/*
-	VkDevice& Device;
-
-	VDeleter<VkImage> TextureImage{ Device, vkDestroyImage };
-	VDeleter<VkDeviceMemory> TextureImageMemory{ Device, vkFreeMemory };
-	VDeleter<VkImageView> TextureImageView{ Device, vkDestroyImageView };
-	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
-	*/
+	VkImage Image = VK_NULL_HANDLE;
+	VkDeviceMemory ImageMemory = VK_NULL_HANDLE;
+	VkImageView ImageView = VK_NULL_HANDLE;
 };
 

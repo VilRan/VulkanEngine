@@ -16,7 +16,8 @@ protected:
 
 private:
 	::Model* Model;
-	Actor* Actor;
+	::Actor* Actor;
+	::Actor* Actor2;
 	float TestCounter = 0.0f;
 };
 

@@ -11,10 +11,9 @@ class VulkanActor :
 	public Actor
 {
 public:
-	VulkanActor(VulkanModel* model, ::Texture* texture, VkDescriptorSet descriptorSet, DynamicBuffer dynamicBuffer, VulkanScene* scene);
+	VulkanActor(VulkanModel* model, ::Texture* texture, DynamicBuffer dynamicBuffer, VulkanScene* scene);
 	virtual ~VulkanActor();
 
-	inline const VkDescriptorSet GetDescriptorSet() const { return DescriptorSet; }
 	inline const DynamicBuffer GetDynamicBuffer() const { return DynamicBuffer; }
 	inline virtual void SetPosition(glm::vec3 position);
 	inline virtual void SetRotation(glm::quat rotation);
@@ -22,7 +21,6 @@ public:
 	inline virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
 private:
-	VkDescriptorSet DescriptorSet = VK_NULL_HANDLE;
 	DynamicBuffer DynamicBuffer;
 	VulkanScene* Scene;
 

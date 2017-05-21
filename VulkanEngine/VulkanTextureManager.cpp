@@ -8,20 +8,23 @@ VulkanTextureManager::~VulkanTextureManager()
 {
 	for (auto texture : Textures)
 	{
+		texture->Destroy(Device);
 		delete texture;
 	}
 }
 
+void VulkanTextureManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+{
+	PhysicalDevice = physicalDevice;
+	Device = device;
+	CommandPool = commandPool;
+	GraphicsQueue = graphicsQueue;
+}
+
 Texture* VulkanTextureManager::Load(const char* path)
 {
-	int width, height, channels;
-	stbi_uc* pixels = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-	if (!pixels)
-	{
-		throw std::runtime_error("failed to load texture image!");
-	}
-
-	auto texture = new ::VulkanTexture(pixels, width, height, channels);
+	auto texture = new ::VulkanTexture();
+	texture->Create(path, PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Textures.push_back(texture);
 	return texture;
 }

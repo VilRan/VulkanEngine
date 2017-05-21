@@ -4,10 +4,10 @@ Buffer::Buffer()
 {
 }
 
-Buffer::Buffer(void* data, VkBuffer* deviceBuffer, VkDeviceSize offset, VkDeviceSize size)
+Buffer::Buffer(void* data, VkBuffer* handle, VkDeviceSize offset, VkDeviceSize size)
 {
 	Data = data;
-	DeviceBuffer = deviceBuffer;
+	Handle = handle;
 	Offset = offset;
 	Size = size;
 }
@@ -20,7 +20,7 @@ bool Buffer::operator==(const Buffer other) const
 {
 	return
 		Data == other.Data &&
-		DeviceBuffer == other.DeviceBuffer &&
+		Handle == other.Handle &&
 		Offset == other.Offset &&
 		Size == other.Size;
 }

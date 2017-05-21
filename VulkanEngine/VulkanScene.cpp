@@ -1,13 +1,19 @@
 #include "VulkanScene.h"
 
-VulkanScene::VulkanScene(VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet, ::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass)
+VulkanScene::VulkanScene(
+	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
+	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, VkDescriptorSet imageDescriptorSet, 
+	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+)
 	: DynamicBufferPool(dynamicBufferPool)
 {
 	Device = device;
 	CommandPool = commandPool;
 	GraphicsPipeline = graphicsPipeline;
 	PipelineLayout = pipelineLayout;
-	DescriptorSet = descriptorSet;
+	ViewProjectionDescriptorSet = viewProjectionDescriptorSet;
+	ModelDescriptorSet = modelDescriptorSet;
+	ImageDescriptorSet = imageDescriptorSet;
 	RenderPass = renderPass;
 }
 
@@ -30,7 +36,7 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 {
 	auto vulkanModel = static_cast<VulkanModel*>(model);
 	auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
-	auto actor = new VulkanActor(vulkanModel, texture, DescriptorSet, dynamicBuffer, this);
+	auto actor = new VulkanActor(vulkanModel, texture, dynamicBuffer, this);
 
 	glm::vec3 position(0.0f, 0.0f, 0.0f);
 	glm::vec3 eulerAngles(0.0f, 0.0f, 0.0f);
@@ -71,17 +77,20 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildCommandBuffer()
 {
-	FreeCommandBuffer();
+	//FreeCommandBuffer();
 
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = 1;
-
-	if (vkAllocateCommandBuffers(Device, &allocInfo, &CommandBuffer) != VK_SUCCESS)
+	if (CommandBuffer == VK_NULL_HANDLE)
 	{
-		throw std::runtime_error("Failed to allocate scene command buffer!");
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = CommandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+		allocInfo.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(Device, &allocInfo, &CommandBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate scene command buffer!");
+		}
 	}
 
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
@@ -99,6 +108,19 @@ void VulkanScene::BuildCommandBuffer()
 
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 
+	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 0, nullptr);
+	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 2, 1, &ImageDescriptorSet, 0, nullptr);
+
+	for (auto actor : Actors)
+	{
+		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
+		model.Bind(CommandBuffer);
+
+		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
+		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
+	}
+
 	if (ChildScenes.size() > 0)
 	{
 		std::vector<VkCommandBuffer> childCommandBuffers(ChildScenes.size());
@@ -113,18 +135,6 @@ void VulkanScene::BuildCommandBuffer()
 		}
 
 		vkCmdExecuteCommands(CommandBuffer, childCommandBuffers.size(), childCommandBuffers.data());
-	}
-
-	for (auto actor : Actors)
-	{
-		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(CommandBuffer);
-
-		VkDescriptorSet descriptorSet = actor->GetDescriptorSet();
-		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-
-		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &descriptorSet, 1, &dynamicOffset);
-		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
 
 	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
@@ -142,13 +152,11 @@ void VulkanScene::BuildInlineCommandBuffer(VkCommandBuffer commandBuffer)
 	for (auto actor : Actors)
 	{
 		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(commandBuffer);
+		model.Bind(CommandBuffer);
 
-		VkDescriptorSet descriptorSet = actor->GetDescriptorSet();
 		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &descriptorSet, 1, &dynamicOffset);
-		vkCmdDrawIndexed(commandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
+		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
 }
 
