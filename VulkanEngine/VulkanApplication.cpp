@@ -860,7 +860,7 @@ void VulkanApplication::CreateDescriptorSets()
 	VkDescriptorBufferInfo modelUniformBufferInfo = {};
 	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
 	modelUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
-	modelUniformBufferInfo.range = DynamicBufferPool.GetBuffer().GetSize();
+	modelUniformBufferInfo.range = DynamicBufferPool.GetSizePerDynamicBuffer();
 	/*
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

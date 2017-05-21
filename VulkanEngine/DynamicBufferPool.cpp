@@ -4,21 +4,21 @@ DynamicBufferPool::DynamicBufferPool()
 {
 }
 
-DynamicBufferPool::DynamicBufferPool(::BufferManager* bufferManager, size_t sizePerBuffer, size_t numberOfBuffers)
+DynamicBufferPool::DynamicBufferPool(::BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers)
 {
-	Initialize(bufferManager, sizePerBuffer, numberOfBuffers);
+	Initialize(bufferManager, sizePerDynamicBuffer, numberOfDynamicBuffers);
 }
 
 DynamicBufferPool::~DynamicBufferPool()
 {
 }
 
-void DynamicBufferPool::Initialize(::BufferManager* bufferManager, size_t sizePerBuffer, size_t numberOfBuffers)
+void DynamicBufferPool::Initialize(::BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers)
 {
 	BufferManager = bufferManager;
-	SizePerBuffer = sizePerBuffer;
+	SizePerDynamicBuffer = sizePerDynamicBuffer;
 
-	size_t totalSize = sizePerBuffer * numberOfBuffers;
+	size_t totalSize = sizePerDynamicBuffer * numberOfDynamicBuffers;
 	Buffer = BufferManager->Reserve(nullptr, totalSize);
 }
 
@@ -31,7 +31,7 @@ DynamicBuffer DynamicBufferPool::Reserve(void* data)
 		return vacancy;
 	}
 
-	if (DynamicOffsetCounter >= Buffer.GetSize() - SizePerBuffer)
+	if (DynamicOffsetCounter >= Buffer.GetSize() - SizePerDynamicBuffer)
 	{
 		VkDeviceSize newSize = Buffer.GetSize() * 2;
 		BufferManager->Release(Buffer);
@@ -41,8 +41,8 @@ DynamicBuffer DynamicBufferPool::Reserve(void* data)
 		//TODO: If buffer offset changes, move the offset of existing dynamic buffers.
 	}
 
-	DynamicBuffer buffer(data, Buffer.GetHandlePointer(), Buffer.GetOffset() + DynamicOffsetCounter, SizePerBuffer, DynamicOffsetCounter);
-	DynamicOffsetCounter += SizePerBuffer;
+	DynamicBuffer buffer(data, Buffer.GetHandlePointer(), Buffer.GetOffset() + DynamicOffsetCounter, SizePerDynamicBuffer, DynamicOffsetCounter);
+	DynamicOffsetCounter += SizePerDynamicBuffer;
 	return buffer;
 }
 
