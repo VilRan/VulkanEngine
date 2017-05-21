@@ -86,7 +86,6 @@ private:
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
 
 	VulkanTextureManager Textures;
-	//VulkanTexture* Texture;
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 	BufferManager BufferManager;
 	DynamicBufferPool DynamicBufferPool;
@@ -95,7 +94,6 @@ private:
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
-	//VkDescriptorSet ImageDescriptorSet;
 
 	VulkanScene* RootScene;
 

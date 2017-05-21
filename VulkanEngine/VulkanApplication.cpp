@@ -66,6 +66,7 @@ void VulkanApplication::Run()
 		glfwPollEvents();
 		OnUpdate();
 		RootScene->Update();
+		CreateCommandBuffers();
 		UpdateUniformBuffer();
 		DrawFrame();
 	}
@@ -172,7 +173,7 @@ void VulkanApplication::InitVulkan()
 	CreateDescriptorSets();
 	RootScene = new VulkanScene(Device, CommandPool, GraphicsPipeline, PipelineLayout, ViewProjectionDescriptorSet, ModelDescriptorSet, DynamicBufferPool, RenderPass);
 	OnStart();
-	RootScene->BuildCommandBuffer();
+	RootScene->BuildSecondaryCommandBuffer();
 	CreateCommandBuffers();
 	CreateSemaphores();
 }
@@ -841,17 +842,7 @@ void VulkanApplication::CreateDescriptorSets()
 	{
 		throw std::runtime_error("Failed to allocate descriptor set!");
 	}
-	/*
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = DescriptorPool;
-	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &ImageLayout;
 
-	if (vkAllocateDescriptorSets(Device, &allocInfo, &ImageDescriptorSet) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate descriptor set!");
-	}
-	*/
 	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
 	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetHandle();
 	viewProjectionUniformBufferInfo.offset = ViewProjectionUniformBuffer.GetOffset();
@@ -861,13 +852,7 @@ void VulkanApplication::CreateDescriptorSets()
 	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
 	modelUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
 	modelUniformBufferInfo.range = DynamicBufferPool.GetSizePerDynamicBuffer();
-	/*
-	VkDescriptorImageInfo imageInfo = {};
-	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = Texture->GetImageView();
-	imageInfo.sampler = TextureSampler;
-	*/
-	//std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
+
 	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 
 	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -885,15 +870,7 @@ void VulkanApplication::CreateDescriptorSets()
 	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	descriptorWrites[1].descriptorCount = 1;
 	descriptorWrites[1].pBufferInfo = &modelUniformBufferInfo;
-	/*
-	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[2].dstSet = ImageDescriptorSet;
-	descriptorWrites[2].dstBinding = 0;
-	descriptorWrites[2].dstArrayElement = 0;
-	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descriptorWrites[2].descriptorCount = 1;
-	descriptorWrites[2].pImageInfo = &imageInfo;
-	*/
+
 	vkUpdateDescriptorSets(Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
 	Textures.UpdateDescriptorSets(DescriptorPool, ImageLayout, TextureSampler);
@@ -901,22 +878,25 @@ void VulkanApplication::CreateDescriptorSets()
 
 void VulkanApplication::CreateCommandBuffers() 
 {
-	if (CommandBuffers.size() > 0) 
+	if (CommandBuffers.size() != SwapChainFramebuffers.size())
 	{
-		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
-	}
+		if (CommandBuffers.size() > 0)
+		{
+			vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
+		}
 
-	CommandBuffers.resize(SwapChainFramebuffers.size());
+		CommandBuffers.resize(SwapChainFramebuffers.size());
 
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = CommandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();
 
-	if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("Failed to allocate command buffers!");
+		if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate command buffers!");
+		}
 	}
 
 	VkCommandBufferBeginInfo beginInfo = {};
@@ -940,14 +920,13 @@ void VulkanApplication::CreateCommandBuffers()
 		vkBeginCommandBuffer(CommandBuffers[i], &beginInfo);
 
 		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
-		//vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		//RootScene->BuildInlineCommandBuffer(CommandBuffers[i]);
 		
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
+		RootScene->BuildPrimaryCommandBuffer(CommandBuffers[i]);
+		/*
 		VkCommandBuffer* rootSceneCommandBuffer = RootScene->GetCommandBufferPointer();
 		vkCmdExecuteCommands(CommandBuffers[i], 1, rootSceneCommandBuffer);
-
+		*/
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
 		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) 

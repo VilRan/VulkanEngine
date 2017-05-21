@@ -52,10 +52,14 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 
 void VulkanScene::RemoveActor(Actor* actor)
 {
+	VulkanActor* vulkanActor = static_cast<VulkanActor*>(actor);
+	DynamicBufferPool.Release(vulkanActor->GetDynamicBuffer());
+
 	auto position = std::find(Actors.begin(), Actors.end(), actor);
 	Actors.erase(position);
-	Status = Changed;
 	delete actor;
+
+	Status = Changed;
 }
 
 void VulkanScene::QueueBufferUpdate(Buffer buffer)
@@ -73,10 +77,10 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 	GraphicsPipeline = graphicsPipeline;
 	PipelineLayout = pipelineLayout;
 	RenderPass = renderPass;
-	BuildCommandBuffer();
+	BuildSecondaryCommandBuffer();
 }
 
-void VulkanScene::BuildCommandBuffer()
+void VulkanScene::BuildSecondaryCommandBuffer()
 {
 	//FreeCommandBuffer();
 
@@ -104,7 +108,9 @@ void VulkanScene::BuildCommandBuffer()
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
-
+	
+	//TODO: Use a better synchronization method.
+	vkDeviceWaitIdle(Device);
 	vkBeginCommandBuffer(CommandBuffer, &beginInfo);
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 0, nullptr);
@@ -123,7 +129,7 @@ void VulkanScene::BuildCommandBuffer()
 
 		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
-
+	/*
 	if (ChildScenes.size() > 0)
 	{
 		std::vector<VkCommandBuffer> childCommandBuffers(ChildScenes.size());
@@ -139,7 +145,7 @@ void VulkanScene::BuildCommandBuffer()
 
 		vkCmdExecuteCommands(CommandBuffer, childCommandBuffers.size(), childCommandBuffers.data());
 	}
-
+	*/
 	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
@@ -148,18 +154,12 @@ void VulkanScene::BuildCommandBuffer()
 	Status = Ready;
 }
 
-void VulkanScene::BuildInlineCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 {
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-
-	for (auto actor : Actors)
+	vkCmdExecuteCommands(commandBuffer, 1, &CommandBuffer);
+	for (auto childScene : ChildScenes)
 	{
-		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(CommandBuffer);
-
-		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ModelDescriptorSet, 1, &dynamicOffset);
-		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
+		childScene->BuildPrimaryCommandBuffer(commandBuffer);
 	}
 }
 
@@ -172,7 +172,7 @@ void VulkanScene::Update()
 
 	if (Status == Changed)
 	{
-		BuildCommandBuffer();
+		BuildSecondaryCommandBuffer();
 	}
 
 	if (BufferUpdateQueue.size() > 0)

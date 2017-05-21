@@ -28,8 +28,8 @@ public:
 	virtual void RemoveActor(Actor* actor);
 	void QueueBufferUpdate(Buffer buffer);
 	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass);
-	void BuildCommandBuffer();
-	void BuildInlineCommandBuffer(VkCommandBuffer commandBuffer);
+	void BuildSecondaryCommandBuffer();
+	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
 	void Update();
 	inline VkCommandBuffer GetCommandBuffer() { return CommandBuffer; }
 	inline VkCommandBuffer* GetCommandBufferPointer() { return &CommandBuffer; }

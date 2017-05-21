@@ -15,14 +15,15 @@ protected:
 	virtual void OnUpdate();
 
 private:
-	::Model* Model;
-	::Model* Model2;
-	::Texture* Texture;
-	::Texture* Texture2;
-	::Texture* Texture3;
-	::Actor* Actor;
-	::Actor* Actor2;
-	::Actor* Actor3;
+	::Model* Model = nullptr;
+	::Model* Model2 = nullptr;
+	::Texture* Texture = nullptr;
+	::Texture* Texture2 = nullptr;
+	::Texture* Texture3 = nullptr;
+	::Actor* Actor = nullptr;
+	::Actor* Actor2 = nullptr;
+	::Actor* Actor3 = nullptr;
+	::Actor* Actor4 = nullptr;
 	float TestCounter = 0.0f;
 };
 

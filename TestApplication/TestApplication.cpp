@@ -35,11 +35,36 @@ void TestApplication::OnUpdate()
 	glm::quat rotation = glm::quat(eulerAngles);
 	Actor->SetRotation(rotation);
 
-	glm::vec3 postion(0.0f, TestCounter, 0.0f);
-	Actor2->SetPosition(postion);
+	if (TestCounter < 1.0f)
+	{
+		glm::vec3 position(0.0f, TestCounter, 0.0f);
+		Actor2->SetPosition(position);
+	}
+	else if (Actor2 != nullptr)
+	{
+		GetRootScene()->RemoveActor(Actor2);
+		Actor2 = nullptr;
+	}
 
 	float x = cos(TestCounter) * 2.0f;
+	float y = 0.0f;
 	float z = sin(TestCounter) * 2.0f;
-	postion = glm::vec3(x, 0.0f, z);
-	Actor3->SetPosition(postion);
+	glm::vec3 position(x, y, z);
+	Actor3->SetPosition(position);
+
+	if (Actor4 == nullptr)
+	{
+		if (TestCounter > 2.0f)
+		{
+			Actor4 = GetRootScene()->AddActor(Model2, Texture3);
+		}
+	}
+	else
+	{
+		x = sin(TestCounter) * 2.0f;
+		y = cos(TestCounter) * 2.0f;
+		z = 0.0f;
+		position = glm::vec3(x, y, z);
+		Actor4->SetPosition(position);
+	}
 }
