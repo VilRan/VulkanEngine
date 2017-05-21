@@ -14,7 +14,7 @@ public:
 	virtual ~Actor();
 
 	inline Model& GetModel() { return *Model; }
-	inline Texture& GetTexture();
+	inline Texture& GetTexture() { return *Texture; }
 	inline glm::vec3 GetPosition();
 	inline virtual void SetPosition(glm::vec3 position);
 	inline glm::quat GetRotation();

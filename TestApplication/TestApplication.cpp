@@ -11,13 +11,15 @@ TestApplication::~TestApplication()
 void TestApplication::OnLoadContent()
 {
 	Model = LoadModel("models/Cube.obj");
+	Texture = LoadTexture("textures/ColoredCube.png");
+	Texture2 = LoadTexture("textures/BlackAndWhiteCube.png");
 }
 
 void TestApplication::OnStart()
 {
 	Scene* scene = GetRootScene();
-	Actor = scene->AddActor(Model, nullptr);
-	Actor2 = scene->AddActor(Model, nullptr);
+	Actor = scene->AddActor(Model, Texture);
+	Actor2 = scene->AddActor(Model, Texture2);
 
 	glm::vec3 scale(0.5f, 0.5f, 0.5f);
 	Actor2->SetScale(scale);

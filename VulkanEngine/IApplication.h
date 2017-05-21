@@ -11,6 +11,7 @@ public:
 
 	virtual void Run() = 0;
 	virtual Model* LoadModel(const char* path) = 0;
+	virtual Texture* LoadTexture(const char* path) = 0;
 	virtual Scene* GetRootScene() = 0;
 
 protected:

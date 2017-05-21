@@ -16,6 +16,8 @@ protected:
 
 private:
 	::Model* Model;
+	::Texture* Texture;
+	::Texture* Texture2;
 	::Actor* Actor;
 	::Actor* Actor2;
 	float TestCounter = 0.0f;

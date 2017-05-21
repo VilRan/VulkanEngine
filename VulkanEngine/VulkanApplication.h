@@ -49,6 +49,7 @@ public:
 
 	virtual void Run();
 	virtual Model* LoadModel(const char* path);
+	virtual Texture* LoadTexture(const char* path);
 	inline virtual Scene* GetRootScene() { return RootScene; }
 
 private:
@@ -85,7 +86,7 @@ private:
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
 
 	VulkanTextureManager Textures;
-	VulkanTexture* Texture;
+	//VulkanTexture* Texture;
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 	BufferManager BufferManager;
 	DynamicBufferPool DynamicBufferPool;
@@ -94,7 +95,7 @@ private:
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
-	VkDescriptorSet ImageDescriptorSet;
+	//VkDescriptorSet ImageDescriptorSet;
 
 	VulkanScene* RootScene;
 
@@ -115,7 +116,7 @@ private:
 	void CreateSwapChain();
 	void CreateImageViews();
 	void CreateRenderPass();
-	void CreateDescriptorSetLayout();
+	void CreateDescriptorSetLayouts();
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
 	void CreateCommandPool();
@@ -125,7 +126,7 @@ private:
 	void CreateTextureSampler();
 	void CreateUniformBuffer();
 	void CreateDescriptorPool();
-	void CreateDescriptorSet();
+	void CreateDescriptorSets();
 	void CreateCommandBuffers();
 	void CreateSemaphores();
 	void UpdateUniformBuffer();

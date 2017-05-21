@@ -1,8 +1,10 @@
 #include "VulkanScene.h"
 
+#include "VulkanTexture.h"
+
 VulkanScene::VulkanScene(
 	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
-	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, VkDescriptorSet imageDescriptorSet, 
+	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
 	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
 )
 	: DynamicBufferPool(dynamicBufferPool)
@@ -13,7 +15,6 @@ VulkanScene::VulkanScene(
 	PipelineLayout = pipelineLayout;
 	ViewProjectionDescriptorSet = viewProjectionDescriptorSet;
 	ModelDescriptorSet = modelDescriptorSet;
-	ImageDescriptorSet = imageDescriptorSet;
 	RenderPass = renderPass;
 }
 
@@ -105,11 +106,8 @@ void VulkanScene::BuildCommandBuffer()
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	vkBeginCommandBuffer(CommandBuffer, &beginInfo);
-
 	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-
 	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 0, nullptr);
-	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 2, 1, &ImageDescriptorSet, 0, nullptr);
 
 	for (auto actor : Actors)
 	{
@@ -118,6 +116,11 @@ void VulkanScene::BuildCommandBuffer()
 
 		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
 		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+
+		VulkanTexture& texture = static_cast<VulkanTexture&>(actor->GetTexture());
+		VkDescriptorSet textureDescriptorSet = texture.GetDescriptorSet();
+		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 2, 1, &textureDescriptorSet, 0, nullptr);
+
 		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
 

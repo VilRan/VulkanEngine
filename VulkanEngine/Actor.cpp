@@ -12,11 +12,6 @@ Actor::~Actor()
 {
 }
 
-inline Texture& Actor::GetTexture()
-{
-	return *Texture;
-}
-
 inline glm::vec3 Actor::GetPosition()
 {
 	return Position;

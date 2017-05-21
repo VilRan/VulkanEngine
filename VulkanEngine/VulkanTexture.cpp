@@ -16,7 +16,7 @@ VkDeviceSize VulkanTexture::GetSize()
 	return GetWidth() * GetHeight() * 4;
 }
 
-void VulkanTexture::Create(const char * path, VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+void VulkanTexture::Create(const char* path, VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
 {
 	stbi_uc* pixels = stbi_load(path, &Width, &Height, &Channels, STBI_rgb_alpha);
 	if (!pixels)
@@ -77,6 +77,40 @@ void VulkanTexture::Create(const char * path, VkPhysicalDevice physicalDevice, V
 
 	vkFreeMemory(device, stagingImageMemory, nullptr);
 	vkDestroyImage(device, stagingImage, nullptr);
+}
+
+void VulkanTexture::UpdateDescriptorSet(VkDevice device, VkDescriptorPool descriptorPool, VkDescriptorSetLayout imageDescriptorSetLayout, VkSampler sampler)
+{
+	if (DescriptorSet == VK_NULL_HANDLE)
+	{
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &imageDescriptorSetLayout;
+
+		if (vkAllocateDescriptorSets(device, &allocInfo, &DescriptorSet) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate descriptor set!");
+		}
+	}
+
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = ImageView;
+	imageInfo.sampler = sampler;
+
+	VkWriteDescriptorSet descriptorWrite;
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = DescriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pImageInfo = &imageInfo;
+	descriptorWrite.pNext = NULL;
+
+	vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 }
 
 void VulkanTexture::Destroy(VkDevice device)
