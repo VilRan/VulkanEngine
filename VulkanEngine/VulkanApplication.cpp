@@ -60,6 +60,7 @@ void VulkanApplication::Run()
 {
 	InitWindow();
 	InitVulkan();
+	OnStart();
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -172,9 +173,9 @@ void VulkanApplication::InitVulkan()
 	CreateDescriptorPool();
 	CreateDescriptorSets();
 	RootScene = new VulkanScene(Device, CommandPool, GraphicsPipeline, PipelineLayout, ViewProjectionDescriptorSet, ModelDescriptorSet, DynamicBufferPool, RenderPass);
-	OnStart();
-	RootScene->BuildSecondaryCommandBuffer();
-	CreateCommandBuffers();
+	//RootScene->BuildSecondaryCommandBuffer();
+	//CreateCommandBuffers();
+	//OnStart();
 	CreateSemaphores();
 }
 
@@ -200,7 +201,7 @@ void VulkanApplication::RecreateSwapChain()
 	CreateDepthResources();
 	CreateFramebuffers();
 	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass);
-	CreateCommandBuffers();
+	//CreateCommandBuffers();
 }
 
 void VulkanApplication::CreateInstance() 

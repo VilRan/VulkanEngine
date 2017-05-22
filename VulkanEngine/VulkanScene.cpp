@@ -98,6 +98,7 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 		}
 	}
 
+	//TODO: Create secondary command buffers for all frame buffers for possible performance increase?
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	inheritanceInfo.renderPass = RenderPass;
