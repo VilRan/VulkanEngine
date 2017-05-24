@@ -118,13 +118,21 @@ void VulkanTexture::Destroy(VkDevice device)
 	if (ImageView != VK_NULL_HANDLE)
 	{
 		vkDestroyImageView(device, ImageView, nullptr);
+		ImageView = VK_NULL_HANDLE;
 	}
 	if (ImageMemory != VK_NULL_HANDLE)
 	{
 		vkFreeMemory(device, ImageMemory, nullptr);
+		ImageMemory = VK_NULL_HANDLE;
 	}
 	if (Image != VK_NULL_HANDLE)
 	{
 		vkDestroyImage(device, Image, nullptr);
+		Image = VK_NULL_HANDLE;
 	}
+}
+
+void VulkanTexture::Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
+{
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1, &DescriptorSet, 0, nullptr);
 }

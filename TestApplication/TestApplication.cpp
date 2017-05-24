@@ -2,6 +2,8 @@
 
 TestApplication::TestApplication()
 {
+	SetBorder(false);
+	Resize(1920, 1080);
 }
 
 TestApplication::~TestApplication()
@@ -19,10 +21,15 @@ void TestApplication::OnLoadContent()
 
 void TestApplication::OnStart()
 {
-	Scene* scene = GetRootScene();
-	Actor = scene->AddActor(Model, Texture);
-	Actor2 = scene->AddActor(Model, Texture2);
-	Actor3 = scene->AddActor(Model2, Texture3);
+	Scene* rootScene = GetRootScene();
+	Scene2 = rootScene->AddScene();
+	Scene2->SetVisible(false);
+
+	Camera = std::static_pointer_cast<Camera3D>(rootScene->GetCamera());
+
+	Actor = rootScene->AddActor(Model, Texture);
+	Actor2 = rootScene->AddActor(Model, Texture2);
+	Actor3 = Scene2->AddActor(Model2, Texture3);
 
 	glm::vec3 scale(0.5f, 0.5f, 0.5f);
 	Actor2->SetScale(scale);
@@ -31,7 +38,7 @@ void TestApplication::OnStart()
 void TestApplication::OnUpdate()
 {
 	TestCounter += 0.0001f;
-	glm::vec3 eulerAngles(0.0f, TestCounter, 0.0f);
+	glm::vec3 eulerAngles(0.0f, TestCounter, TestCounter / 2);
 	glm::quat rotation = glm::quat(eulerAngles);
 	Actor->SetRotation(rotation);
 
@@ -44,6 +51,7 @@ void TestApplication::OnUpdate()
 	{
 		GetRootScene()->RemoveActor(Actor2);
 		Actor2 = nullptr;
+		Scene2->SetVisible(true);
 	}
 
 	float x = cos(TestCounter) * 2.0f;
@@ -67,4 +75,6 @@ void TestApplication::OnUpdate()
 		position = glm::vec3(x, y, z);
 		Actor4->SetPosition(position);
 	}
+
+	Camera->SetPosition(glm::vec3(3.0f + TestCounter, 3.0f + TestCounter, 3.0f + TestCounter));
 }

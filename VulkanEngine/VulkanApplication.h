@@ -48,6 +48,8 @@ public:
 	~VulkanApplication();
 
 	virtual void Run();
+	virtual void Resize(uint32_t width, uint32_t height);
+	virtual void SetBorder(bool enabled);
 	virtual Model* LoadModel(const char* path);
 	virtual Texture* LoadTexture(const char* path);
 	inline virtual Scene* GetRootScene() { return RootScene; }
@@ -62,8 +64,8 @@ private:
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
 	VDeleter<VkDevice> Device{ vkDestroyDevice };
 
-	VkQueue GraphicsQueue;
-	VkQueue PresentQueue;
+	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkQueue PresentQueue = VK_NULL_HANDLE;
 
 	VDeleter<VkSwapchainKHR> SwapChain{ Device, vkDestroySwapchainKHR };
 	std::vector<VkImage> SwapChainImages;
@@ -73,9 +75,9 @@ private:
 	std::vector<VDeleter<VkFramebuffer>> SwapChainFramebuffers;
 
 	VDeleter<VkRenderPass> RenderPass{ Device, vkDestroyRenderPass };
-	VDeleter<VkDescriptorSetLayout> ViewProjectionLayout{ Device, vkDestroyDescriptorSetLayout };
-	VDeleter<VkDescriptorSetLayout> ModelLayout{ Device, vkDestroyDescriptorSetLayout };
-	VDeleter<VkDescriptorSetLayout> ImageLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ViewProjectionDescriptorSetLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ModelDescriptorSetLayout{ Device, vkDestroyDescriptorSetLayout };
+	VDeleter<VkDescriptorSetLayout> ImageDescriptorSetLayout{ Device, vkDestroyDescriptorSetLayout };
 	VDeleter<VkPipelineLayout> PipelineLayout{ Device, vkDestroyPipelineLayout };
 	VDeleter<VkPipeline> GraphicsPipeline{ Device, vkDestroyPipeline };
 
@@ -89,7 +91,7 @@ private:
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
 	BufferManager BufferManager;
 	DynamicBufferPool DynamicBufferPool;
-	Buffer ViewProjectionUniformBuffer;
+	//DynamicBuffer ViewProjectionUniformBuffer;
 
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet ViewProjectionDescriptorSet;
@@ -102,8 +104,13 @@ private:
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
 	
+	uint32_t Width = 800;
+	uint32_t Height = 600;
+	bool Border = true;
+
 	void InitWindow();
 	void InitVulkan();
+	void LoadContent();
 	static void OnWindowResized(GLFWwindow* window, int width, int height);
 	void RecreateSwapChain();
 	void CreateInstance();
@@ -122,12 +129,12 @@ private:
 	VkFormat FindDepthFormat();
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& canditates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	void CreateTextureSampler();
-	void CreateUniformBuffer();
+	//void CreateUniformBuffer();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 	void CreateCommandBuffers();
 	void CreateSemaphores();
-	void UpdateUniformBuffer();
+	//void UpdateUniformBuffer();
 	void DrawFrame();
 	void CreateShaderModule(const std::vector<char>& code, VDeleter<VkShaderModule>& shaderModule);
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

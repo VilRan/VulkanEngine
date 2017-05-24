@@ -17,9 +17,6 @@
 
 #include "VulkanHelper.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
-
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
 };
@@ -68,7 +65,6 @@ void VulkanApplication::Run()
 		OnUpdate();
 		RootScene->Update();
 		CreateCommandBuffers();
-		UpdateUniformBuffer();
 		DrawFrame();
 	}
 
@@ -77,19 +73,34 @@ void VulkanApplication::Run()
 	glfwTerminate();
 }
 
+void VulkanApplication::Resize(uint32_t width, uint32_t height)
+{
+	Width = width;
+	Height = height;
+	if (Window != nullptr)
+	{
+		glfwSetWindowSize(Window, Width, Height);
+	}
+}
+
+void VulkanApplication::SetBorder(bool enabled)
+{
+	Border = enabled;
+}
+
 Model* VulkanApplication::LoadModel(const char* path)
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
-	tinyobj::attrib_t attrib;
+	tinyobj::attrib_t attributes;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-	std::string err;
+	std::string error;
 
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path))
+	if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &error, path))
 	{
-		throw std::runtime_error(err);
+		throw std::runtime_error(error);
 	}
 
 	std::unordered_map<Vertex, int> uniqueVertices = {};
@@ -101,14 +112,14 @@ Model* VulkanApplication::LoadModel(const char* path)
 			Vertex vertex = {};
 
 			vertex.Position = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
+				attributes.vertices[3 * index.vertex_index + 0],
+				attributes.vertices[3 * index.vertex_index + 1],
+				attributes.vertices[3 * index.vertex_index + 2]
 			};
 
 			vertex.TextureCoordinates = {
-				attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				attributes.texcoords[2 * index.texcoord_index + 0],
+				1.0f - attributes.texcoords[2 * index.texcoord_index + 1]
 			};
 
 			vertex.Color = { 1.0f, 1.0f, 1.0f };
@@ -140,8 +151,9 @@ void VulkanApplication::InitWindow()
 	glfwInit();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_DECORATED, Border);
 
-	Window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
 
 	glfwSetWindowUserPointer(Window, this);
 	glfwSetWindowSizeCallback(Window, VulkanApplication::OnWindowResized);
@@ -162,21 +174,25 @@ void VulkanApplication::InitVulkan()
 	CreateCommandPool();
 	CreateDepthResources();
 	CreateFramebuffers();
-	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
-	//Texture = static_cast<VulkanTexture*>(Textures.Load("textures/ColoredCube.png"));
 	CreateTextureSampler();
+	CreateSemaphores();
+	LoadContent();
+	RootScene = new VulkanScene(
+		Device, CommandPool, GraphicsPipeline, PipelineLayout, 
+		ViewProjectionDescriptorSet, ModelDescriptorSet, 
+		DynamicBufferPool, RenderPass, SwapChainExtent.width / (float)SwapChainExtent.height
+	);
+}
+
+void VulkanApplication::LoadContent()
+{
+	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	BufferManager.Initialize(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
 	OnLoadContent();
-	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 100);
-	CreateUniformBuffer();
+	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 1024);
 	BufferManager.AllocateMemory();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
-	RootScene = new VulkanScene(Device, CommandPool, GraphicsPipeline, PipelineLayout, ViewProjectionDescriptorSet, ModelDescriptorSet, DynamicBufferPool, RenderPass);
-	//RootScene->BuildSecondaryCommandBuffer();
-	//CreateCommandBuffers();
-	//OnStart();
-	CreateSemaphores();
 }
 
 void VulkanApplication::OnWindowResized(GLFWwindow* window, int width, int height) 
@@ -200,8 +216,7 @@ void VulkanApplication::RecreateSwapChain()
 	CreateGraphicsPipeline();
 	CreateDepthResources();
 	CreateFramebuffers();
-	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass);
-	//CreateCommandBuffers();
+	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass, SwapChainExtent.width / (float)SwapChainExtent.height);
 }
 
 void VulkanApplication::CreateInstance() 
@@ -213,7 +228,7 @@ void VulkanApplication::CreateInstance()
 
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan Application";
+	appInfo.pApplicationName = GetTitle();
 	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.pEngineName = "No Engine";
 	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -493,7 +508,7 @@ void VulkanApplication::CreateDescriptorSetLayouts()
 	VkDescriptorSetLayoutBinding viewProjectionLayoutBinding = {};
 	viewProjectionLayoutBinding.binding = 0;
 	viewProjectionLayoutBinding.descriptorCount = 1;
-	viewProjectionLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	viewProjectionLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	viewProjectionLayoutBinding.pImmutableSamplers = nullptr;
 	viewProjectionLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
@@ -502,7 +517,7 @@ void VulkanApplication::CreateDescriptorSetLayouts()
 	layoutInfo.bindingCount = 1;
 	layoutInfo.pBindings = &viewProjectionLayoutBinding;
 
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ViewProjectionLayout.replace()) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ViewProjectionDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
@@ -518,7 +533,7 @@ void VulkanApplication::CreateDescriptorSetLayouts()
 	layoutInfo.bindingCount = 1;
 	layoutInfo.pBindings = &modelLayoutBinding;
 
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ModelLayout.replace()) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ModelDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
@@ -534,7 +549,7 @@ void VulkanApplication::CreateDescriptorSetLayouts()
 	layoutInfo.bindingCount = 1;
 	layoutInfo.pBindings = &imageLayoutBinding;
 
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ImageLayout.replace()) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ImageDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
@@ -653,7 +668,7 @@ void VulkanApplication::CreateGraphicsPipeline()
 	depthStencil.front = {}; // Optional
 	depthStencil.back = {}; // Optional
 
-	VkDescriptorSetLayout setLayouts[] = { ViewProjectionLayout, ModelLayout, ImageLayout };
+	VkDescriptorSetLayout setLayouts[] = { ViewProjectionDescriptorSetLayout, ModelDescriptorSetLayout, ImageDescriptorSetLayout };
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 3;
@@ -744,7 +759,7 @@ void VulkanApplication::CreateDepthResources()
 VkFormat VulkanApplication::FindDepthFormat() 
 {
 	return FindSupportedFormat(
-	{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 	);
@@ -767,7 +782,7 @@ VkFormat VulkanApplication::FindSupportedFormat(const std::vector<VkFormat>& can
 		}
 	}
 
-	throw std::runtime_error("failed to find supported format!");
+	throw std::runtime_error("Failed to find supported format!");
 }
 
 void VulkanApplication::CreateTextureSampler() 
@@ -789,23 +804,17 @@ void VulkanApplication::CreateTextureSampler()
 
 	if (vkCreateSampler(Device, &samplerInfo, nullptr, TextureSampler.replace()) != VK_SUCCESS)
 	{
-		throw std::runtime_error("failed to create texture sampler!");
+		throw std::runtime_error("Failed to create texture sampler!");
 	}
-}
-
-void VulkanApplication::CreateUniformBuffer()
-{
-	glm::mat4 viewProjectionMatrix;
-	ViewProjectionUniformBuffer = BufferManager.Reserve(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
 }
 
 void VulkanApplication::CreateDescriptorPool() 
 {
 	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = 1;
+	poolSizes[0].descriptorCount = 0;
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	poolSizes[1].descriptorCount = 1;
+	poolSizes[1].descriptorCount = 2;
 	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[2].descriptorCount = Textures.GetTextureCount();
 
@@ -817,7 +826,7 @@ void VulkanApplication::CreateDescriptorPool()
 
 	if (vkCreateDescriptorPool(Device, &poolInfo, nullptr, DescriptorPool.replace()) != VK_SUCCESS)
 	{
-		throw std::runtime_error("failed to create descriptor pool!");
+		throw std::runtime_error("Failed to create descriptor pool!");
 	}
 }
 
@@ -827,7 +836,7 @@ void VulkanApplication::CreateDescriptorSets()
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = DescriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &ViewProjectionLayout;
+	allocInfo.pSetLayouts = &ViewProjectionDescriptorSetLayout;
 
 	if (vkAllocateDescriptorSets(Device, &allocInfo, &ViewProjectionDescriptorSet) != VK_SUCCESS)
 	{
@@ -837,17 +846,23 @@ void VulkanApplication::CreateDescriptorSets()
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = DescriptorPool;
 	allocInfo.descriptorSetCount = 1;
-	allocInfo.pSetLayouts = &ModelLayout;
+	allocInfo.pSetLayouts = &ModelDescriptorSetLayout;
 
 	if (vkAllocateDescriptorSets(Device, &allocInfo, &ModelDescriptorSet) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate descriptor set!");
 	}
-
+	/*
 	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
 	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetHandle();
 	viewProjectionUniformBufferInfo.offset = ViewProjectionUniformBuffer.GetOffset();
 	viewProjectionUniformBufferInfo.range = ViewProjectionUniformBuffer.GetSize();
+	*/
+
+	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
+	viewProjectionUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
+	viewProjectionUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
+	viewProjectionUniformBufferInfo.range = DynamicBufferPool.GetSizePerDynamicBuffer();
 
 	VkDescriptorBufferInfo modelUniformBufferInfo = {};
 	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
@@ -860,7 +875,7 @@ void VulkanApplication::CreateDescriptorSets()
 	descriptorWrites[0].dstSet = ViewProjectionDescriptorSet;
 	descriptorWrites[0].dstBinding = 0;
 	descriptorWrites[0].dstArrayElement = 0;
-	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	descriptorWrites[0].descriptorCount = 1;
 	descriptorWrites[0].pBufferInfo = &viewProjectionUniformBufferInfo;
 
@@ -874,7 +889,7 @@ void VulkanApplication::CreateDescriptorSets()
 
 	vkUpdateDescriptorSets(Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
-	Textures.UpdateDescriptorSets(DescriptorPool, ImageLayout, TextureSampler);
+	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
 }
 
 void VulkanApplication::CreateCommandBuffers() 
@@ -921,13 +936,8 @@ void VulkanApplication::CreateCommandBuffers()
 		vkBeginCommandBuffer(CommandBuffers[i], &beginInfo);
 
 		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
-		
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 		RootScene->BuildPrimaryCommandBuffer(CommandBuffers[i]);
-		/*
-		VkCommandBuffer* rootSceneCommandBuffer = RootScene->GetCommandBufferPointer();
-		vkCmdExecuteCommands(CommandBuffers[i], 1, rootSceneCommandBuffer);
-		*/
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
 		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) 
@@ -947,32 +957,6 @@ void VulkanApplication::CreateSemaphores()
 	{
 		throw std::runtime_error("Failed to create semaphores!");
 	}
-}
-
-void VulkanApplication::UpdateUniformBuffer() 
-{
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
-	/*
-	//UniformBufferObject ubo = {};
-	glm::mat4 model = glm::rotate(glm::mat4(), time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	TestInstance.SetData(&model);
-
-	glm::mat4 model2 = glm::scale(glm::mat4(), glm::vec3(1.1f, 1.1f, 1.1f));
-	TestInstance2.SetData(&model2);
-	*/
-	glm::mat4 view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
-	projection[1][1] *= -1;
-	glm::mat4 viewProjection = projection * view;
-	ViewProjectionUniformBuffer.SetData(&viewProjection);
-
-	//std::array<Buffer, 3> buffers = { TestInstance, TestInstance2, ViewProjectionUniformBuffer };
-	std::array<Buffer, 1> buffers = { ViewProjectionUniformBuffer };
-
-	BufferManager.UpdateBuffers(buffers.data(), buffers.size());
 }
 
 void VulkanApplication::DrawFrame() 

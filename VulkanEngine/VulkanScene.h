@@ -20,26 +20,37 @@ public:
 	VulkanScene(
 		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
 		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,  
-		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
+	);
+	VulkanScene(
+		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
+		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
+		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
 	);
 	virtual ~VulkanScene();
 
 	virtual Actor* AddActor(Model* model, Texture* texture);
 	virtual void RemoveActor(Actor* actor);
+	virtual Scene* AddScene();
+	virtual void RemoveScene(Scene* scene);
+	inline virtual std::shared_ptr<ICamera> GetCamera() { return Camera; }
+	inline virtual void SetCamera(std::shared_ptr<ICamera> camera) { Camera = camera; }
 	void QueueBufferUpdate(Buffer buffer);
-	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass);
+	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio);
 	void BuildSecondaryCommandBuffer();
 	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
 	void Update();
-	inline VkCommandBuffer GetCommandBuffer() { return CommandBuffer; }
-	inline VkCommandBuffer* GetCommandBufferPointer() { return &CommandBuffer; }
 
 private:
 	std::vector<VulkanScene*> ChildScenes;
 	std::vector<VulkanActor*> Actors;
 	std::vector<Buffer> BufferUpdateQueue;
+	std::shared_ptr<ICamera> Camera;
+	glm::mat4 ViewProjection;
+	DynamicBuffer ViewProjectionBuffer;
+	SceneStatus Status = Changed;
 	DynamicBufferPool& DynamicBufferPool;
-	VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
+	VkCommandBuffer SecondaryCommandBuffer = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
@@ -47,8 +58,12 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
 	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	SceneStatus Status = Changed;
 
+	VulkanScene(
+		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
+		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
+		::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+	);
 	void FreeCommandBuffer();
 };
 

@@ -1,25 +1,48 @@
 #include "VulkanScene.h"
 
 #include "VulkanTexture.h"
+#include "Camera3D.h"
 
 VulkanScene::VulkanScene(
 	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
 	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
-	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
 )
-	: DynamicBufferPool(dynamicBufferPool)
+	: VulkanScene(
+		device, commandPool, graphicsPipeline, pipelineLayout, 
+		viewProjectionDescriptorSet, modelDescriptorSet, 
+		dynamicBufferPool, renderPass
+	)
 {
-	Device = device;
-	CommandPool = commandPool;
-	GraphicsPipeline = graphicsPipeline;
-	PipelineLayout = pipelineLayout;
-	ViewProjectionDescriptorSet = viewProjectionDescriptorSet;
-	ModelDescriptorSet = modelDescriptorSet;
-	RenderPass = renderPass;
+	Camera = std::make_shared<Camera3D>(
+		glm::vec3(3.0f, 3.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		60.0f, aspectRatio, 0.1f, 10.0f
+	);
+	ViewProjection = Camera->GetViewProjection();
+	ViewProjectionBuffer = DynamicBufferPool.Reserve(&ViewProjection);
+}
+
+VulkanScene::VulkanScene(
+	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
+	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
+	::DynamicBufferPool & dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
+)
+	: VulkanScene(
+		device, commandPool, graphicsPipeline, pipelineLayout,
+		viewProjectionDescriptorSet, modelDescriptorSet,
+		dynamicBufferPool, renderPass
+	)
+{
+	Camera = camera;
+	ViewProjection = Camera->GetViewProjection();
+	ViewProjectionBuffer = DynamicBufferPool.Reserve(&ViewProjection);
 }
 
 VulkanScene::~VulkanScene()
 {
+	DynamicBufferPool.Release(ViewProjectionBuffer);
 	FreeCommandBuffer();
 
 	for (auto childScene : ChildScenes)
@@ -29,6 +52,7 @@ VulkanScene::~VulkanScene()
 
 	for (auto actor : Actors)
 	{
+		DynamicBufferPool.Release(actor->GetDynamicBuffer());
 		delete actor;
 	}
 }
@@ -62,29 +86,49 @@ void VulkanScene::RemoveActor(Actor* actor)
 	Status = Changed;
 }
 
+Scene* VulkanScene::AddScene()
+{
+	auto scene = new VulkanScene(
+		Device, CommandPool, GraphicsPipeline, PipelineLayout, 
+		ViewProjectionDescriptorSet, ModelDescriptorSet, 
+		DynamicBufferPool, RenderPass, Camera
+	);
+	ChildScenes.push_back(scene);
+	return scene;
+}
+
+void VulkanScene::RemoveScene(Scene* scene)
+{
+	auto position = std::find(ChildScenes.begin(), ChildScenes.end(), scene);
+	ChildScenes.erase(position);
+	delete scene;
+}
+
 void VulkanScene::QueueBufferUpdate(Buffer buffer)
 {
 	BufferUpdateQueue.push_back(buffer);
 }
 
-void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass)
+void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio)
 {
 	for (auto childScene : ChildScenes)
 	{
-		childScene->Reset(graphicsPipeline, pipelineLayout, renderPass);
+		childScene->Reset(graphicsPipeline, pipelineLayout, renderPass, aspectRatio);
 	}
 
 	GraphicsPipeline = graphicsPipeline;
 	PipelineLayout = pipelineLayout;
 	RenderPass = renderPass;
-	BuildSecondaryCommandBuffer();
+	Camera->SetAspectRatio(aspectRatio);
+	Status = Changed;
+	//BuildSecondaryCommandBuffer();
 }
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
 	//FreeCommandBuffer();
 
-	if (CommandBuffer == VK_NULL_HANDLE)
+	if (SecondaryCommandBuffer == VK_NULL_HANDLE)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -92,7 +136,7 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 		allocInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(Device, &allocInfo, &CommandBuffer) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(Device, &allocInfo, &SecondaryCommandBuffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate scene command buffer!");
 		}
@@ -102,7 +146,7 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	inheritanceInfo.renderPass = RenderPass;
-	//inheritanceInfo.subpass = 0;
+	inheritanceInfo.subpass = 0;
 	inheritanceInfo.framebuffer = VK_NULL_HANDLE;
 
 	VkCommandBufferBeginInfo beginInfo = {};
@@ -112,42 +156,27 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	
 	//TODO: Use a better synchronization method.
 	vkDeviceWaitIdle(Device);
-	vkBeginCommandBuffer(CommandBuffer, &beginInfo);
-	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 0, nullptr);
+	vkBeginCommandBuffer(SecondaryCommandBuffer, &beginInfo);
+	vkCmdBindPipeline(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+
+	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
+	vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
 
 	for (auto actor : Actors)
 	{
 		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(CommandBuffer);
+		model.Bind(SecondaryCommandBuffer);
 
-		uint32_t dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+		dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
+		vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
 
 		VulkanTexture& texture = static_cast<VulkanTexture&>(actor->GetTexture());
-		VkDescriptorSet textureDescriptorSet = texture.GetDescriptorSet();
-		vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 2, 1, &textureDescriptorSet, 0, nullptr);
+		texture.Bind(SecondaryCommandBuffer, PipelineLayout);
 
-		vkCmdDrawIndexed(CommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
+		vkCmdDrawIndexed(SecondaryCommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
-	/*
-	if (ChildScenes.size() > 0)
-	{
-		std::vector<VkCommandBuffer> childCommandBuffers(ChildScenes.size());
-		for (auto childScene : ChildScenes)
-		{
-			if (childScene->CommandBuffer == VK_NULL_HANDLE)
-			{
-				childScene->BuildCommandBuffer();
-			}
 
-			childCommandBuffers.push_back(childScene->CommandBuffer);
-		}
-
-		vkCmdExecuteCommands(CommandBuffer, childCommandBuffers.size(), childCommandBuffers.data());
-	}
-	*/
-	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
+	if (vkEndCommandBuffer(SecondaryCommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
 	}
@@ -157,7 +186,13 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 
 void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 {
-	vkCmdExecuteCommands(commandBuffer, 1, &CommandBuffer);
+	if (IsVisible() == false)
+	{
+		return;
+	}
+
+	Camera->SetChanged(false);
+	vkCmdExecuteCommands(commandBuffer, 1, &SecondaryCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
 		childScene->BuildPrimaryCommandBuffer(commandBuffer);
@@ -176,6 +211,12 @@ void VulkanScene::Update()
 		BuildSecondaryCommandBuffer();
 	}
 
+	if (Camera->HasChanged())
+	{
+		ViewProjection = Camera->GetViewProjection();
+		DynamicBufferPool.UpdateBuffers(&ViewProjectionBuffer, 1);
+	}
+
 	if (BufferUpdateQueue.size() > 0)
 	{
 		DynamicBufferPool.UpdateBuffers(BufferUpdateQueue.data(), BufferUpdateQueue.size());
@@ -183,10 +224,27 @@ void VulkanScene::Update()
 	}
 }
 
+VulkanScene::VulkanScene(
+	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
+	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
+	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
+)
+	: DynamicBufferPool(dynamicBufferPool)
+{
+	Device = device;
+	CommandPool = commandPool;
+	GraphicsPipeline = graphicsPipeline;
+	PipelineLayout = pipelineLayout;
+	ViewProjectionDescriptorSet = viewProjectionDescriptorSet;
+	ModelDescriptorSet = modelDescriptorSet;
+	RenderPass = renderPass;
+}
+
 void VulkanScene::FreeCommandBuffer()
 {
-	if (CommandBuffer != VK_NULL_HANDLE)
+	if (SecondaryCommandBuffer != VK_NULL_HANDLE)
 	{
-		vkFreeCommandBuffers(Device, CommandPool, 1, &CommandBuffer);
+		vkFreeCommandBuffers(Device, CommandPool, 1, &SecondaryCommandBuffer);
+		SecondaryCommandBuffer = VK_NULL_HANDLE;
 	}
 }
