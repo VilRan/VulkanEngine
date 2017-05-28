@@ -29,7 +29,7 @@ ModelManager::~ModelManager()
 {
 }
 
-Model* ModelManager::LoadModel(const char* path)
+Model* ModelManager::Load(const char* path)
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
@@ -77,5 +77,5 @@ Model* ModelManager::LoadModel(const char* path)
 		}
 	}
 
-	return CreateModel(vertices, indices);
+	return Create(vertices, indices);
 }

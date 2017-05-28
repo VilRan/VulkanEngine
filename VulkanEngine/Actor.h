@@ -14,15 +14,17 @@ public:
 	virtual ~Actor();
 
 	inline Model& GetModel() { return *Model; }
+	virtual void SetModel(Model* model) { Model = model; }
 	inline Texture& GetTexture() { return *Texture; }
-	inline glm::vec3 GetPosition();
-	inline virtual void SetPosition(glm::vec3 position);
-	inline glm::quat GetRotation();
-	inline virtual void SetRotation(glm::quat rotation);
-	inline glm::vec3 GetScale();
-	inline virtual void SetScale(glm::vec3 scale);
+	virtual void SetTexture(Texture* texture) { Texture = texture; }
+	glm::vec3 GetPosition();
+	virtual void SetPosition(glm::vec3 position);
+	glm::quat GetRotation();
+	virtual void SetRotation(glm::quat rotation);
+	glm::vec3 GetScale();
+	virtual void SetScale(glm::vec3 scale);
 	glm::mat4 GetTransform();
-	inline virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
 protected:
 	Model* Model;

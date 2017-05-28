@@ -15,10 +15,10 @@ public:
 	virtual ~VulkanActor();
 
 	inline const DynamicBuffer GetDynamicBuffer() const { return DynamicBuffer; }
-	inline virtual void SetPosition(glm::vec3 position);
-	inline virtual void SetRotation(glm::quat rotation);
-	inline virtual void SetScale(glm::vec3 scale);
-	inline virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	virtual void SetPosition(glm::vec3 position);
+	virtual void SetRotation(glm::quat rotation);
+	virtual void SetScale(glm::vec3 scale);
+	virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
 private:
 	DynamicBuffer DynamicBuffer;

@@ -12,34 +12,34 @@ Actor::~Actor()
 {
 }
 
-inline glm::vec3 Actor::GetPosition()
+glm::vec3 Actor::GetPosition()
 {
 	return Position;
 }
 
-inline void Actor::SetPosition(glm::vec3 position)
+void Actor::SetPosition(glm::vec3 position)
 {
 	Position = position;
 	UpdateTransform();
 }
 
-inline glm::quat Actor::GetRotation()
+glm::quat Actor::GetRotation()
 {
 	return Rotation;
 }
 
-inline void Actor::SetRotation(glm::quat rotation)
+void Actor::SetRotation(glm::quat rotation)
 {
 	Rotation = rotation;
 	UpdateTransform();
 }
 
-inline glm::vec3 Actor::GetScale()
+glm::vec3 Actor::GetScale()
 {
 	return Scale;
 }
 
-inline void Actor::SetScale(glm::vec3 scale)
+void Actor::SetScale(glm::vec3 scale)
 {
 	Scale = scale;
 	UpdateTransform();
@@ -50,7 +50,7 @@ glm::mat4 Actor::GetTransform()
 	return Transform;
 }
 
-inline void Actor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+void Actor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	Position = position;
 	Rotation = rotation;

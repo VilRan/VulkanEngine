@@ -13,7 +13,7 @@ public:
 	virtual ~VulkanModelManager();
 
 	void Initialize(BufferManager* bufferManager);
-	Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+	Model* Create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 
 private:
 	std::vector<VulkanModel*> Models;

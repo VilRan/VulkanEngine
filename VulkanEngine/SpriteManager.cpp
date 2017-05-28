@@ -30,8 +30,8 @@ Sprite* SpriteManager::Create(Texture* texture)
 
 Sprite* SpriteManager::Create(Texture* texture, Rectangle area)
 {
-	float width = area.GetWidth() / 2;
-	float height = area.GetHeight() / 2;
+	float width = area.GetWidth() / 2.0f;
+	float height = area.GetHeight() / 2.0f;
 	float left = area.GetLeft() / (float)texture->GetWidth();
 	float right = area.GetRight() / (float)texture->GetWidth();
 	float top = area.GetTop() / (float)texture->GetHeight();
@@ -59,7 +59,7 @@ Sprite* SpriteManager::Create(Texture* texture, Rectangle area)
 	indices[4] = 2;
 	indices[5] = 3;
 
-	Model* model = ModelManager->CreateModel(vertices, indices);
+	Model* model = ModelManager->Create(vertices, indices);
 	auto sprite = new Sprite(model, texture);
 	Sprites.push_back(sprite);
 	return sprite;

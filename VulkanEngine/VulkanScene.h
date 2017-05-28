@@ -45,6 +45,7 @@ public:
 private:
 	std::vector<VulkanScene*> ChildScenes;
 	std::vector<VulkanActor*> Actors;
+	std::vector<VulkanActor*> VacantActors;
 	std::vector<Buffer> BufferUpdateQueue;
 	std::shared_ptr<ICamera> Camera;
 	glm::mat4 ViewProjection;

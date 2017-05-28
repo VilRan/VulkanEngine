@@ -55,6 +55,12 @@ VulkanScene::~VulkanScene()
 		DynamicBufferPool.Release(actor->GetDynamicBuffer());
 		delete actor;
 	}
+
+	for (auto vacantActor : VacantActors)
+	{
+		DynamicBufferPool.Release(vacantActor->GetDynamicBuffer());
+		delete vacantActor;
+	}
 }
 
 Actor* VulkanScene::AddActor(Sprite* sprite)
@@ -65,8 +71,20 @@ Actor* VulkanScene::AddActor(Sprite* sprite)
 Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 {
 	auto vulkanModel = static_cast<VulkanModel*>(model);
-	auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
-	auto actor = new VulkanActor(vulkanModel, texture, dynamicBuffer, this);
+	VulkanActor* actor;
+
+	if (VacantActors.size() > 0)
+	{
+		actor = VacantActors.back();
+		actor->SetModel(vulkanModel);
+		actor->SetTexture(texture);
+		VacantActors.pop_back();
+	}
+	else
+	{
+		auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
+		actor = new VulkanActor(vulkanModel, texture, dynamicBuffer, this);
+	}
 
 	glm::vec3 position(0.0f, 0.0f, 0.0f);
 	glm::vec3 eulerAngles(0.0f, 0.0f, 0.0f);
@@ -82,11 +100,12 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 void VulkanScene::RemoveActor(Actor* actor)
 {
 	VulkanActor* vulkanActor = static_cast<VulkanActor*>(actor);
-	DynamicBufferPool.Release(vulkanActor->GetDynamicBuffer());
-
 	auto position = std::find(Actors.begin(), Actors.end(), actor);
-	Actors.erase(position);
-	delete actor;
+	if (position != Actors.end())
+	{
+		Actors.erase(position);
+		VacantActors.push_back(vulkanActor);
+	}
 
 	Status = Changed;
 }

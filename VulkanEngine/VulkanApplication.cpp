@@ -75,12 +75,12 @@ float VulkanApplication::GetAspectRatio()
 
 Model* VulkanApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
-	return Models.CreateModel(vertices, indices);
+	return Models.Create(vertices, indices);
 }
 
 Model* VulkanApplication::LoadModel(const char* path)
 {
-	return Models.LoadModel(path);
+	return Models.Load(path);
 }
 
 Texture* VulkanApplication::LoadTexture(const char* path)
