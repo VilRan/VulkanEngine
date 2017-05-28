@@ -18,6 +18,7 @@ void TestApplication::OnLoadContent()
 	Texture2 = LoadTexture("textures/BlackAndWhiteCube.png");
 	Texture3 = LoadTexture("textures/BlackAndWhiteTriangle.png");
 	Sprite = CreateSprite(Texture);
+	Font = LoadFont("textures/MonospaceFont.png", "textures/MonospaceFont.png.meta");
 }
 
 void TestApplication::OnStart()
@@ -40,14 +41,17 @@ void TestApplication::OnStart()
 	glm::vec3 scale(0.5f, 0.5f, 0.5f);
 	Actor2->SetScale(scale);
 	
-	glm::vec3 position(0.0f, 0.0f, 0.0f);
+	glm::vec3 position(-Texture->GetWidth() * 2, 0.0f, 0.0f);
 	glm::vec3 angles(0.0f, 0.0f, 0.0f);
 	glm::quat rotation(angles);
 	scale = glm::vec3(1.0f, 1.00f, 1.00f);
 	Actor5->SetTransform(position, rotation, scale);
 
-	position += glm::vec3(Texture->GetWidth() * 2, 0.0f, 0.0f);
+	position = glm::vec3(Texture->GetWidth() * 2, 0.0f, 0.0f);
 	Actor6->SetTransform(position, rotation, scale);
+	
+	position = glm::vec3(0.0f, Texture->GetHeight(), 0.0f);
+	Scene3->AddLabel("This is a test!\nTesting!", Font, position);
 }
 
 void TestApplication::OnUpdate()
@@ -100,5 +104,5 @@ void TestApplication::OnUpdate()
 	}
 
 	Camera->SetPosition(glm::vec3(3.0f + TestCounter, 3.0f + TestCounter, 3.0f + TestCounter));
-	Camera2->SetRotation(TestCounter);
+	//Camera2->SetRotation(TestCounter);
 }

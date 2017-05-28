@@ -20,6 +20,7 @@
 #include "VulkanTextureManager.h"
 #include "VulkanModelManager.h"
 #include "SpriteManager.h"
+#include "FontManager.h"
 #include "BufferManager.h"
 #include "DynamicBufferPool.h"
 #include "VulkanModel.h"
@@ -58,6 +59,8 @@ public:
 	virtual Texture* LoadTexture(const char* path);
 	virtual Sprite* CreateSprite(Texture* texture);
 	virtual Sprite* CreateSprite(Texture* texture, Rectangle area);
+	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
+	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
 	inline virtual Scene* GetRootScene() { return RootScene; }
 
 private:
@@ -98,6 +101,7 @@ private:
 	VulkanModelManager Models;
 	VulkanTextureManager Textures;
 	SpriteManager Sprites;
+	FontManager Fonts;
 	DynamicBufferPool DynamicBufferPool;
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet ViewProjectionDescriptorSet;

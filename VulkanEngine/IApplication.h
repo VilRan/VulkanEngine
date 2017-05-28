@@ -4,6 +4,7 @@
 #include "Sprite.h"
 #include "Scene.h"
 #include "Rectangle.h"
+#include "SpriteFont.h"
 
 class IApplication
 {
@@ -20,6 +21,8 @@ public:
 	virtual Texture* LoadTexture(const char* path) = 0;
 	virtual Sprite* CreateSprite(Texture* texture) = 0;
 	virtual Sprite* CreateSprite(Texture* texture, Rectangle area) = 0;
+	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath) = 0;
+	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath) = 0;
 	virtual Scene* GetRootScene() = 0;
 	virtual char* GetTitle() = 0;
 

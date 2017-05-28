@@ -29,8 +29,9 @@ public:
 	);
 	virtual ~VulkanScene();
 
-	virtual Actor* AddActor(Sprite* sprite);
-	virtual Actor* AddActor(Model* model, Texture* texture);
+	virtual Actor* AddActor(Sprite* sprite, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
+	virtual Actor* AddActor(Model* model, Texture* texture, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
+	virtual Label* AddLabel(const char* text, SpriteFont* font, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
 	virtual void RemoveActor(Actor* actor);
 	virtual Scene* AddScene();
 	virtual void RemoveScene(Scene* scene);
@@ -46,6 +47,7 @@ private:
 	std::vector<VulkanScene*> ChildScenes;
 	std::vector<VulkanActor*> Actors;
 	std::vector<VulkanActor*> VacantActors;
+	std::vector<Label*> Labels;
 	std::vector<Buffer> BufferUpdateQueue;
 	std::shared_ptr<ICamera> Camera;
 	glm::mat4 ViewProjection;

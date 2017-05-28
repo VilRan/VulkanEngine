@@ -60,7 +60,7 @@ Sprite* SpriteManager::Create(Texture* texture, Rectangle area)
 	indices[5] = 3;
 
 	Model* model = ModelManager->Create(vertices, indices);
-	auto sprite = new Sprite(model, texture);
+	auto sprite = new Sprite(model, texture, area);
 	Sprites.push_back(sprite);
 	return sprite;
 }

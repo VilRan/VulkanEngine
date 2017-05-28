@@ -50,6 +50,11 @@ VulkanScene::~VulkanScene()
 		delete childScene;
 	}
 
+	for (auto label : Labels)
+	{
+		delete label;
+	}
+
 	for (auto actor : Actors)
 	{
 		DynamicBufferPool.Release(actor->GetDynamicBuffer());
@@ -63,12 +68,12 @@ VulkanScene::~VulkanScene()
 	}
 }
 
-Actor* VulkanScene::AddActor(Sprite* sprite)
+Actor* VulkanScene::AddActor(Sprite* sprite, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
 {
-	return AddActor(sprite->GetModel(), sprite->GetTexture());
+	return AddActor(sprite->GetModel(), sprite->GetTexture(), position, angles, scale);
 }
 
-Actor* VulkanScene::AddActor(Model* model, Texture* texture)
+Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
 {
 	auto vulkanModel = static_cast<VulkanModel*>(model);
 	VulkanActor* actor;
@@ -86,15 +91,19 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 		actor = new VulkanActor(vulkanModel, texture, dynamicBuffer, this);
 	}
 
-	glm::vec3 position(0.0f, 0.0f, 0.0f);
-	glm::vec3 eulerAngles(0.0f, 0.0f, 0.0f);
-	glm::quat rotation = glm::quat(eulerAngles);
-	glm::vec3 scale(1.0f, 1.0f, 1.0f);
+	glm::quat rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
 
 	Actors.push_back(actor);
 	Status = Changed;
 	return actor;
+}
+
+Label* VulkanScene::AddLabel(const char* text, SpriteFont* font, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
+{
+	auto label = new Label(text, *font, *this);
+	Labels.push_back(label);
+	return label;
 }
 
 void VulkanScene::RemoveActor(Actor* actor)

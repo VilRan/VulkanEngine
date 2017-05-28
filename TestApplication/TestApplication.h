@@ -26,6 +26,7 @@ private:
 	::Texture* Texture = nullptr;
 	::Texture* Texture2 = nullptr;
 	::Texture* Texture3 = nullptr;
+	::SpriteFont* Font = nullptr;
 	::Scene* Scene2 = nullptr;
 	::Scene* Scene3 = nullptr;
 	::Actor* Actor = nullptr;

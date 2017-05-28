@@ -98,6 +98,16 @@ Sprite* VulkanApplication::CreateSprite(Texture* texture, Rectangle area)
 	return Sprites.Create(texture, area);
 }
 
+SpriteFont* VulkanApplication::LoadFont(Texture* texture, const char* metaPath)
+{
+	return Fonts.Load(texture, metaPath);
+}
+
+SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* metaPath)
+{
+	return Fonts.Load(texturePath, metaPath);
+}
+
 void VulkanApplication::InitWindow() 
 {
 	glfwInit();
@@ -138,10 +148,11 @@ void VulkanApplication::InitVulkan()
 
 void VulkanApplication::LoadContent()
 {
-	BufferManager.Initialize(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	BufferManager.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Models.Initialize(&BufferManager);
 	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Sprites.Initialize(&Models);
+	Fonts.Initialize(&Textures, &Sprites);
 
 	OnLoadContent();
 
