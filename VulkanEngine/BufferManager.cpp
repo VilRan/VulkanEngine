@@ -41,12 +41,14 @@ Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 			Buffer vacancy = Vacancies[i];
 			if (vacancy.GetSize() >= size)
 			{
-				Vacancies.erase(Vacancies.begin() + i);
 				//TODO: Test this.
 				if (vacancy.GetSize() > size)
 				{
-					Buffer leftover(nullptr, LocalBuffer.GetHandlePointer(), vacancy.GetOffset() + size, vacancy.GetSize() - size);
-					Vacancies.push_back(leftover);
+					Vacancies[i] = Buffer(nullptr, LocalBuffer.GetHandlePointer(), vacancy.GetOffset() + size, vacancy.GetSize() - size);
+				}
+				else
+				{
+					Vacancies.erase(Vacancies.begin() + i);
 				}
 
 				Buffer reservation(data, LocalBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
