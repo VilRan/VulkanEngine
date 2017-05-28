@@ -1,7 +1,5 @@
 #include "TestApplication.h"
 
-#include "Camera2D.h"
-
 TestApplication::TestApplication()
 {
 	//SetBorder(false);
@@ -30,8 +28,8 @@ void TestApplication::OnStart()
 	Scene3 = rootScene->AddScene();
 
 	Camera = std::static_pointer_cast<Camera3D>(rootScene->GetCamera());
-	std::shared_ptr<Camera2D> camera2D = std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), 800.0f, 600.0f, glm::quarter_pi<float>());
-	Scene3->SetCamera(camera2D);
+	Camera2 = std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), 800.0f, 600.0f, 0.0f);
+	Scene3->SetCamera(Camera2);
 
 	Actor = rootScene->AddActor(Model, Texture);
 	Actor2 = rootScene->AddActor(Model, Texture2);
@@ -102,4 +100,5 @@ void TestApplication::OnUpdate()
 	}
 
 	Camera->SetPosition(glm::vec3(3.0f + TestCounter, 3.0f + TestCounter, 3.0f + TestCounter));
+	Camera2->SetRotation(TestCounter);
 }

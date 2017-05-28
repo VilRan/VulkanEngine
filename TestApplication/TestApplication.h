@@ -2,6 +2,7 @@
 
 #include "VulkanApplication.h"
 #include "Camera3D.h"
+#include "Camera2D.h"
 
 class TestApplication :
 	public VulkanApplication
@@ -19,6 +20,7 @@ protected:
 
 private:
 	std::shared_ptr<Camera3D> Camera;
+	std::shared_ptr<Camera2D> Camera2;
 	::Model* Model = nullptr;
 	::Model* Model2 = nullptr;
 	::Texture* Texture = nullptr;
