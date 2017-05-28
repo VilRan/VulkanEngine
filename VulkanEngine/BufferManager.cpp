@@ -28,25 +28,32 @@ void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device,
 
 Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 {
+	VkDeviceSize alignmentMismatch = size % OffsetAlignment;
+	if (alignmentMismatch > 0)
+	{
+		size += OffsetAlignment - alignmentMismatch;
+	}
+
 	if (Vacancies.size() > 0)
 	{
 		for (size_t i = 0; i < Vacancies.size(); i++)
 		{
 			Buffer vacancy = Vacancies[i];
-			if (vacancy.GetSize() == size)
+			if (vacancy.GetSize() >= size)
 			{
-				Buffer reservation(data, LocalBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
 				Vacancies.erase(Vacancies.begin() + i);
+				//TODO: Test this.
+				if (vacancy.GetSize() > size)
+				{
+					Buffer leftover(nullptr, LocalBuffer.GetHandlePointer(), vacancy.GetOffset() + size, vacancy.GetSize() - size);
+					Vacancies.push_back(leftover);
+				}
+
+				Buffer reservation(data, LocalBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
 				Reservations.push_back(reservation);
 				return reservation;
 			}
 		}
-	}
-
-	VkDeviceSize alignmentMismatch = size % OffsetAlignment;
-	if (alignmentMismatch > 0)
-	{
-		size += OffsetAlignment - alignmentMismatch;
 	}
 
 	Buffer reservation(data, LocalBuffer.GetHandlePointer(), TotalBufferSize, size);
