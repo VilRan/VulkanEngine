@@ -57,6 +57,11 @@ VulkanScene::~VulkanScene()
 	}
 }
 
+Actor* VulkanScene::AddActor(Sprite* sprite)
+{
+	return AddActor(sprite->GetModel(), sprite->GetTexture());
+}
+
 Actor* VulkanScene::AddActor(Model* model, Texture* texture)
 {
 	auto vulkanModel = static_cast<VulkanModel*>(model);
@@ -102,6 +107,23 @@ void VulkanScene::RemoveScene(Scene* scene)
 	auto position = std::find(ChildScenes.begin(), ChildScenes.end(), scene);
 	ChildScenes.erase(position);
 	delete scene;
+}
+
+std::shared_ptr<ICamera> VulkanScene::GetCamera()
+{
+	return Camera;
+}
+
+void VulkanScene::SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes)
+{
+	Camera = camera;
+	if (passToChildScenes)
+	{
+		for (auto childScene : ChildScenes)
+		{
+			childScene->SetCamera(camera);
+		}
+	}
 }
 
 void VulkanScene::QueueBufferUpdate(Buffer buffer)

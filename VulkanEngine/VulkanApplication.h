@@ -18,6 +18,8 @@
 #include "Vertex.h"
 #include "Buffer.h"
 #include "VulkanTextureManager.h"
+#include "VulkanModelManager.h"
+#include "SpriteManager.h"
 #include "BufferManager.h"
 #include "DynamicBufferPool.h"
 #include "VulkanModel.h"
@@ -50,8 +52,12 @@ public:
 	virtual void Run();
 	virtual void Resize(uint32_t width, uint32_t height);
 	virtual void SetBorder(bool enabled);
+	virtual float GetAspectRatio();
+	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 	virtual Model* LoadModel(const char* path);
 	virtual Texture* LoadTexture(const char* path);
+	virtual Sprite* CreateSprite(Texture* texture);
+	virtual Sprite* CreateSprite(Texture* texture, Rectangle area);
 	inline virtual Scene* GetRootScene() { return RootScene; }
 
 private:
@@ -86,24 +92,23 @@ private:
 	VDeleter<VkImage> DepthImage{ Device, vkDestroyImage };
 	VDeleter<VkDeviceMemory> DepthImageMemory{ Device, vkFreeMemory };
 	VDeleter<VkImageView> DepthImageView{ Device, vkDestroyImageView };
-
-	VulkanTextureManager Textures;
 	VDeleter<VkSampler> TextureSampler{ Device, vkDestroySampler };
-	BufferManager BufferManager;
-	DynamicBufferPool DynamicBufferPool;
-	//DynamicBuffer ViewProjectionUniformBuffer;
 
+	BufferManager BufferManager;
+	VulkanModelManager Models;
+	VulkanTextureManager Textures;
+	SpriteManager Sprites;
+	DynamicBufferPool DynamicBufferPool;
 	VDeleter<VkDescriptorPool> DescriptorPool{ Device, vkDestroyDescriptorPool };
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
-
-	VulkanScene* RootScene;
 
 	std::vector<VkCommandBuffer> CommandBuffers;
 
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
-	
+
+	VulkanScene* RootScene;
 	uint32_t Width = 800;
 	uint32_t Height = 600;
 	bool Border = true;
@@ -129,12 +134,10 @@ private:
 	VkFormat FindDepthFormat();
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& canditates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	void CreateTextureSampler();
-	//void CreateUniformBuffer();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 	void CreateCommandBuffers();
 	void CreateSemaphores();
-	//void UpdateUniformBuffer();
 	void DrawFrame();
 	void CreateShaderModule(const std::vector<char>& code, VDeleter<VkShaderModule>& shaderModule);
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

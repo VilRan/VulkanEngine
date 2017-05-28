@@ -22,6 +22,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="BufferManager.h" />
+    <ClInclude Include="Camera2D.h" />
     <ClInclude Include="Camera3D.h" />
     <ClInclude Include="DebugReportCallback.h" />
     <ClInclude Include="DeviceBuffer.h" />
@@ -30,7 +31,11 @@
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="SpriteManager.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VDeleter.h" />
@@ -39,6 +44,7 @@
     <ClInclude Include="VulkanApplication.h" />
     <ClInclude Include="VulkanHelper.h" />
     <ClInclude Include="VulkanModel.h" />
+    <ClInclude Include="VulkanModelManager.h" />
     <ClInclude Include="VulkanScene.h" />
     <ClInclude Include="VulkanTexture.h" />
     <ClInclude Include="VulkanTextureManager.h" />
@@ -47,6 +53,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="BufferManager.cpp" />
+    <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
     <ClCompile Include="DebugReportCallback.cpp" />
     <ClCompile Include="DeviceBuffer.cpp" />
@@ -55,13 +62,18 @@
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="SpriteManager.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="VulkanActor.cpp" />
     <ClCompile Include="VulkanApplication.cpp" />
     <ClCompile Include="VulkanHelper.cpp" />
     <ClCompile Include="VulkanModel.cpp" />
+    <ClCompile Include="VulkanModelManager.cpp" />
     <ClCompile Include="VulkanScene.cpp" />
     <ClCompile Include="VulkanTexture.cpp" />
     <ClCompile Include="VulkanTextureManager.cpp" />

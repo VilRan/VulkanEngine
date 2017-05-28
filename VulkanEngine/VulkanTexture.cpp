@@ -1,14 +1,20 @@
 #include "VulkanTexture.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <stdexcept>
 #include "VulkanHelper.h"
 
-VulkanTexture::VulkanTexture()
+VulkanTexture::VulkanTexture(const char* path, VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
 {
+	Device = device;
+	Create(path, physicalDevice, device, commandPool, graphicsQueue);
 }
 
 VulkanTexture::~VulkanTexture()
 {
+	Destroy();
 }
 
 VkDeviceSize VulkanTexture::GetSize()
@@ -18,6 +24,8 @@ VkDeviceSize VulkanTexture::GetSize()
 
 void VulkanTexture::Create(const char* path, VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
 {
+	Destroy();
+
 	stbi_uc* pixels = stbi_load(path, &Width, &Height, &Channels, STBI_rgb_alpha);
 	if (!pixels)
 	{
@@ -113,26 +121,26 @@ void VulkanTexture::UpdateDescriptorSet(VkDevice device, VkDescriptorPool descri
 	vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 }
 
-void VulkanTexture::Destroy(VkDevice device)
+void VulkanTexture::Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
+{
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1, &DescriptorSet, 0, nullptr);
+}
+
+void VulkanTexture::Destroy()
 {
 	if (ImageView != VK_NULL_HANDLE)
 	{
-		vkDestroyImageView(device, ImageView, nullptr);
+		vkDestroyImageView(Device, ImageView, nullptr);
 		ImageView = VK_NULL_HANDLE;
 	}
 	if (ImageMemory != VK_NULL_HANDLE)
 	{
-		vkFreeMemory(device, ImageMemory, nullptr);
+		vkFreeMemory(Device, ImageMemory, nullptr);
 		ImageMemory = VK_NULL_HANDLE;
 	}
 	if (Image != VK_NULL_HANDLE)
 	{
-		vkDestroyImage(device, Image, nullptr);
+		vkDestroyImage(Device, Image, nullptr);
 		Image = VK_NULL_HANDLE;
 	}
-}
-
-void VulkanTexture::Bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout)
-{
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 2, 1, &DescriptorSet, 0, nullptr);
 }

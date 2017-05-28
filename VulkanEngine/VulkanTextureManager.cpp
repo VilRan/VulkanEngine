@@ -8,7 +8,6 @@ VulkanTextureManager::~VulkanTextureManager()
 {
 	for (auto texture : Textures)
 	{
-		texture->Destroy(Device);
 		delete texture;
 	}
 }
@@ -31,8 +30,7 @@ void VulkanTextureManager::UpdateDescriptorSets(VkDescriptorPool descriptorPool,
 
 Texture* VulkanTextureManager::Load(const char* path)
 {
-	auto texture = new ::VulkanTexture();
-	texture->Create(path, PhysicalDevice, Device, CommandPool, GraphicsQueue);
+	auto texture = new ::VulkanTexture(path, PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Textures.push_back(texture);
 	return texture;
 }

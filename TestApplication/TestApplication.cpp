@@ -1,9 +1,11 @@
 #include "TestApplication.h"
 
+#include "Camera2D.h"
+
 TestApplication::TestApplication()
 {
-	SetBorder(false);
-	Resize(1920, 1080);
+	//SetBorder(false);
+	//Resize(1920, 1080);
 }
 
 TestApplication::~TestApplication()
@@ -17,6 +19,7 @@ void TestApplication::OnLoadContent()
 	Texture = LoadTexture("textures/ColoredCube.png");
 	Texture2 = LoadTexture("textures/BlackAndWhiteCube.png");
 	Texture3 = LoadTexture("textures/BlackAndWhiteTriangle.png");
+	Sprite = CreateSprite(Texture);
 }
 
 void TestApplication::OnStart()
@@ -24,20 +27,34 @@ void TestApplication::OnStart()
 	Scene* rootScene = GetRootScene();
 	Scene2 = rootScene->AddScene();
 	Scene2->SetVisible(false);
+	Scene3 = rootScene->AddScene();
 
 	Camera = std::static_pointer_cast<Camera3D>(rootScene->GetCamera());
+	std::shared_ptr<Camera2D> camera2D = std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), 800.0f, 600.0f, glm::quarter_pi<float>());
+	Scene3->SetCamera(camera2D);
 
 	Actor = rootScene->AddActor(Model, Texture);
 	Actor2 = rootScene->AddActor(Model, Texture2);
 	Actor3 = Scene2->AddActor(Model2, Texture3);
+	Actor5 = Scene3->AddActor(Sprite);
+	Actor6 = Scene3->AddActor(Sprite);
 
 	glm::vec3 scale(0.5f, 0.5f, 0.5f);
 	Actor2->SetScale(scale);
+	
+	glm::vec3 position(0.0f, 0.0f, 0.0f);
+	glm::vec3 angles(0.0f, 0.0f, 0.0f);
+	glm::quat rotation(angles);
+	scale = glm::vec3(1.0f, 1.00f, 1.00f);
+	Actor5->SetTransform(position, rotation, scale);
+
+	position += glm::vec3(Texture->GetWidth() * 2, 0.0f, 0.0f);
+	Actor6->SetTransform(position, rotation, scale);
 }
 
 void TestApplication::OnUpdate()
 {
-	TestCounter += 0.0001f;
+	TestCounter += 0.001f;
 	glm::vec3 eulerAngles(0.0f, TestCounter, TestCounter / 2);
 	glm::quat rotation = glm::quat(eulerAngles);
 	Actor->SetRotation(rotation);
@@ -65,6 +82,14 @@ void TestApplication::OnUpdate()
 		if (TestCounter > 2.0f)
 		{
 			Actor4 = GetRootScene()->AddActor(Model2, Texture3);
+			Camera = std::make_shared<Camera3D>(
+				glm::vec3(3.0f, 3.0f, 3.0f),
+				glm::vec3(3.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 1.0f, 0.0f),
+				60.0f, GetAspectRatio(), 0.1f, 100.0f
+			);
+			GetRootScene()->SetCamera(Camera, false);
+			Scene2->SetCamera(Camera);
 		}
 	}
 	else

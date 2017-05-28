@@ -1,11 +1,5 @@
 #include "VulkanApplication.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 #include <iostream>
 #include <stdexcept>
 #include <chrono>
@@ -13,7 +7,6 @@
 #include <algorithm>
 #include <cstring>
 #include <set>
-#include <unordered_map>
 
 #include "VulkanHelper.h"
 
@@ -30,19 +23,6 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
-
-namespace std 
-{
-	template<> struct hash<Vertex> 
-	{
-		size_t operator()(Vertex const& vertex) const 
-		{
-			return ((hash<glm::vec3>()(vertex.Position) ^
-				(hash<glm::vec3>()(vertex.Color) << 1)) >> 1) ^
-				(hash<glm::vec2>()(vertex.TextureCoordinates) << 1);
-		}
-	};
-}
 
 VulkanApplication::VulkanApplication()
 {
@@ -88,62 +68,34 @@ void VulkanApplication::SetBorder(bool enabled)
 	Border = enabled;
 }
 
+float VulkanApplication::GetAspectRatio()
+{
+	return Width / (float)Height;
+}
+
+Model* VulkanApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+{
+	return Models.CreateModel(vertices, indices);
+}
+
 Model* VulkanApplication::LoadModel(const char* path)
 {
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
-
-	tinyobj::attrib_t attributes;
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::string error;
-
-	if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &error, path))
-	{
-		throw std::runtime_error(error);
-	}
-
-	std::unordered_map<Vertex, int> uniqueVertices = {};
-
-	for (const auto& shape : shapes)
-	{
-		for (const auto& index : shape.mesh.indices)
-		{
-			Vertex vertex = {};
-
-			vertex.Position = {
-				attributes.vertices[3 * index.vertex_index + 0],
-				attributes.vertices[3 * index.vertex_index + 1],
-				attributes.vertices[3 * index.vertex_index + 2]
-			};
-
-			vertex.TextureCoordinates = {
-				attributes.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attributes.texcoords[2 * index.texcoord_index + 1]
-			};
-
-			vertex.Color = { 1.0f, 1.0f, 1.0f };
-
-			vertices.push_back(vertex);
-
-			if (uniqueVertices.count(vertex) == 0)
-			{
-				uniqueVertices[vertex] = vertices.size();
-				vertices.push_back(vertex);
-			}
-
-			indices.push_back(uniqueVertices[vertex]);
-		}
-	}
-
-	auto model = new VulkanModel(vertices, indices);
-	model->ReserveBuffers(BufferManager);
-	return model;
+	return Models.LoadModel(path);
 }
 
 Texture* VulkanApplication::LoadTexture(const char* path)
 {
 	return Textures.Load(path);
+}
+
+Sprite* VulkanApplication::CreateSprite(Texture* texture)
+{
+	return Sprites.Create(texture);
+}
+
+Sprite* VulkanApplication::CreateSprite(Texture* texture, Rectangle area)
+{
+	return Sprites.Create(texture, area);
 }
 
 void VulkanApplication::InitWindow() 
@@ -180,15 +132,19 @@ void VulkanApplication::InitVulkan()
 	RootScene = new VulkanScene(
 		Device, CommandPool, GraphicsPipeline, PipelineLayout, 
 		ViewProjectionDescriptorSet, ModelDescriptorSet, 
-		DynamicBufferPool, RenderPass, SwapChainExtent.width / (float)SwapChainExtent.height
+		DynamicBufferPool, RenderPass, GetAspectRatio()
 	);
 }
 
 void VulkanApplication::LoadContent()
 {
-	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	BufferManager.Initialize(PhysicalDevice, Device.GetHandle(), CommandPool, GraphicsQueue);
+	Models.Initialize(&BufferManager);
+	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
+	Sprites.Initialize(&Models);
+
 	OnLoadContent();
+
 	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 1024);
 	BufferManager.AllocateMemory();
 	CreateDescriptorPool();
@@ -201,7 +157,7 @@ void VulkanApplication::OnWindowResized(GLFWwindow* window, int width, int heigh
 	{
 		return;
 	}
-
+	
 	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
 	application->RecreateSwapChain();
 }
@@ -216,7 +172,7 @@ void VulkanApplication::RecreateSwapChain()
 	CreateGraphicsPipeline();
 	CreateDepthResources();
 	CreateFramebuffers();
-	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass, SwapChainExtent.width / (float)SwapChainExtent.height);
+	RootScene->Reset(GraphicsPipeline, PipelineLayout, RenderPass, GetAspectRatio());
 }
 
 void VulkanApplication::CreateInstance() 

@@ -1,5 +1,6 @@
 #pragma once
 #include "Buffer.h"
+
 class DynamicBuffer :
 	public Buffer
 {
@@ -13,4 +14,3 @@ public:
 private:
 	uint32_t DynamicOffset = 0;
 };
-

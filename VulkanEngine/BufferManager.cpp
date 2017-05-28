@@ -20,6 +20,10 @@ void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device,
 	Device = device;
 	CommandPool = commandPool;
 	GraphicsQueue = graphicsQueue;
+
+	VkPhysicalDeviceProperties deviceProperties;
+	vkGetPhysicalDeviceProperties(PhysicalDevice, &deviceProperties);
+	OffsetAlignment = deviceProperties.limits.minUniformBufferOffsetAlignment;
 }
 
 Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
@@ -37,6 +41,12 @@ Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 				return reservation;
 			}
 		}
+	}
+
+	VkDeviceSize alignmentMismatch = size % OffsetAlignment;
+	if (alignmentMismatch > 0)
+	{
+		size += OffsetAlignment - alignmentMismatch;
 	}
 
 	Buffer reservation(data, LocalBuffer.GetHandlePointer(), TotalBufferSize, size);

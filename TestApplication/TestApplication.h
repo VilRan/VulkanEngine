@@ -25,10 +25,14 @@ private:
 	::Texture* Texture2 = nullptr;
 	::Texture* Texture3 = nullptr;
 	::Scene* Scene2 = nullptr;
+	::Scene* Scene3 = nullptr;
 	::Actor* Actor = nullptr;
 	::Actor* Actor2 = nullptr;
 	::Actor* Actor3 = nullptr;
 	::Actor* Actor4 = nullptr;
+	::Actor* Actor5 = nullptr;
+	::Actor* Actor6 = nullptr;
+	::Sprite* Sprite = nullptr;
 	float TestCounter = 0.0f;
 };
 

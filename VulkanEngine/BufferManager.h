@@ -27,6 +27,7 @@ private:
 	std::vector<Buffer> Reservations;
 	std::vector<Buffer> Vacancies;
 	VkDeviceSize TotalBufferSize = 0;
+	VkDeviceSize OffsetAlignment = 0;
 
 	DeviceBuffer StagingBuffer;
 	DeviceBuffer LocalBuffer;

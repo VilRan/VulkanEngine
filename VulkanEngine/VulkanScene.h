@@ -29,12 +29,13 @@ public:
 	);
 	virtual ~VulkanScene();
 
+	virtual Actor* AddActor(Sprite* sprite);
 	virtual Actor* AddActor(Model* model, Texture* texture);
 	virtual void RemoveActor(Actor* actor);
 	virtual Scene* AddScene();
 	virtual void RemoveScene(Scene* scene);
-	inline virtual std::shared_ptr<ICamera> GetCamera() { return Camera; }
-	inline virtual void SetCamera(std::shared_ptr<ICamera> camera) { Camera = camera; }
+	virtual std::shared_ptr<ICamera> GetCamera();
+	virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true);
 	void QueueBufferUpdate(Buffer buffer);
 	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio);
 	void BuildSecondaryCommandBuffer();
