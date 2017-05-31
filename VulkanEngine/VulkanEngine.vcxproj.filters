@@ -19,6 +19,18 @@
     <Filter Include="Header Files\Vulkan">
       <UniqueIdentifier>{1afa3355-c596-4b64-b005-c97b3bb48c4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Events">
+      <UniqueIdentifier>{5ca281c1-c2f4-4a07-a891-de3b222b130a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Events">
+      <UniqueIdentifier>{64436c2a-2fde-4897-b4e9-526d848f53eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Cameras">
+      <UniqueIdentifier>{3aba5b9d-f8d2-486c-b9d1-88a08e9de261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Cameras">
+      <UniqueIdentifier>{fec48cef-78ac-4a2c-8e4c-ec04ff375610}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IApplication.h">
@@ -84,12 +96,6 @@
     <ClInclude Include="VulkanActor.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="ICamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +111,6 @@
     <ClInclude Include="SpriteManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SpriteFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,17 +120,26 @@
     <ClInclude Include="FontManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UpdateEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="KeyEvent.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateEvent.h">
+      <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="CursorPositionEvent.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera2D.h">
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera3D.h">
+      <Filter>Header Files\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="FirstPersonCamera.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="ICamera.h">
+      <Filter>Header Files\Cameras</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -188,12 +200,6 @@
     <ClCompile Include="VulkanActor.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="Camera3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ICamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -209,9 +215,6 @@
     <ClCompile Include="SpriteManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SpriteFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -221,17 +224,26 @@
     <ClCompile Include="FontManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UpdateEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="KeyEvent.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateEvent.cpp">
+      <Filter>Source Files\Events</Filter>
     </ClCompile>
     <ClCompile Include="CursorPositionEvent.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera2D.cpp">
+      <Filter>Source Files\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera3D.cpp">
+      <Filter>Source Files\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="FirstPersonCamera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="ICamera.cpp">
+      <Filter>Source Files\Cameras</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

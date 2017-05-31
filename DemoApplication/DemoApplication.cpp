@@ -22,9 +22,9 @@ void DemoApplication::OnStart()
 {
 	TerrainScene = GetRootScene()->AddScene();
 
-	Map.Initialize(TerrainScene, &Ruleset, 100, 1, 100);
+	Map.Initialize(TerrainScene, &Ruleset, 100, 10, 100);
 	Camera = std::make_shared<FirstPersonCamera>();
-	Camera->SetPosition({ -3.0f, 3.0f, -3.0f });
+	Camera->SetPosition({ 50.0f, 2.0f, 50.0f });
 	Camera->SetFar(100.0f);
 	TerrainScene->SetCamera(Camera);
 
@@ -43,20 +43,20 @@ void DemoApplication::OnUpdate(UpdateEvent update)
 	fpsText << "Frame Time: " << update.GetDeltaTime() << "\n";
 	FpsLabel->SetText(fpsText.str().c_str());
 
-	float movementSpeed = update.GetDeltaTime() * 10.0f;
-	if (GetKeyState(GLFW_KEY_W))
+	float movementSpeed = (float)update.GetDeltaTime() * 10.0f;
+	if (GetKeyState(GLFW_KEY_W) == GLFW_PRESS)
 	{
 		Camera->MoveForward(movementSpeed);
 	}
-	if (GetKeyState(GLFW_KEY_S))
+	if (GetKeyState(GLFW_KEY_S) == GLFW_PRESS)
 	{
 		Camera->MoveBackward(movementSpeed);
 	}	
-	if (GetKeyState(GLFW_KEY_A))
+	if (GetKeyState(GLFW_KEY_A) == GLFW_PRESS)
 	{
 		Camera->MoveLeft(movementSpeed);
 	}	
-	if (GetKeyState(GLFW_KEY_D))
+	if (GetKeyState(GLFW_KEY_D) == GLFW_PRESS)
 	{
 		Camera->MoveRight(movementSpeed);
 	}
