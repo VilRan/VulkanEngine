@@ -15,8 +15,10 @@ public:
 	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	Buffer Reserve(void* data, VkDeviceSize size);
 	void Release(Buffer buffer);
-	void AllocateMemory();
-	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
+	void AllocateReserved();
+	void Update(Buffer* buffers, size_t bufferCount);
+	void Stage(Buffer buffer);
+	void UpdateStaged();
 
 private:
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
@@ -26,10 +28,10 @@ private:
 
 	std::vector<Buffer> Reservations;
 	std::vector<Buffer> Vacancies;
-	VkDeviceSize TotalBufferSize = 0;
-	VkDeviceSize OffsetAlignment = 0;
-
+	std::vector<Buffer> Staged;
 	DeviceBuffer StagingBuffer;
 	DeviceBuffer LocalBuffer;
+	VkDeviceSize TotalBufferSize = 0;
+	VkDeviceSize OffsetAlignment = 0;
 };
 

@@ -104,5 +104,5 @@ void TestApplication::OnUpdate()
 	}
 
 	Camera->SetPosition(glm::vec3(3.0f + TestCounter, 3.0f + TestCounter, 3.0f + TestCounter));
-	//Camera2->SetRotation(TestCounter);
+	Camera2->SetRotation(TestCounter);
 }

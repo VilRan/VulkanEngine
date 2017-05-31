@@ -57,13 +57,13 @@ VulkanScene::~VulkanScene()
 
 	for (auto actor : Actors)
 	{
-		DynamicBufferPool.Release(actor->GetDynamicBuffer());
+		//DynamicBufferPool.Release(actor->GetDynamicBuffer());
 		delete actor;
 	}
 
 	for (auto vacantActor : VacantActors)
 	{
-		DynamicBufferPool.Release(vacantActor->GetDynamicBuffer());
+		//DynamicBufferPool.Release(vacantActor->GetDynamicBuffer());
 		delete vacantActor;
 	}
 }
@@ -87,8 +87,8 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	}
 	else
 	{
-		auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
-		actor = new VulkanActor(vulkanModel, texture, dynamicBuffer, this);
+		//auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
+		actor = new VulkanActor(vulkanModel, texture, *this, DynamicBufferPool);
 	}
 
 	glm::quat rotation = glm::quat(angles);

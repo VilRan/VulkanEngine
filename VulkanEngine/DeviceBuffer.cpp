@@ -8,12 +8,12 @@ DeviceBuffer::DeviceBuffer()
 
 DeviceBuffer::~DeviceBuffer()
 {
-	Free();
+	Destroy();
 }
 
 void DeviceBuffer::Create(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
 {
-	Free();
+	Destroy();
 	PhysicalDevice = physicalDevice;
 	Device = device;
 	Size = size;
@@ -43,7 +43,7 @@ void DeviceBuffer::CopyTo(DeviceBuffer& destination, ::Buffer* regions, size_t r
 	VulkanHelper::CopyBuffer(Device, commandPool, graphicsQueue, Buffer, destination.GetHandle(), regions, regionCount);
 }
 
-void DeviceBuffer::Free()
+void DeviceBuffer::Destroy()
 {
 	if (Device == VK_NULL_HANDLE)
 	{
@@ -53,14 +53,14 @@ void DeviceBuffer::Free()
 	if (Buffer != VK_NULL_HANDLE)
 	{
 		vkDestroyBuffer(Device, Buffer, nullptr);
+		Buffer = VK_NULL_HANDLE;
 	}
-	Buffer = VK_NULL_HANDLE;
 
 	if (Memory != VK_NULL_HANDLE)
 	{
 		vkFreeMemory(Device, Memory, nullptr);
+		Memory = VK_NULL_HANDLE;
 	}
-	Memory = VK_NULL_HANDLE;
 
 	Size = 0;
 }

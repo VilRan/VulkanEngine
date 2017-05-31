@@ -13,7 +13,7 @@ public:
 	void Update(Buffer buffer);
 	void CopyTo(DeviceBuffer& destination, VkCommandPool commandPool, VkQueue graphicsQueue);
 	void CopyTo(DeviceBuffer& destination, Buffer* regions, size_t regionCount, VkCommandPool commandPool, VkQueue graphicsQueue);
-	void Free();
+	void Destroy();
 
 	VkBuffer GetHandle();
 	VkBuffer* GetHandlePointer();

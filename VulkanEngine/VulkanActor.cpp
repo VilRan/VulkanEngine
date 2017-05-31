@@ -1,14 +1,14 @@
 #include "VulkanActor.h"
 
-VulkanActor::VulkanActor(VulkanModel* model, ::Texture* texture, ::DynamicBuffer dynamicBuffer, VulkanScene* scene)
-	: Actor(model, texture)
+VulkanActor::VulkanActor(VulkanModel* model, ::Texture* texture, VulkanScene& scene, ::DynamicBufferPool& dynamicBufferPool)
+	: Actor(model, texture), Scene(scene), DynamicBufferPool(dynamicBufferPool)
 {
-	DynamicBuffer = dynamicBuffer;
-	Scene = scene;
+	DynamicBuffer = DynamicBufferPool.Reserve(&Transform);
 }
 
 VulkanActor::~VulkanActor()
 {
+	DynamicBufferPool.Release(DynamicBuffer);
 }
 
 void VulkanActor::SetPosition(glm::vec3 position)
@@ -38,6 +38,6 @@ void VulkanActor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3
 void VulkanActor::UpdateBuffer()
 {
 	//TODO: Maybe unite ViewProjection and Transform into a ModelViewProjection dynamic buffer.
-	DynamicBuffer.SetData(&Transform);
-	Scene->QueueBufferUpdate(DynamicBuffer);
+	//DynamicBuffer.SetData(&Transform);
+	Scene.QueueBufferUpdate(DynamicBuffer);
 }

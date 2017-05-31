@@ -105,7 +105,8 @@ SpriteFont* VulkanApplication::LoadFont(Texture* texture, const char* metaPath)
 
 SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* metaPath)
 {
-	return Fonts.Load(texturePath, metaPath);
+	Texture* texture = Textures.Load(texturePath);
+	return Fonts.Load(texture, metaPath);
 }
 
 void VulkanApplication::InitWindow() 
@@ -152,12 +153,12 @@ void VulkanApplication::LoadContent()
 	Models.Initialize(&BufferManager);
 	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Sprites.Initialize(&Models);
-	Fonts.Initialize(&Textures, &Sprites);
+	Fonts.Initialize(&Sprites);
 
 	OnLoadContent();
 
 	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 1024);
-	BufferManager.AllocateMemory();
+	BufferManager.AllocateReserved();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
 }
@@ -419,12 +420,7 @@ void VulkanApplication::CreateRenderPass()
 	VkAttachmentReference colorAttachmentRef = {};
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	/*
-	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-	*/
+
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	dependency.dstSubpass = 0;
@@ -472,72 +468,60 @@ void VulkanApplication::CreateRenderPass()
 
 void VulkanApplication::CreateDescriptorSetLayouts() 
 {
-	VkDescriptorSetLayoutBinding viewProjectionLayoutBinding = {};
-	viewProjectionLayoutBinding.binding = 0;
-	viewProjectionLayoutBinding.descriptorCount = 1;
-	viewProjectionLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	viewProjectionLayoutBinding.pImmutableSamplers = nullptr;
-	viewProjectionLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	VkDescriptorSetLayoutBinding viewProjectionDescriptorSetLayoutBinding = {};
+	viewProjectionDescriptorSetLayoutBinding.binding = 0;
+	viewProjectionDescriptorSetLayoutBinding.descriptorCount = 1;
+	viewProjectionDescriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	viewProjectionDescriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+	viewProjectionDescriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &viewProjectionLayoutBinding;
+	layoutInfo.pBindings = &viewProjectionDescriptorSetLayoutBinding;
 
 	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ViewProjectionDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
 
-	VkDescriptorSetLayoutBinding modelLayoutBinding = {};
-	modelLayoutBinding.binding = 0;
-	modelLayoutBinding.descriptorCount = 1;
-	modelLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	modelLayoutBinding.pImmutableSamplers = nullptr;
-	modelLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	VkDescriptorSetLayoutBinding modelDescriptorSetLayoutBinding = {};
+	modelDescriptorSetLayoutBinding.binding = 0;
+	modelDescriptorSetLayoutBinding.descriptorCount = 1;
+	modelDescriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	modelDescriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+	modelDescriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &modelLayoutBinding;
+	layoutInfo.pBindings = &modelDescriptorSetLayoutBinding;
 
 	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ModelDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
 
-	VkDescriptorSetLayoutBinding imageLayoutBinding = {};
-	imageLayoutBinding.binding = 0;
-	imageLayoutBinding.descriptorCount = 1;
-	imageLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	imageLayoutBinding.pImmutableSamplers = nullptr;
-	imageLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	VkDescriptorSetLayoutBinding imageDescriptorSetLayoutBinding = {};
+	imageDescriptorSetLayoutBinding.binding = 0;
+	imageDescriptorSetLayoutBinding.descriptorCount = 1;
+	imageDescriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	imageDescriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+	imageDescriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &imageLayoutBinding;
+	layoutInfo.pBindings = &imageDescriptorSetLayoutBinding;
 
 	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, ImageDescriptorSetLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
-
-	/*
-	std::array<VkDescriptorSetLayoutBinding, 3> bindings = { viewProjectionLayoutBinding, modelLayoutBinding, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = bindings.size();
-	layoutInfo.pBindings = bindings.data();
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, DescriptorSetLayout.replace()) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("Failed to create descriptor set layout!");
-	}
-	*/
 }
 
 void VulkanApplication::CreateGraphicsPipeline() 
 {
-	auto vertShaderCode = ReadFile("shaders/vert.spv");
-	auto fragShaderCode = ReadFile("shaders/frag.spv");
+	auto vertShaderCode = ReadFile("../Shaders/vert.spv");
+	auto fragShaderCode = ReadFile("../Shaders/frag.spv");
 
 	VDeleter<VkShaderModule> vertShaderModule{ Device, vkDestroyShaderModule };
 	VDeleter<VkShaderModule> fragShaderModule{ Device, vkDestroyShaderModule };
@@ -608,9 +592,16 @@ void VulkanApplication::CreateGraphicsPipeline()
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
+	//TODO: Figure out how to make transparency work properly.
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

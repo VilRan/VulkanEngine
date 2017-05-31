@@ -36,7 +36,7 @@ DynamicBuffer DynamicBufferPool::Reserve(void* data)
 		VkDeviceSize newSize = Buffer.GetSize() * 2;
 		BufferManager->Release(Buffer);
 		Buffer = BufferManager->Reserve(nullptr, newSize);
-		BufferManager->AllocateMemory();
+		BufferManager->AllocateReserved();
 		//TODO: Handle memory allocation failures.
 		//TODO: If buffer offset changes, move the offset of existing dynamic buffers.
 	}
@@ -53,5 +53,5 @@ void DynamicBufferPool::Release(DynamicBuffer buffer)
 
 void DynamicBufferPool::UpdateBuffers(::Buffer* buffers, size_t bufferCount)
 {
-	BufferManager->UpdateBuffers(buffers, bufferCount);
+	BufferManager->Update(buffers, bufferCount);
 }
