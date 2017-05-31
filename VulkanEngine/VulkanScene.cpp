@@ -107,6 +107,11 @@ Label* VulkanScene::AddLabel(const char* text, SpriteFont* font, glm::vec3 posit
 
 void VulkanScene::RemoveActor(Actor* actor)
 {
+	if (actor == nullptr)
+	{
+		return;
+	}
+
 	VulkanActor* vulkanActor = static_cast<VulkanActor*>(actor);
 	auto position = std::find(Actors.begin(), Actors.end(), actor);
 	if (position != Actors.end())

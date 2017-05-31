@@ -27,6 +27,8 @@
     <ClCompile Include="DemoApplication.cpp" />
     <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileType.cpp" />
     <ClCompile Include="Ruleset.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileType.cpp" />
@@ -34,6 +36,8 @@
   <ItemGroup>
     <ClInclude Include="DemoApplication.h" />
     <ClInclude Include="GameMap.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="ProjectileType.h" />
     <ClInclude Include="Ruleset.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileType.h" />

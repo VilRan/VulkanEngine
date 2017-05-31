@@ -22,10 +22,11 @@ void DemoApplication::OnStart()
 {
 	MapScene = GetRootScene()->AddScene();
 
-	Map.Initialize(MapScene, &Ruleset, 100, 1, 100);
+	Map.Initialize(MapScene, &Ruleset, 100, 10, 100);
 	Camera = std::make_shared<FirstPersonCamera>();
-	Camera->SetPosition({ 50.0f, 2.0f, 50.0f });
-	Camera->SetFar(100.0f);
+	Camera->SetPosition({ 50.0f, 12.0f, 50.0f });
+	Camera->SetFar(200.0f);
+	Camera->SetFieldOfView(90.0f);
 	MapScene->SetCamera(Camera);
 
 	UiScene = GetRootScene()->AddScene();
@@ -37,6 +38,7 @@ void DemoApplication::OnStart()
 
 void DemoApplication::OnUpdate(UpdateEvent update)
 {
+	
 	std::stringstream fpsText;
 	fpsText << "FPS:          " << update.GetFramesPerSecond() << "\n";
 	fpsText << "FPS (avg.):   " << update.GetAverageFramesPerSecond() << "\n";
@@ -44,8 +46,12 @@ void DemoApplication::OnUpdate(UpdateEvent update)
 	fpsText << "Actor Count:  " << GetRootScene()->GetActorCount() << "\n";
 	fpsText << "Vertex Count: " << GetRootScene()->GetVertexCount() << "\n";
 	FpsLabel->SetText(fpsText.str().c_str());
-
+	
 	float movementSpeed = (float)update.GetDeltaTime() * 10.0f;
+	if (GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		movementSpeed *= 2;
+	}
 	if (GetKeyState(GLFW_KEY_W) == GLFW_PRESS)
 	{
 		Camera->MoveForward(movementSpeed);
@@ -62,6 +68,16 @@ void DemoApplication::OnUpdate(UpdateEvent update)
 	{
 		Camera->MoveRight(movementSpeed);
 	}
+	if (GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		Camera->MoveBy({ 0.0f, movementSpeed, 0.0f });
+	}
+	if (GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		Camera->MoveBy({ 0.0f, -movementSpeed, 0.0f });
+	}
+
+	Map.Update(update);
 }
 
 void DemoApplication::OnKey(KeyEvent key)

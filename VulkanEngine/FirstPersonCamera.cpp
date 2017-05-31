@@ -34,7 +34,7 @@ void FirstPersonCamera::Rotate(float x, float y)
 	Angles.x += x;
 	Angles.y += y;
 
-	float yLimit = glm::pi<float>() / 5;
+	float yLimit = glm::pi<float>() / 3;
 	if (Angles.y > yLimit)
 	{
 		Angles.y = yLimit;

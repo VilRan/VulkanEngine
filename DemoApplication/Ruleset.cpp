@@ -18,9 +18,18 @@ void Ruleset::Initialize(DemoApplication& application)
 	TileTypes.emplace("Empty", TileType(nullptr, nullptr));
 	TileTypes.emplace("Block", TileType(cube, blackAndWhiteCube));
 	TileTypes.emplace("Colored", TileType(cube, coloredCube));
+
+	Model* icosphere = application.LoadModel("Models/Icosphere.obj");
+	Texture* blackAndWhiteTriangle = application.LoadTexture("Textures/BlackAndWhiteTriangle.png");
+	ProjectileTypes.emplace("Icosphere", ProjectileType(icosphere, blackAndWhiteTriangle));
 }
 
 TileType Ruleset::GetTileType(const char* uid)
 {
 	return TileTypes[uid];
+}
+
+ProjectileType Ruleset::GetProjectileType(const char* uid)
+{
+	return ProjectileTypes[uid];
 }

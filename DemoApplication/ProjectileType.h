@@ -3,12 +3,12 @@
 #include "Model.h"
 #include "Texture.h"
 
-class TileType
+class ProjectileType
 {
 public:
-	TileType();
-	TileType(Model* model, Texture* texture);
-	virtual ~TileType();
+	ProjectileType();
+	ProjectileType(Model* model, Texture* texture);
+	virtual ~ProjectileType();
 
 	Model* GetModel() const { return Model; }
 	Texture* GetTexture() const { return Texture; }

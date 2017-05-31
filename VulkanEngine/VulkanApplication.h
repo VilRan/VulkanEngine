@@ -119,7 +119,7 @@ private:
 	VulkanScene* RootScene;
 	uint32_t Width = 800;
 	uint32_t Height = 600;
-	bool Border = true;
+	bool Border = false;
 	std::vector<double> DeltaTimes;
 	size_t DeltaTimeWritePosition = 0;
 	double PreviousTime = 0;

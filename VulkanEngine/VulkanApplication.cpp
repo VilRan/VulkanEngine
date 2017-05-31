@@ -142,11 +142,17 @@ void VulkanApplication::InitWindow()
 {
 	glfwInit();
 
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	Width = mode->width;
+	Height = mode->height;
+
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_DECORATED, Border);
 
 	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
 
+	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetWindowUserPointer(Window, this);
 	glfwSetWindowSizeCallback(Window, VulkanApplication::HandleWindowResized);
 	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);

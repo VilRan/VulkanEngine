@@ -14,8 +14,8 @@ namespace std
 			return (
 				(hash<glm::vec3>()(vertex.Position) ^
 				(hash<glm::vec3>()(vertex.Color) << 1)) >> 1) ^
-					(hash<glm::vec2>()(vertex.TextureCoordinates) << 1
-						);
+				(hash<glm::vec2>()(vertex.TextureCoordinates) << 1
+			);
 		}
 	};
 }
