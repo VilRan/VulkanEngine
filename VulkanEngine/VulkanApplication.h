@@ -51,6 +51,7 @@ public:
 	~VulkanApplication();
 
 	virtual void Run();
+	virtual void Exit();
 	virtual void Resize(uint32_t width, uint32_t height);
 	virtual void SetBorder(bool enabled);
 	virtual float GetAspectRatio();
@@ -64,6 +65,7 @@ public:
 	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
 	inline virtual Scene* GetRootScene() { return RootScene; }
+	virtual int GetKeyState(int keyId);
 
 private:
 	GLFWwindow* Window;
@@ -118,13 +120,19 @@ private:
 	uint32_t Width = 800;
 	uint32_t Height = 600;
 	bool Border = true;
+	std::vector<double> DeltaTimes;
+	size_t DeltaTimeWritePosition = 0;
 	double PreviousTime = 0;
+	double PreviousCursorX = 0;
+	double PreviousCursorY = 0;
+	bool ExitCalled = false;
 
 	void InitWindow();
 	void InitVulkan();
 	void LoadContent();
 	static void HandleWindowResized(GLFWwindow* window, int width, int height);
 	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static void HandleCursorPosition(GLFWwindow* window, double x, double y);
 	void RecreateSwapChain();
 	void CreateInstance();
 	void SetupDebugCallback();

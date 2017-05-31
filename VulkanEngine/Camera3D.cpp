@@ -36,3 +36,30 @@ void Camera3D::MoveBy(glm::vec3 delta)
 	Target += delta;
 	Changed = true;
 }
+
+void Camera3D::Rotate(glm::quat rotation)
+{
+	Target = Position + rotation * (Target - Position);
+	Up = rotation * Up;
+	Changed = true;
+}
+
+glm::vec3 Camera3D::GetForward()
+{
+	return glm::normalize(Target - Position);
+}
+
+glm::vec3 Camera3D::GetBackward()
+{
+	return -GetForward();
+}
+
+glm::vec3 Camera3D::GetRight()
+{
+	return glm::cross(GetForward(), Up);
+}
+
+glm::vec3 Camera3D::GetLeft()
+{
+	return -GetRight();
+}

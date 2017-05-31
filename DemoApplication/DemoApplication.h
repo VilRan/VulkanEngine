@@ -3,8 +3,7 @@
 
 #include "Ruleset.h"
 #include "GameMap.h"
-#include "Camera3D.h"
-
+#include "FirstPersonCamera.h"
 
 class DemoApplication :
 	public VulkanApplication
@@ -20,6 +19,7 @@ protected:
 	virtual void OnStart();
 	virtual void OnUpdate(UpdateEvent update);
 	virtual void OnKey(KeyEvent key);
+	virtual void OnCursor(CursorPositionEvent cursor);
 
 private:
 	SpriteFont* Font;
@@ -28,6 +28,6 @@ private:
 
 	Ruleset Ruleset;
 	GameMap Map;
-	std::shared_ptr<Camera3D> Camera;
+	std::shared_ptr<FirstPersonCamera> Camera;
 	Label* FpsLabel;
 };

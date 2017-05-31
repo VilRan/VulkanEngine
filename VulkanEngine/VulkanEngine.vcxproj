@@ -24,10 +24,12 @@
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="Camera3D.h" />
+    <ClInclude Include="CursorPositionEvent.h" />
     <ClInclude Include="DebugReportCallback.h" />
     <ClInclude Include="DeviceBuffer.h" />
     <ClInclude Include="DynamicBuffer.h" />
     <ClInclude Include="DynamicBufferPool.h" />
+    <ClInclude Include="FirstPersonCamera.h" />
     <ClInclude Include="FontManager.h" />
     <ClInclude Include="IApplication.h" />
     <ClInclude Include="ICamera.h" />
@@ -60,10 +62,12 @@
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
+    <ClCompile Include="CursorPositionEvent.cpp" />
     <ClCompile Include="DebugReportCallback.cpp" />
     <ClCompile Include="DeviceBuffer.cpp" />
     <ClCompile Include="DynamicBuffer.cpp" />
     <ClCompile Include="DynamicBufferPool.cpp" />
+    <ClCompile Include="FirstPersonCamera.cpp" />
     <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="ICamera.cpp" />

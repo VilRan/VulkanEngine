@@ -51,12 +51,12 @@ void TestApplication::OnStart()
 	Actor6->SetTransform(position, rotation, scale);
 	
 	position = glm::vec3(0.0f, Texture->GetHeight(), 0.0f);
-	Scene3->AddLabel("This is a test!\nTesting!", Font, position);
+	Scene3->AddLabel("This is a test!\nTesting Labels!", Font, position);
 }
 
 void TestApplication::OnUpdate(UpdateEvent update)
 {
-	TestCounter += 0.001f;
+	TestCounter += (float)update.GetDeltaTime();
 	glm::vec3 eulerAngles(0.0f, TestCounter, TestCounter / 2);
 	glm::quat rotation = glm::quat(eulerAngles);
 	Actor->SetRotation(rotation);

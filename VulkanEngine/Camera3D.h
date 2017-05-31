@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "ICamera.h"
 
 class Camera3D
@@ -12,18 +14,23 @@ public:
 
 	virtual glm::mat4 GetViewProjection();
 	void MoveBy(glm::vec3 delta);
-	inline const glm::vec3 GetPosition() const { return Position; }
-	inline void SetPosition(glm::vec3 position) { Position = position; Changed = true; }
-	inline const glm::vec3 GetTarget() const { return Target; }
-	inline void SetTarget(glm::vec3 target) { Target = target; Changed = true; }
-	inline const glm::vec3 GetUp() const { return Up; }
-	inline void SetUp(glm::vec3 up) { Up = up; Changed = true; }
-	inline const float GetFieldOfView() const { return FieldOfView; }
-	inline void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; Changed = true; }
-	inline const float GetNear() const { return Near; }
-	inline void SetNear(float near) { Near = near; Changed = true; }
-	inline const float GetFar() const { return Far; }
-	inline void SetFar(float far) { Far = far; Changed = true; }
+	void Rotate(glm::quat rotation);
+	glm::vec3 GetForward();
+	glm::vec3 GetBackward();
+	glm::vec3 GetRight();
+	glm::vec3 GetLeft();
+	const glm::vec3 GetPosition() const { return Position; }
+	void SetPosition(glm::vec3 position) { Position = position; Changed = true; }
+	const glm::vec3 GetTarget() const { return Target; }
+	void SetTarget(glm::vec3 target) { Target = target; Changed = true; }
+	const glm::vec3 GetUp() const { return Up; }
+	void SetUp(glm::vec3 up) { Up = up; Changed = true; }
+	const float GetFieldOfView() const { return FieldOfView; }
+	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; Changed = true; }
+	const float GetNear() const { return Near; }
+	void SetNear(float near) { Near = near; Changed = true; }
+	const float GetFar() const { return Far; }
+	void SetFar(float far) { Far = far; Changed = true; }
 
 private:
 	glm::vec3 Position;

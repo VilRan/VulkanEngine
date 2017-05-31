@@ -27,7 +27,7 @@ void Label::SetText(const char* text)
 		switch (c)
 		{
 		case '\n':
-			offset = glm::vec3(Position.x, offset.y + maxRowHeight, Position.y);
+			offset = glm::vec3(Position.x, offset.y + maxRowHeight, Position.z);
 			maxRowHeight = 0;
 			break;
 		case ' ':

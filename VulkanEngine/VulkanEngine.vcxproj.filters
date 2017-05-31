@@ -123,6 +123,12 @@
     <ClInclude Include="KeyEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CursorPositionEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FirstPersonCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp">
@@ -219,6 +225,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorPositionEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FirstPersonCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

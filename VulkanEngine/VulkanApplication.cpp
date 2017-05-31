@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstring>
 #include <set>
+#include <numeric>
 
 #include "VulkanHelper.h"
 
@@ -37,16 +38,28 @@ void VulkanApplication::Run()
 {
 	InitWindow();
 	InitVulkan();
+
 	OnStart();
+
+	DeltaTimes.resize(100);
 	PreviousTime = glfwGetTime();
 
-	while (!glfwWindowShouldClose(Window))
+	while (!glfwWindowShouldClose(Window) && !ExitCalled)
 	{
 		glfwPollEvents();
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - PreviousTime;
+		DeltaTimes[DeltaTimeWritePosition] = deltaTime;
+		DeltaTimeWritePosition++;
+		if (DeltaTimeWritePosition >= DeltaTimes.size())
+		{
+			DeltaTimeWritePosition = 0;
+		}
+		double averageDeltaTime = std::accumulate(DeltaTimes.begin(), DeltaTimes.end(), 0.0) / DeltaTimes.size();
 		PreviousTime = currentTime;
-		OnUpdate(UpdateEvent(deltaTime));
+
+		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime));
+
 		RootScene->Update();
 		//TODO: Find out why BufferManager::Stage doesn't work properly.
 		//BufferManager.UpdateStaged();
@@ -57,6 +70,11 @@ void VulkanApplication::Run()
 	vkDeviceWaitIdle(Device);
 	glfwDestroyWindow(Window);
 	glfwTerminate();
+}
+
+void VulkanApplication::Exit()
+{
+	ExitCalled = true;
 }
 
 void VulkanApplication::Resize(uint32_t width, uint32_t height)
@@ -115,6 +133,11 @@ SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* met
 	return Fonts.Load(texture, metaPath);
 }
 
+int VulkanApplication::GetKeyState(int keyId)
+{
+	return glfwGetKey(Window, keyId);
+}
+
 void VulkanApplication::InitWindow() 
 {
 	glfwInit();
@@ -126,8 +149,8 @@ void VulkanApplication::InitWindow()
 
 	glfwSetWindowUserPointer(Window, this);
 	glfwSetWindowSizeCallback(Window, VulkanApplication::HandleWindowResized);
-
 	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);
+	glfwSetCursorPosCallback(Window, VulkanApplication::HandleCursorPosition);
 }
 
 void VulkanApplication::InitVulkan() 
@@ -191,6 +214,14 @@ void VulkanApplication::HandleKeyboardEvent(GLFWwindow* window, int key, int sca
 {
 	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
 	application->OnKey(KeyEvent(key, scancode, action, mods));
+}
+
+void VulkanApplication::HandleCursorPosition(GLFWwindow* window, double x, double y)
+{
+	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
+	application->OnCursor(CursorPositionEvent(x, y, x - application->PreviousCursorX, y - application->PreviousCursorY));
+	application->PreviousCursorX = x;
+	application->PreviousCursorY = y;
 }
 
 void VulkanApplication::RecreateSwapChain() 

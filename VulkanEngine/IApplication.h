@@ -7,6 +7,7 @@
 #include "SpriteFont.h"
 #include "UpdateEvent.h"
 #include "KeyEvent.h"
+#include "CursorPositionEvent.h"
 
 class IApplication
 {
@@ -15,6 +16,7 @@ public:
 	virtual ~IApplication();
 
 	virtual void Run() = 0;
+	virtual void Exit() = 0;
 	virtual void Resize(uint32_t width, uint32_t height) = 0;
 	virtual void SetBorder(bool enabled) = 0;
 	virtual float GetAspectRatio() = 0;
@@ -27,10 +29,12 @@ public:
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath) = 0;
 	virtual Scene* GetRootScene() = 0;
 	virtual char* GetTitle() = 0;
+	virtual int GetKeyState(int keyId) = 0;
 
 protected:
 	virtual void OnLoadContent() = 0;
 	virtual void OnStart() = 0;
 	virtual void OnUpdate(UpdateEvent update) = 0;
 	virtual void OnKey(KeyEvent key) = 0;
+	virtual void OnCursor(CursorPositionEvent cursor) = 0;
 };
