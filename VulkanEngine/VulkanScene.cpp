@@ -57,13 +57,11 @@ VulkanScene::~VulkanScene()
 
 	for (auto actor : Actors)
 	{
-		//DynamicBufferPool.Release(actor->GetDynamicBuffer());
 		delete actor;
 	}
 
 	for (auto vacantActor : VacantActors)
 	{
-		//DynamicBufferPool.Release(vacantActor->GetDynamicBuffer());
 		delete vacantActor;
 	}
 }
@@ -87,12 +85,13 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	}
 	else
 	{
-		//auto dynamicBuffer = DynamicBufferPool.Reserve(nullptr);
 		actor = new VulkanActor(vulkanModel, texture, *this, DynamicBufferPool);
 	}
 
 	glm::quat rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
+
+	VertexCount += model->GetVertexCount();
 
 	Actors.push_back(actor);
 	Status = Changed;
@@ -116,7 +115,31 @@ void VulkanScene::RemoveActor(Actor* actor)
 		VacantActors.push_back(vulkanActor);
 	}
 
+	VertexCount -= actor->GetModel().GetVertexCount();
+
 	Status = Changed;
+}
+
+int VulkanScene::GetActorCount()
+{
+	int count = 0;
+	for (auto childScene : ChildScenes)
+	{
+		count += childScene->GetActorCount();
+	}
+	count += Actors.size();
+	return count;
+}
+
+int VulkanScene::GetVertexCount()
+{
+	int count = 0;
+	for (auto childScene : ChildScenes)
+	{
+		count += childScene->GetVertexCount();
+	}
+	count += VertexCount;
+	return count;
 }
 
 Scene* VulkanScene::AddScene()

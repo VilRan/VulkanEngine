@@ -33,6 +33,8 @@ public:
 	virtual Actor* AddActor(Model* model, Texture* texture, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
 	virtual Label* AddLabel(const char* text, SpriteFont* font, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
 	virtual void RemoveActor(Actor* actor);
+	virtual int GetActorCount();
+	virtual int GetVertexCount();
 	virtual Scene* AddScene();
 	virtual void RemoveScene(Scene* scene);
 	virtual std::shared_ptr<ICamera> GetCamera();
@@ -53,6 +55,7 @@ private:
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
 	SceneStatus Status = Changed;
+	size_t VertexCount = 0;
 	DynamicBufferPool& DynamicBufferPool;
 	VkCommandBuffer SecondaryCommandBuffer = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;

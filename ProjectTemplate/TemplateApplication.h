@@ -16,4 +16,5 @@ protected:
 	virtual void OnStart();
 	virtual void OnUpdate(UpdateEvent update);
 	virtual void OnKey(KeyEvent key);
+	virtual void OnCursor(CursorPositionEvent cursor);
 };

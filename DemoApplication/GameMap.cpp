@@ -30,16 +30,7 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 		{
 			for (size_t z = 0; z < Depth; z++)
 			{
-				switch (y)
-				{
-				case 0:
-					Terrain.emplace_back(*Scene, colored, x, y, z);
-				case 4:
-					Terrain.emplace_back(*Scene, block, x, y, z);
-				default:
-					Terrain.emplace_back(*Scene, empty, x, y, z);
-					break;
-				}
+				Terrain.emplace_back(*Scene, colored, x, y, z);
 			}
 		}
 	}

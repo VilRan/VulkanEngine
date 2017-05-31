@@ -10,6 +10,7 @@ public:
 	virtual ~Model();
 
 	Vertex* GetVertexData();
+	size_t GetVertexCount();
 	uint32_t* GetIndexData();
 	size_t GetIndexCount();
 

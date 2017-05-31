@@ -15,6 +15,11 @@ Vertex* Model::GetVertexData()
 	return Vertices.data();
 }
 
+size_t Model::GetVertexCount()
+{
+	return Vertices.size();
+}
+
 uint32_t* Model::GetIndexData()
 {
 	return Indices.data();

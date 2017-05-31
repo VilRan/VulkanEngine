@@ -110,3 +110,7 @@ void TestApplication::OnUpdate(UpdateEvent update)
 void TestApplication::OnKey(KeyEvent key)
 {
 }
+
+void TestApplication::OnCursor(CursorPositionEvent cursor)
+{
+}

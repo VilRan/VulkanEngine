@@ -23,3 +23,7 @@ void TemplateApplication::OnUpdate(UpdateEvent update)
 void TemplateApplication::OnKey(KeyEvent key)
 {
 }
+
+void TemplateApplication::OnCursor(CursorPositionEvent cursor)
+{
+}

@@ -18,6 +18,7 @@ protected:
 	virtual void OnStart();
 	virtual void OnUpdate(UpdateEvent update);
 	virtual void OnKey(KeyEvent key);
+	virtual void OnCursor(CursorPositionEvent cursor);
 
 private:
 	std::shared_ptr<Camera3D> Camera;
