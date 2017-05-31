@@ -19,103 +19,53 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="BufferManager.h" />
-    <ClInclude Include="Camera2D.h" />
-    <ClInclude Include="Camera3D.h" />
-    <ClInclude Include="DebugReportCallback.h" />
-    <ClInclude Include="DeviceBuffer.h" />
-    <ClInclude Include="DynamicBuffer.h" />
-    <ClInclude Include="DynamicBufferPool.h" />
-    <ClInclude Include="FontManager.h" />
-    <ClInclude Include="IApplication.h" />
-    <ClInclude Include="ICamera.h" />
-    <ClInclude Include="KeyEvent.h" />
-    <ClInclude Include="Label.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelManager.h" />
-    <ClInclude Include="Rectangle.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Sprite.h" />
-    <ClInclude Include="SpriteFont.h" />
-    <ClInclude Include="SpriteManager.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureManager.h" />
-    <ClInclude Include="UpdateEvent.h" />
-    <ClInclude Include="VDeleter.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="VulkanActor.h" />
-    <ClInclude Include="VulkanApplication.h" />
-    <ClInclude Include="VulkanHelper.h" />
-    <ClInclude Include="VulkanModel.h" />
-    <ClInclude Include="VulkanModelManager.h" />
-    <ClInclude Include="VulkanScene.h" />
-    <ClInclude Include="VulkanTexture.h" />
-    <ClInclude Include="VulkanTextureManager.h" />
+    <ProjectReference Include="..\VulkanEngine\VulkanEngine.vcxproj">
+      <Project>{34a81716-ae06-4443-afa3-3a8d6e4fdcd8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Actor.cpp" />
-    <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="BufferManager.cpp" />
-    <ClCompile Include="Camera2D.cpp" />
-    <ClCompile Include="Camera3D.cpp" />
-    <ClCompile Include="DebugReportCallback.cpp" />
-    <ClCompile Include="DeviceBuffer.cpp" />
-    <ClCompile Include="DynamicBuffer.cpp" />
-    <ClCompile Include="DynamicBufferPool.cpp" />
-    <ClCompile Include="FontManager.cpp" />
-    <ClCompile Include="IApplication.cpp" />
-    <ClCompile Include="ICamera.cpp" />
-    <ClCompile Include="KeyEvent.cpp" />
-    <ClCompile Include="Label.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="SpriteFont.cpp" />
-    <ClCompile Include="SpriteManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
-    <ClCompile Include="UpdateEvent.cpp" />
-    <ClCompile Include="VulkanActor.cpp" />
-    <ClCompile Include="VulkanApplication.cpp" />
-    <ClCompile Include="VulkanHelper.cpp" />
-    <ClCompile Include="VulkanModel.cpp" />
-    <ClCompile Include="VulkanModelManager.cpp" />
-    <ClCompile Include="VulkanScene.cpp" />
-    <ClCompile Include="VulkanTexture.cpp" />
-    <ClCompile Include="VulkanTextureManager.cpp" />
+    <ClCompile Include="DemoApplication.cpp" />
+    <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Ruleset.cpp" />
+    <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="TileType.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DemoApplication.h" />
+    <ClInclude Include="GameMap.h" />
+    <ClInclude Include="Ruleset.h" />
+    <ClInclude Include="Tile.h" />
+    <ClInclude Include="TileType.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{34a81716-ae06-4443-afa3-3a8d6e4fdcd8}</ProjectGuid>
+    <ProjectGuid>{51233fe8-2c42-4239-b590-c44c2f1c8562}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>VulkanEngine</RootNamespace>
+    <RootNamespace>DemoApplication</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -158,12 +108,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\tinyobjloader;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\stb-master;..\Dependencies\glm-0.9.8.4;..\VulkanEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Kirjastot\glfw-3.2.1.bin.WIN32\lib-vc2015;D:\Ohjelmat\VulkanSDK\1.0.39.1\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Dependencies\glfw-3.2.1.bin.WIN32\lib-vc2015;..\Dependencies\Vulkan-1.0.39.1\Source\lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -174,11 +124,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\tinyobjloader;..\Dependencies\glfw-3.2.1.bin.WIN64\include;..\Dependencies\stb-master;..\Dependencies\glm-0.9.8.4;..\VulkanEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;..\Dependencies\Vulkan-1.0.39.1\Source\lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -190,14 +141,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\tinyobjloader;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\stb-master;..\Dependencies\glm-0.9.8.4;..\VulkanEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Kirjastot\glfw-3.2.1.bin.WIN32\lib-vc2015;D:\Ohjelmat\VulkanSDK\1.0.39.1\Bin32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\Dependencies\glfw-3.2.1.bin.WIN32\lib-vc2015;..\Dependencies\Vulkan-1.0.39.1\Source\lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -210,13 +161,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\tinyobjloader;..\Dependencies\glfw-3.2.1.bin.WIN64\include;..\Dependencies\stb-master;..\Dependencies\glm-0.9.8.4;..\VulkanEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;..\Dependencies\Vulkan-1.0.39.1\Source\lib32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

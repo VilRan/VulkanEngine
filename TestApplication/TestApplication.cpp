@@ -54,7 +54,7 @@ void TestApplication::OnStart()
 	Scene3->AddLabel("This is a test!\nTesting!", Font, position);
 }
 
-void TestApplication::OnUpdate()
+void TestApplication::OnUpdate(UpdateEvent update)
 {
 	TestCounter += 0.001f;
 	glm::vec3 eulerAngles(0.0f, TestCounter, TestCounter / 2);
@@ -105,4 +105,8 @@ void TestApplication::OnUpdate()
 
 	Camera->SetPosition(glm::vec3(3.0f + TestCounter, 3.0f + TestCounter, 3.0f + TestCounter));
 	Camera2->SetRotation(TestCounter);
+}
+
+void TestApplication::OnKey(KeyEvent key)
+{
 }

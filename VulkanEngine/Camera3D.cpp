@@ -29,3 +29,10 @@ glm::mat4 Camera3D::GetViewProjection()
 	projection[1][1] *= -1;
 	return projection * view;
 }
+
+void Camera3D::MoveBy(glm::vec3 delta)
+{
+	Position += delta;
+	Target += delta;
+	Changed = true;
+}

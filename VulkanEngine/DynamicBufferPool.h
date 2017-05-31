@@ -7,13 +7,25 @@ class DynamicBufferPool
 {
 public:
 	DynamicBufferPool();
-	DynamicBufferPool(BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers);
+	DynamicBufferPool(
+		BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers,
+		VkDevice device, VkDescriptorPool descriptorPool,
+		VkDescriptorSetLayout viewProjectionDescriptorSetLayout,  VkDescriptorSet viewProjectionDescriptorSet,
+		VkDescriptorSetLayout modelDescriptorSetLayout, VkDescriptorSet modelDescriptorset
+	);
 	virtual ~DynamicBufferPool();
 
-	void Initialize(BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers);
+	void Initialize(
+		BufferManager* bufferManager, size_t sizePerDynamicBuffer, size_t numberOfDynamicBuffers, 
+		VkDevice device, VkDescriptorPool descriptorPool, 
+		VkDescriptorSetLayout viewProjectionDescriptorSetLayout, VkDescriptorSet viewProjectionDescriptorSet,
+		VkDescriptorSetLayout modelDescriptorSetLayout, VkDescriptorSet modelDescriptorSet
+	);
 	DynamicBuffer Reserve(void* data);
 	void Release(DynamicBuffer buffer);
+	void Stage(DynamicBuffer buffer);
 	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
+	void UpdateDescriptorSets();
 	inline const Buffer GetBuffer() const { return Buffer; }
 	inline const size_t GetSizePerDynamicBuffer() const { return SizePerDynamicBuffer; }
 
@@ -23,5 +35,12 @@ private:
 	Buffer Buffer;
 	size_t SizePerDynamicBuffer = 0;
 	uint32_t DynamicOffsetCounter = 0;
+
+	VkDevice Device = VK_NULL_HANDLE;
+	VkDescriptorPool DescriptorPool = VK_NULL_HANDLE;
+	VkDescriptorSetLayout ViewProjectionDescriptorSetLayout = VK_NULL_HANDLE;
+	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
+	VkDescriptorSetLayout ModelDescriptorSetLayout = VK_NULL_HANDLE;
+	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
 };
 

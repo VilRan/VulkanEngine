@@ -81,8 +81,14 @@ void BufferManager::Release(Buffer buffer)
 
 void BufferManager::AllocateReserved()
 {
-	StagingBuffer.Create(PhysicalDevice, Device, TotalBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	LocalBuffer.Create(PhysicalDevice, Device, TotalBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	StagingBuffer.Create(
+		PhysicalDevice, Device, CommandPool, GraphicsQueue, TotalBufferSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+	);
+	LocalBuffer.Create(
+		PhysicalDevice, Device, CommandPool, GraphicsQueue, TotalBufferSize, 
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+	);
 	Update(Reservations.data(), Reservations.size());
 }
 
@@ -93,7 +99,7 @@ void BufferManager::Update(Buffer* buffers, size_t bufferCount)
 		StagingBuffer.Update(buffers[i]);
 	}
 	
-	StagingBuffer.CopyTo(LocalBuffer, buffers, bufferCount, CommandPool, GraphicsQueue);
+	CopyFromStagingToLocal(buffers, bufferCount);
 	//TODO: Find out if it's actually faster to copy the entire buffer at once or only the necessary regions.
 }
 
@@ -105,6 +111,18 @@ void BufferManager::Stage(Buffer buffer)
 
 void BufferManager::UpdateStaged()
 {
-	StagingBuffer.CopyTo(LocalBuffer, Staged.data(), Staged.size(), CommandPool, GraphicsQueue);
+	CopyFromStagingToLocal(Staged.data(), Staged.size());
 	Staged.clear();
+}
+
+void BufferManager::CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount)
+{
+	if (bufferCount > 10000)
+	{
+		StagingBuffer.CopyTo(LocalBuffer);
+	}
+	else
+	{
+		StagingBuffer.CopyTo(LocalBuffer, buffers, bufferCount);
+	}
 }

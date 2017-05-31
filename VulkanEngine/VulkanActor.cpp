@@ -38,6 +38,6 @@ void VulkanActor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3
 void VulkanActor::UpdateBuffer()
 {
 	//TODO: Maybe unite ViewProjection and Transform into a ModelViewProjection dynamic buffer.
-	//DynamicBuffer.SetData(&Transform);
 	Scene.QueueBufferUpdate(DynamicBuffer);
+	//DynamicBufferPool.Stage(DynamicBuffer);
 }

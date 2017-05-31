@@ -54,6 +54,8 @@ public:
 	virtual void Resize(uint32_t width, uint32_t height);
 	virtual void SetBorder(bool enabled);
 	virtual float GetAspectRatio();
+	const uint32_t GetWidth() const { return Width; }
+	const uint32_t GetHeight() const { return Height; }
 	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 	virtual Model* LoadModel(const char* path);
 	virtual Texture* LoadTexture(const char* path);
@@ -116,11 +118,13 @@ private:
 	uint32_t Width = 800;
 	uint32_t Height = 600;
 	bool Border = true;
+	double PreviousTime = 0;
 
 	void InitWindow();
 	void InitVulkan();
 	void LoadContent();
-	static void OnWindowResized(GLFWwindow* window, int width, int height);
+	static void HandleWindowResized(GLFWwindow* window, int width, int height);
+	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void RecreateSwapChain();
 	void CreateInstance();
 	void SetupDebugCallback();

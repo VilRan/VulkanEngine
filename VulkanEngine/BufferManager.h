@@ -33,5 +33,7 @@ private:
 	DeviceBuffer LocalBuffer;
 	VkDeviceSize TotalBufferSize = 0;
 	VkDeviceSize OffsetAlignment = 0;
+
+	void CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount);
 };
 

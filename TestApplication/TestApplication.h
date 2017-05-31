@@ -16,7 +16,8 @@ public:
 protected:
 	virtual void OnLoadContent();
 	virtual void OnStart();
-	virtual void OnUpdate();
+	virtual void OnUpdate(UpdateEvent update);
+	virtual void OnKey(KeyEvent key);
 
 private:
 	std::shared_ptr<Camera3D> Camera;

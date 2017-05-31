@@ -101,7 +101,7 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 
 Label* VulkanScene::AddLabel(const char* text, SpriteFont* font, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
 {
-	auto label = new Label(text, *font, *this);
+	auto label = new Label(text, *font, *this, position);
 	Labels.push_back(label);
 	return label;
 }

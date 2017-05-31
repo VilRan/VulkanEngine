@@ -8,6 +8,7 @@ Camera2D::Camera2D(glm::vec2 position, float width, float height, float rotation
 	Width = width;
 	Height = height;
 	Rotation = rotation;
+	Changed = true;
 }
 
 Camera2D::~Camera2D()

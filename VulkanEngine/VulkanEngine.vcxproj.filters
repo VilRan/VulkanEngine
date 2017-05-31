@@ -117,6 +117,12 @@
     <ClInclude Include="FontManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UpdateEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp">
@@ -207,6 +213,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FontManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

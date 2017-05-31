@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include "Rectangle.h"
 #include "SpriteFont.h"
+#include "UpdateEvent.h"
+#include "KeyEvent.h"
 
 class IApplication
 {
@@ -29,6 +31,6 @@ public:
 protected:
 	virtual void OnLoadContent() = 0;
 	virtual void OnStart() = 0;
-	virtual void OnUpdate() = 0;
+	virtual void OnUpdate(UpdateEvent update) = 0;
+	virtual void OnKey(KeyEvent key) = 0;
 };
-

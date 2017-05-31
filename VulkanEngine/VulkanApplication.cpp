@@ -38,12 +38,18 @@ void VulkanApplication::Run()
 	InitWindow();
 	InitVulkan();
 	OnStart();
+	PreviousTime = glfwGetTime();
 
 	while (!glfwWindowShouldClose(Window))
 	{
 		glfwPollEvents();
-		OnUpdate();
+		double currentTime = glfwGetTime();
+		double deltaTime = currentTime - PreviousTime;
+		PreviousTime = currentTime;
+		OnUpdate(UpdateEvent(deltaTime));
 		RootScene->Update();
+		//TODO: Find out why BufferManager::Stage doesn't work properly.
+		//BufferManager.UpdateStaged();
 		CreateCommandBuffers();
 		DrawFrame();
 	}
@@ -119,7 +125,9 @@ void VulkanApplication::InitWindow()
 	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
 
 	glfwSetWindowUserPointer(Window, this);
-	glfwSetWindowSizeCallback(Window, VulkanApplication::OnWindowResized);
+	glfwSetWindowSizeCallback(Window, VulkanApplication::HandleWindowResized);
+
+	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);
 }
 
 void VulkanApplication::InitVulkan() 
@@ -157,13 +165,18 @@ void VulkanApplication::LoadContent()
 
 	OnLoadContent();
 
-	DynamicBufferPool.Initialize(&BufferManager, sizeof(glm::mat4), 1024);
-	BufferManager.AllocateReserved();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
+	DynamicBufferPool.Initialize(
+		&BufferManager, sizeof(glm::mat4), 1024, Device, DescriptorPool, 
+		ViewProjectionDescriptorSetLayout, ViewProjectionDescriptorSet, ModelDescriptorSetLayout, ModelDescriptorSet
+	);
+	BufferManager.AllocateReserved();
+	DynamicBufferPool.UpdateDescriptorSets();
+	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
 }
 
-void VulkanApplication::OnWindowResized(GLFWwindow* window, int width, int height) 
+void VulkanApplication::HandleWindowResized(GLFWwindow* window, int width, int height) 
 {
 	if (width == 0 || height == 0)
 	{
@@ -172,6 +185,12 @@ void VulkanApplication::OnWindowResized(GLFWwindow* window, int width, int heigh
 	
 	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
 	application->RecreateSwapChain();
+}
+
+void VulkanApplication::HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
+	application->OnKey(KeyEvent(key, scancode, action, mods));
 }
 
 void VulkanApplication::RecreateSwapChain() 
@@ -810,13 +829,8 @@ void VulkanApplication::CreateDescriptorSets()
 	{
 		throw std::runtime_error("Failed to allocate descriptor set!");
 	}
-	/*
-	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
-	viewProjectionUniformBufferInfo.buffer = ViewProjectionUniformBuffer.GetHandle();
-	viewProjectionUniformBufferInfo.offset = ViewProjectionUniformBuffer.GetOffset();
-	viewProjectionUniformBufferInfo.range = ViewProjectionUniformBuffer.GetSize();
-	*/
 
+	/*
 	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
 	viewProjectionUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
 	viewProjectionUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
@@ -846,12 +860,15 @@ void VulkanApplication::CreateDescriptorSets()
 	descriptorWrites[1].pBufferInfo = &modelUniformBufferInfo;
 
 	vkUpdateDescriptorSets(Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
-
 	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
+	*/
 }
 
 void VulkanApplication::CreateCommandBuffers() 
 {
+	//TODO: Use a better synchronization method.
+	vkDeviceWaitIdle(Device);
+
 	if (CommandBuffers.size() != SwapChainFramebuffers.size())
 	{
 		if (CommandBuffers.size() > 0)

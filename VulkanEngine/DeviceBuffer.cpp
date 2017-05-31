@@ -11,11 +11,17 @@ DeviceBuffer::~DeviceBuffer()
 	Destroy();
 }
 
-void DeviceBuffer::Create(VkPhysicalDevice physicalDevice, VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+void DeviceBuffer::Create
+(
+	VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, 
+	VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties
+)
 {
 	Destroy();
 	PhysicalDevice = physicalDevice;
 	Device = device;
+	CommandPool = commandPool;
+	GraphicsQueue = graphicsQueue;
 	Size = size;
 	VulkanHelper::CreateBuffer(PhysicalDevice, Device, size, usage, properties, &Buffer, &Memory);
 }
@@ -33,14 +39,14 @@ void DeviceBuffer::Update(::Buffer buffer)
 	vkUnmapMemory(Device, Memory);
 }
 
-void DeviceBuffer::CopyTo(DeviceBuffer& destination, VkCommandPool commandPool, VkQueue graphicsQueue)
+void DeviceBuffer::CopyTo(DeviceBuffer& destination)
 {
-	VulkanHelper::CopyBuffer(Device, commandPool, graphicsQueue, Buffer, destination.GetHandle(), Size);
+	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, Buffer, destination.GetHandle(), Size);
 }
 
-void DeviceBuffer::CopyTo(DeviceBuffer& destination, ::Buffer* regions, size_t regionCount, VkCommandPool commandPool, VkQueue graphicsQueue)
+void DeviceBuffer::CopyTo(DeviceBuffer& destination, ::Buffer* regions, size_t regionCount)
 {
-	VulkanHelper::CopyBuffer(Device, commandPool, graphicsQueue, Buffer, destination.GetHandle(), regions, regionCount);
+	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, Buffer, destination.GetHandle(), regions, regionCount);
 }
 
 void DeviceBuffer::Destroy()

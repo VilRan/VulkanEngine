@@ -2,9 +2,10 @@
 
 #include "Scene.h"
 
-Label::Label(const char* text, SpriteFont& font, ::Scene& scene)
+Label::Label(const char* text, SpriteFont& font, ::Scene& scene, glm::vec3 position)
 	: Font(font), Scene(scene)
 {
+	Position = position;
 	SetText(text);
 }
 
@@ -13,20 +14,20 @@ Label::~Label()
 	ClearText();
 }
 
-void Label::SetText(const char * text)
+void Label::SetText(const char* text)
 {
 	ClearText();
 
 	size_t i = 0;
 	int maxRowHeight = 0;
-	glm::vec3 offset(0.0f, 0.0f, 0.0f);
+	glm::vec3 offset = Position;
 	while (text[i] != '\0')
 	{
 		char c = text[i];
 		switch (c)
 		{
 		case '\n':
-			offset = glm::vec3(0.0f, offset.y + maxRowHeight, 0.0f);
+			offset = glm::vec3(Position.x, offset.y + maxRowHeight, Position.y);
 			maxRowHeight = 0;
 			break;
 		case ' ':
@@ -36,6 +37,7 @@ void Label::SetText(const char * text)
 			Sprite* sprite = Font.GetSprite(c);
 			Rectangle bounds = sprite->GetBounds();
 			Actor* actor = Scene.AddActor(sprite, offset);
+			Actors.push_back(actor);
 			offset += glm::vec3(bounds.GetWidth(), 0.0f, 0.0f);
 
 			if (bounds.GetHeight() > maxRowHeight)
