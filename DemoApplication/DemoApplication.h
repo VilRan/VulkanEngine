@@ -24,7 +24,7 @@ protected:
 private:
 	SpriteFont* Font;
 	Scene* UiScene;
-	Scene* TerrainScene;
+	Scene* MapScene;
 
 	Ruleset Ruleset;
 	GameMap Map;

@@ -65,8 +65,6 @@ Model* ModelManager::Load(const char* path)
 
 			vertex.Color = { 1.0f, 1.0f, 1.0f };
 
-			vertices.push_back(vertex);
-
 			if (uniqueVertices.count(vertex) == 0)
 			{
 				uniqueVertices[vertex] = vertices.size();

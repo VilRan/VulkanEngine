@@ -20,13 +20,13 @@ void DemoApplication::OnLoadContent()
 
 void DemoApplication::OnStart()
 {
-	TerrainScene = GetRootScene()->AddScene();
+	MapScene = GetRootScene()->AddScene();
 
-	Map.Initialize(TerrainScene, &Ruleset, 100, 10, 100);
+	Map.Initialize(MapScene, &Ruleset, 100, 1, 100);
 	Camera = std::make_shared<FirstPersonCamera>();
-	Camera->SetPosition({ 50.0f, 12.0f, 50.0f });
+	Camera->SetPosition({ 50.0f, 2.0f, 50.0f });
 	Camera->SetFar(100.0f);
-	TerrainScene->SetCamera(Camera);
+	MapScene->SetCamera(Camera);
 
 	UiScene = GetRootScene()->AddScene();
 	FpsLabel = UiScene->AddLabel("", Font, glm::vec3(GetWidth() / -1.0f + 32.0f, GetHeight() / -1.0f + 32.0f, 0.0f));
