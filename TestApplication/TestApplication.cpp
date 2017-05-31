@@ -12,13 +12,13 @@ TestApplication::~TestApplication()
 
 void TestApplication::OnLoadContent()
 {
-	Model = LoadModel("models/Cube.obj");
-	Model2 = LoadModel("models/Icosphere.obj");
-	Texture = LoadTexture("textures/ColoredCube.png");
-	Texture2 = LoadTexture("textures/BlackAndWhiteCube.png");
-	Texture3 = LoadTexture("textures/BlackAndWhiteTriangle.png");
+	Model = LoadModel("../Models/Cube.obj");
+	Model2 = LoadModel("../Models/Icosphere.obj");
+	Texture = LoadTexture("../Textures/ColoredCube.png");
+	Texture2 = LoadTexture("../Textures/BlackAndWhiteCube.png");
+	Texture3 = LoadTexture("../Textures/BlackAndWhiteTriangle.png");
 	Sprite = CreateSprite(Texture);
-	Font = LoadFont("textures/MonospaceFont.png", "textures/MonospaceFont.png.meta");
+	Font = LoadFont("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
 }
 
 void TestApplication::OnStart()
@@ -109,6 +109,17 @@ void TestApplication::OnUpdate(UpdateEvent update)
 
 void TestApplication::OnKey(KeyEvent key)
 {
+	if (key.GetAction() == GLFW_PRESS)
+	{
+		switch (key.GetId())
+		{
+		case GLFW_KEY_ESCAPE:
+			Exit();
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void TestApplication::OnCursor(CursorPositionEvent cursor)

@@ -15,7 +15,7 @@ DemoApplication::~DemoApplication()
 void DemoApplication::OnLoadContent()
 {
 	Ruleset.Initialize(*this);
-	Font = LoadFont("Fonts/Monospace.png", "Fonts/Monospace.png.meta");
+	Font = LoadFont("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
 }
 
 void DemoApplication::OnStart()
