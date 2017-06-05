@@ -63,7 +63,7 @@ void VulkanApplication::Run()
 
 		RootScene->Update();
 		//TODO: Find out why BufferManager::Stage doesn't work properly.
-		//BufferManager.UpdateStaged();
+		BufferManager.UpdateStaged();
 		CreateCommandBuffers();
 		DrawFrame();
 	}
