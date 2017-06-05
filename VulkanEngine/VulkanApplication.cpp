@@ -62,7 +62,6 @@ void VulkanApplication::Run()
 		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime));
 
 		RootScene->Update();
-		//TODO: Find out why BufferManager::Stage doesn't work properly.
 		BufferManager.UpdateStaged();
 		CreateCommandBuffers();
 		DrawFrame();
