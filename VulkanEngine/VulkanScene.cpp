@@ -42,7 +42,7 @@ VulkanScene::VulkanScene(
 VulkanScene::~VulkanScene()
 {
 	DynamicBufferPool.Release(ViewProjectionBuffer);
-	FreeCommandBuffer();
+	FreeCommandBuffers();
 
 	for (auto childScene : ChildScenes)
 	{
@@ -200,12 +200,12 @@ void VulkanScene::SetCamera(std::shared_ptr<ICamera> camera, bool passToChildSce
 		}
 	}
 }
-
+/*
 void VulkanScene::QueueBufferUpdate(Buffer buffer)
 {
 	BufferUpdateQueue.push_back(buffer);
 }
-
+*/
 void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio)
 {
 	for (auto childScene : ChildScenes)
@@ -222,9 +222,9 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
-	//FreeCommandBuffer();
+	//FreeCommandBuffers();
 
-	if (SecondaryCommandBuffer == VK_NULL_HANDLE)
+	if (FrontCommandBuffer == VK_NULL_HANDLE)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -232,7 +232,21 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 		allocInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(Device, &allocInfo, &SecondaryCommandBuffer) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(Device, &allocInfo, &FrontCommandBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate scene command buffer!");
+		}
+	}
+
+	if (BackCommandBuffer == VK_NULL_HANDLE)
+	{
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = CommandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+		allocInfo.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(Device, &allocInfo, &BackCommandBuffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate scene command buffer!");
 		}
@@ -251,25 +265,25 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 	
 	//TODO: Use a better synchronization method.
-	vkDeviceWaitIdle(Device);
-	vkBeginCommandBuffer(SecondaryCommandBuffer, &beginInfo);
-	vkCmdBindPipeline(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+	//vkDeviceWaitIdle(Device);
+	vkBeginCommandBuffer(BackCommandBuffer, &beginInfo);
+	vkCmdBindPipeline(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 
 	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
-	vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
+	vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
 
 	for (const auto& actorsByModel : GroupedActors)
 	{
 		auto model = actorsByModel.first;
-		model->Bind(SecondaryCommandBuffer);
+		model->Bind(BackCommandBuffer);
 		for (const auto& actorsByTexture : actorsByModel.second)
 		{
-			actorsByTexture.first->Bind(SecondaryCommandBuffer, PipelineLayout);
+			actorsByTexture.first->Bind(BackCommandBuffer, PipelineLayout);
 			for (auto actor : actorsByTexture.second)
 			{
 				dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-				vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
-				vkCmdDrawIndexed(SecondaryCommandBuffer, model->GetIndexCount(), 1, 0, 0, 0);
+				vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+				vkCmdDrawIndexed(BackCommandBuffer, model->GetIndexCount(), 1, 0, 0, 0);
 			}
 		}
 	}
@@ -277,22 +291,23 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	for (auto actor : Actors)
 	{
 		auto& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(SecondaryCommandBuffer);
+		model.Bind(BackCommandBuffer);
 
 		dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-		vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+		vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
 
 		auto& texture = static_cast<VulkanTexture&>(actor->GetTexture());
-		texture.Bind(SecondaryCommandBuffer, PipelineLayout);
+		texture.Bind(BackCommandBuffer, PipelineLayout);
 
-		vkCmdDrawIndexed(SecondaryCommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
+		vkCmdDrawIndexed(BackCommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
 	*/
-	if (vkEndCommandBuffer(SecondaryCommandBuffer) != VK_SUCCESS)
+	if (vkEndCommandBuffer(BackCommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
 	}
 
+	std::swap(FrontCommandBuffer, BackCommandBuffer);
 	Status = Ready;
 }
 
@@ -304,7 +319,7 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 	}
 
 	Camera->SetChanged(false);
-	vkCmdExecuteCommands(commandBuffer, 1, &SecondaryCommandBuffer);
+	vkCmdExecuteCommands(commandBuffer, 1, &FrontCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
 		childScene->BuildPrimaryCommandBuffer(commandBuffer);
@@ -326,14 +341,15 @@ void VulkanScene::Update()
 	if (Camera->HasChanged())
 	{
 		ViewProjection = Camera->GetViewProjection();
-		DynamicBufferPool.UpdateBuffers(&ViewProjectionBuffer, 1);
+		//DynamicBufferPool.UpdateBuffers(&ViewProjectionBuffer, 1);
+		DynamicBufferPool.Stage(ViewProjectionBuffer);
 	}
-
+	/*
 	if (BufferUpdateQueue.size() > 0)
 	{
 		DynamicBufferPool.UpdateBuffers(BufferUpdateQueue.data(), BufferUpdateQueue.size());
 		BufferUpdateQueue.clear();
-	}
+	}*/
 }
 
 VulkanScene::VulkanScene(
@@ -352,11 +368,16 @@ VulkanScene::VulkanScene(
 	RenderPass = renderPass;
 }
 
-void VulkanScene::FreeCommandBuffer()
+void VulkanScene::FreeCommandBuffers()
 {
-	if (SecondaryCommandBuffer != VK_NULL_HANDLE)
+	if (FrontCommandBuffer != VK_NULL_HANDLE)
 	{
-		vkFreeCommandBuffers(Device, CommandPool, 1, &SecondaryCommandBuffer);
-		SecondaryCommandBuffer = VK_NULL_HANDLE;
+		vkFreeCommandBuffers(Device, CommandPool, 1, &FrontCommandBuffer);
+		FrontCommandBuffer = VK_NULL_HANDLE;
+	}
+	if (BackCommandBuffer != VK_NULL_HANDLE)
+	{
+		vkFreeCommandBuffers(Device, CommandPool, 1, &BackCommandBuffer);
+		BackCommandBuffer = VK_NULL_HANDLE;
 	}
 }

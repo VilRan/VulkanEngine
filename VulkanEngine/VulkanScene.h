@@ -40,7 +40,7 @@ public:
 	virtual void RemoveScene(Scene* scene);
 	virtual std::shared_ptr<ICamera> GetCamera();
 	virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true);
-	void QueueBufferUpdate(Buffer buffer);
+	//void QueueBufferUpdate(Buffer buffer);
 	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio);
 	void BuildSecondaryCommandBuffer();
 	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
@@ -52,7 +52,7 @@ private:
 	//std::vector<VulkanActor*> Actors;
 	std::vector<VulkanActor*> VacantActors;
 	std::vector<Label*> Labels;
-	std::vector<Buffer> BufferUpdateQueue;
+	//std::vector<Buffer> BufferUpdateQueue;
 	std::shared_ptr<ICamera> Camera;
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
@@ -60,7 +60,8 @@ private:
 	size_t ActorCount = 0;
 	size_t VertexCount = 0;
 	DynamicBufferPool& DynamicBufferPool;
-	VkCommandBuffer SecondaryCommandBuffer = VK_NULL_HANDLE;
+	VkCommandBuffer FrontCommandBuffer = VK_NULL_HANDLE;
+	VkCommandBuffer BackCommandBuffer = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
@@ -74,6 +75,6 @@ private:
 		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
 		::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
 	);
-	void FreeCommandBuffer();
+	void FreeCommandBuffers();
 };
 
