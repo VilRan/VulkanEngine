@@ -48,8 +48,13 @@ artifacts/
 *_p.c
 *_i.h
 *.ilk
+
 *.meta
+!Fonts/*.meta
+
 *.obj
+!Models/*.obj
+
 *.pch
 *.pdb
 *.pgc
