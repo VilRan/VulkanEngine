@@ -41,12 +41,13 @@ void VulkanApplication::Run()
 
 	OnStart();
 
-	DeltaTimes.resize(100);
+	DeltaTimes.resize(1000);
 	PreviousTime = glfwGetTime();
 
 	while (!glfwWindowShouldClose(Window) && !ExitCalled)
 	{
 		glfwPollEvents();
+
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - PreviousTime;
 		DeltaTimes[DeltaTimeWritePosition] = deltaTime;

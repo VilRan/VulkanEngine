@@ -1,6 +1,5 @@
 #include "VulkanScene.h"
 
-#include "VulkanTexture.h"
 #include "Camera3D.h"
 
 VulkanScene::VulkanScene(
@@ -55,11 +54,22 @@ VulkanScene::~VulkanScene()
 		delete label;
 	}
 
+	for (const auto& actorsByModel : GroupedActors)
+	{
+		for (const auto& actorsByTexture : actorsByModel.second)
+		{
+			for (auto actor : actorsByTexture.second)
+			{
+				delete actor;
+			}
+		}
+	}
+	/*
 	for (auto actor : Actors)
 	{
 		delete actor;
 	}
-
+	*/
 	for (auto vacantActor : VacantActors)
 	{
 		delete vacantActor;
@@ -74,26 +84,29 @@ Actor* VulkanScene::AddActor(Sprite* sprite, glm::vec3 position, glm::vec3 angle
 Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
 {
 	auto vulkanModel = static_cast<VulkanModel*>(model);
+	auto vulkanTexture = static_cast<VulkanTexture*>(texture);
 	VulkanActor* actor;
 
 	if (VacantActors.size() > 0)
 	{
 		actor = VacantActors.back();
 		actor->SetModel(vulkanModel);
-		actor->SetTexture(texture);
+		actor->SetTexture(vulkanTexture);
 		VacantActors.pop_back();
 	}
 	else
 	{
-		actor = new VulkanActor(vulkanModel, texture, *this, DynamicBufferPool);
+		actor = new VulkanActor(vulkanModel, vulkanTexture, *this, DynamicBufferPool);
 	}
 
 	glm::quat rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
 
-	VertexCount += model->GetVertexCount();
+	GroupedActors[vulkanModel][vulkanTexture].push_back(actor);
+	//Actors.push_back(actor);
 
-	Actors.push_back(actor);
+	ActorCount++;
+	VertexCount += model->GetVertexCount();
 	Status = Changed;
 	return actor;
 }
@@ -112,15 +125,20 @@ void VulkanScene::RemoveActor(Actor* actor)
 		return;
 	}
 
-	VulkanActor* vulkanActor = static_cast<VulkanActor*>(actor);
-	auto position = std::find(Actors.begin(), Actors.end(), actor);
-	if (position != Actors.end())
+	auto actorModel = static_cast<VulkanModel*>(actor->GetModel());
+	auto actorTexture = static_cast<VulkanTexture*>(actor->GetTexture());
+	auto& actorGroup = GroupedActors[actorModel][actorTexture];
+
+	auto vulkanActor = static_cast<VulkanActor*>(actor);
+	auto position = std::find(actorGroup.begin(), actorGroup.end(), actor);
+	if (position != actorGroup.end())
 	{
-		Actors.erase(position);
+		actorGroup.erase(position);
 		VacantActors.push_back(vulkanActor);
 	}
 
-	VertexCount -= actor->GetModel().GetVertexCount();
+	ActorCount--;
+	VertexCount -= actorModel->GetVertexCount();
 
 	Status = Changed;
 }
@@ -132,7 +150,8 @@ int VulkanScene::GetActorCount()
 	{
 		count += childScene->GetActorCount();
 	}
-	count += Actors.size();
+	//count += Actors.size();
+	count += ActorCount;
 	return count;
 }
 
@@ -199,7 +218,6 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 	RenderPass = renderPass;
 	Camera->SetAspectRatio(aspectRatio);
 	Status = Changed;
-	//BuildSecondaryCommandBuffer();
 }
 
 void VulkanScene::BuildSecondaryCommandBuffer()
@@ -240,20 +258,36 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
 	vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
 
+	for (const auto& actorsByModel : GroupedActors)
+	{
+		auto model = actorsByModel.first;
+		model->Bind(SecondaryCommandBuffer);
+		for (const auto& actorsByTexture : actorsByModel.second)
+		{
+			actorsByTexture.first->Bind(SecondaryCommandBuffer, PipelineLayout);
+			for (auto actor : actorsByTexture.second)
+			{
+				dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
+				vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+				vkCmdDrawIndexed(SecondaryCommandBuffer, model->GetIndexCount(), 1, 0, 0, 0);
+			}
+		}
+	}
+	/*
 	for (auto actor : Actors)
 	{
-		VulkanModel& model = static_cast<VulkanModel&>(actor->GetModel());
+		auto& model = static_cast<VulkanModel&>(actor->GetModel());
 		model.Bind(SecondaryCommandBuffer);
 
 		dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
 		vkCmdBindDescriptorSets(SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
 
-		VulkanTexture& texture = static_cast<VulkanTexture&>(actor->GetTexture());
+		auto& texture = static_cast<VulkanTexture&>(actor->GetTexture());
 		texture.Bind(SecondaryCommandBuffer, PipelineLayout);
 
 		vkCmdDrawIndexed(SecondaryCommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
 	}
-
+	*/
 	if (vkEndCommandBuffer(SecondaryCommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");

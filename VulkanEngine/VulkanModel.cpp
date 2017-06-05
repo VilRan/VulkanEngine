@@ -20,8 +20,6 @@ void VulkanModel::Bind(VkCommandBuffer commandBuffer)
 {
 	VkBuffer vertexBuffer = VertexBuffer.GetHandle();
 	VkDeviceSize vertexBufferOffset = VertexBuffer.GetOffset();
-	//VkBuffer vertexBuffers[] = { VertexBuffer.GetHandle() };
-	//VkDeviceSize offsets[] = { VertexBuffer.GetOffset() };
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	VkBuffer indexBuffer = IndexBuffer.GetHandle();

@@ -13,9 +13,9 @@ public:
 	Actor(Model* model, Texture* texture);
 	virtual ~Actor();
 
-	inline Model& GetModel() { return *Model; }
+	inline Model* GetModel() { return Model; }
 	virtual void SetModel(Model* model) { Model = model; }
-	inline Texture& GetTexture() { return *Texture; }
+	inline Texture* GetTexture() { return Texture; }
 	virtual void SetTexture(Texture* texture) { Texture = texture; }
 	glm::vec3 GetPosition();
 	virtual void SetPosition(glm::vec3 position);

@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 #include "VulkanActor.h"
 #include "DynamicBufferPool.h"
+#include "VulkanTexture.h"
 
 enum SceneStatus
 {
@@ -47,7 +48,8 @@ public:
 
 private:
 	std::vector<VulkanScene*> ChildScenes;
-	std::vector<VulkanActor*> Actors;
+	std::unordered_map<VulkanModel*, std::unordered_map<VulkanTexture*, std::vector<VulkanActor*>>> GroupedActors;
+	//std::vector<VulkanActor*> Actors;
 	std::vector<VulkanActor*> VacantActors;
 	std::vector<Label*> Labels;
 	std::vector<Buffer> BufferUpdateQueue;
@@ -55,6 +57,7 @@ private:
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
 	SceneStatus Status = Changed;
+	size_t ActorCount = 0;
 	size_t VertexCount = 0;
 	DynamicBufferPool& DynamicBufferPool;
 	VkCommandBuffer SecondaryCommandBuffer = VK_NULL_HANDLE;
