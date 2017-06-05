@@ -15,7 +15,7 @@
 ## Tulokset
 * Moottorilla pystyy periaatteessa tekemään pelejä ilman, että käyttäjän tarvitsee osata Vulkania.
 * Omalla koneella n. 350 fps, kun piirretään n. 30 000 Actoria, joilla yhteensä n. 660 000 verteksiä.
-  * 5.6.2017 muokkaus: Nyt oli 600 fps, kiitos pienen optimoinnin.
+  * 5.6.2017 muokkaus: Nyt yli 600 fps, kiitos pienen optimoinnin.
 
 ## Seuraavaksi
 * Kuten julkaisuissa näkyy, pidän tätä vasta versiona 0.1. Aion jatkaa projektia vielä omalla ajalla. Haluaisin vielä ainakin saada sen OpenGL-version tehtyä. Jos olen sitten ainakin osittain tyytyväinen, niin voisin vaikka alkaa peliäkin työstämään.
