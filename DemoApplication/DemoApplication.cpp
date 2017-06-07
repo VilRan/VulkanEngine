@@ -30,7 +30,7 @@ void DemoApplication::OnStart()
 	MapScene->SetCamera(Camera);
 
 	UiScene = GetRootScene()->AddScene();
-	FpsLabel = UiScene->AddLabel("", Font, glm::vec3(GetWidth() / -1.0f + 32.0f, GetHeight() / -1.0f + 32.0f, 0.0f));
+	FpsLabel = UiScene->AddLabel("", Font, glm::vec3(GetWidth() / -2.0f + 32.0f, GetHeight() / -2.0f + 32.0f, 0.0f));
 	UiScene->SetCamera(
 		std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), (float)GetWidth(), (float)GetHeight(), 0.0f)
 	);
@@ -38,7 +38,6 @@ void DemoApplication::OnStart()
 
 void DemoApplication::OnUpdate(UpdateEvent update)
 {
-	
 	std::stringstream fpsText;
 	fpsText << "FPS:          " << update.GetFramesPerSecond() << "\n";
 	fpsText << "FPS (avg.):   " << update.GetAverageFramesPerSecond() << "\n";

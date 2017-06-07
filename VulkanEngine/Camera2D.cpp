@@ -17,7 +17,7 @@ Camera2D::~Camera2D()
 
 glm::mat4 Camera2D::GetViewProjection()
 {
-	glm::vec3 scale(1.0f / Width, 1.0f / Height, 1.0f);
+	glm::vec3 scale(2.0f / Width, 2.0f / Height, 1.0f);
 	glm::mat4 scaleMatrix = glm::scale(scale);
 	glm::vec3 translation(Position.x, Position.y, 0.0f);
 	glm::mat4 translationMatrix = glm::translate(translation);
