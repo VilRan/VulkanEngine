@@ -30,9 +30,11 @@ void Label::SetText(const char* text)
 			offset = glm::vec3(Position.x, offset.y + maxRowHeight, Position.z);
 			maxRowHeight = 0;
 			break;
+
 		case ' ':
 			offset += glm::vec3(Font.GetSpaceWidth(), 0.0f, 0.0f);
 			break;
+
 		default:
 			Sprite* sprite = Font.GetSprite(c);
 			Rectangle bounds = sprite->GetBounds();

@@ -56,14 +56,17 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 
 void GameMap::Update(UpdateEvent update)
 {
-	glm::vec3 position = {};
-	position.x = (float)(rand() % Width);
-	position.z = (float)(rand() % Depth);
-	position.y = 100.0f;
+	for (size_t i = 0; i < 1; i++)
+	{
+		glm::vec3 position = {};
+		position.x = (float)(rand() % Width);
+		position.z = (float)(rand() % Depth);
+		position.y = 100.0f;
 
-	auto projectile = new Projectile(this, ProjectileScene, Ruleset->GetProjectileType("Icosphere"), position);
-	Projectiles.push_back(projectile);
-	
+		auto projectile = new Projectile(this, ProjectileScene, Ruleset->GetProjectileType("Icosphere"), position);
+		Projectiles.push_back(projectile);
+	}
+
 	for (size_t i = 0; i < Projectiles.size(); i++)
 	{
 		Projectile* projectile = Projectiles[i];
@@ -75,5 +78,4 @@ void GameMap::Update(UpdateEvent update)
 			i--;
 		}
 	}
-	
 }

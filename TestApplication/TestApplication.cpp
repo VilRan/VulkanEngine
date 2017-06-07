@@ -29,7 +29,7 @@ void TestApplication::OnStart()
 	Scene3 = rootScene->AddScene();
 
 	Camera = std::static_pointer_cast<Camera3D>(rootScene->GetCamera());
-	Camera2 = std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), 800.0f, 600.0f, 0.0f);
+	Camera2 = std::make_shared<Camera2D>(glm::vec2(0.0f, 0.0f), (float)GetWidth(), (float)GetHeight(), 0.0f);
 	Scene3->SetCamera(Camera2);
 
 	Actor = rootScene->AddActor(Model, Texture);

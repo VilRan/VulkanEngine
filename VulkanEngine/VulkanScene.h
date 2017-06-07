@@ -6,13 +6,13 @@
 #include "DynamicBufferPool.h"
 #include "VulkanTexture.h"
 
+class VulkanActor;
+
 enum SceneStatus
 {
 	Changed,
 	Ready
 };
-
-class VulkanActor;
 
 class VulkanScene :
 	public Scene
@@ -44,6 +44,9 @@ public:
 	void BuildSecondaryCommandBuffer();
 	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
 	void Update();
+
+protected:
+	void BuildCommandBuffer(VkCommandBuffer commandBuffer);
 
 private:
 	std::vector<VulkanScene*> ChildScenes;

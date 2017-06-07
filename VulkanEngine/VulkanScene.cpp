@@ -26,7 +26,7 @@ VulkanScene::VulkanScene(
 VulkanScene::VulkanScene(
 	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
 	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
-	::DynamicBufferPool & dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
+	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
 )
 	: VulkanScene(
 		device, commandPool, graphicsPipeline, pipelineLayout,
@@ -98,7 +98,6 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	actor->SetTransform(position, rotation, scale);
 
 	GroupedActors[vulkanModel][vulkanTexture].push_back(actor);
-	//Actors.push_back(actor);
 
 	ActorCount++;
 	VertexCount += model->GetVertexCount();
@@ -145,7 +144,6 @@ int VulkanScene::GetActorCount()
 	{
 		count += childScene->GetActorCount();
 	}
-	//count += Actors.size();
 	count += ActorCount;
 	return count;
 }
@@ -225,26 +223,8 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 	
 	vkBeginCommandBuffer(BackCommandBuffer, &beginInfo);
-	vkCmdBindPipeline(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-
-	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
-	vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
-
-	for (const auto& actorsByModel : GroupedActors)
-	{
-		auto model = actorsByModel.first;
-		model->Bind(BackCommandBuffer);
-		for (const auto& actorsByTexture : actorsByModel.second)
-		{
-			actorsByTexture.first->Bind(BackCommandBuffer, PipelineLayout);
-			for (auto actor : actorsByTexture.second)
-			{
-				dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-				vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
-				vkCmdDrawIndexed(BackCommandBuffer, model->GetIndexCount(), 1, 0, 0, 0);
-			}
-		}
-	}
+	
+	BuildCommandBuffer(BackCommandBuffer);
 
 	if (vkEndCommandBuffer(BackCommandBuffer) != VK_SUCCESS)
 	{
@@ -305,6 +285,30 @@ VulkanScene::VulkanScene(
 	RenderPass = renderPass;
 
 	AllocateCommandBuffers();
+}
+
+void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
+{
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+
+	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
+
+	for (const auto& actorsByModel : GroupedActors)
+	{
+		auto model = actorsByModel.first;
+		model->Bind(commandBuffer);
+		for (const auto& actorsByTexture : actorsByModel.second)
+		{
+			actorsByTexture.first->Bind(commandBuffer, PipelineLayout);
+			for (auto actor : actorsByTexture.second)
+			{
+				dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
+				vkCmdDrawIndexed(commandBuffer, model->GetIndexCount(), 1, 0, 0, 0);
+			}
+		}
+	}
 }
 
 void VulkanScene::AllocateCommandBuffers()
