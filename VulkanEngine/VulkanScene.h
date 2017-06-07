@@ -40,7 +40,6 @@ public:
 	virtual void RemoveScene(Scene* scene);
 	virtual std::shared_ptr<ICamera> GetCamera();
 	virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true);
-	//void QueueBufferUpdate(Buffer buffer);
 	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio);
 	void BuildSecondaryCommandBuffer();
 	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
@@ -49,10 +48,8 @@ public:
 private:
 	std::vector<VulkanScene*> ChildScenes;
 	std::unordered_map<VulkanModel*, std::unordered_map<VulkanTexture*, std::vector<VulkanActor*>>> GroupedActors;
-	//std::vector<VulkanActor*> Actors;
 	std::vector<VulkanActor*> VacantActors;
 	std::vector<Label*> Labels;
-	//std::vector<Buffer> BufferUpdateQueue;
 	std::shared_ptr<ICamera> Camera;
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
@@ -75,6 +72,8 @@ private:
 		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
 		::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
 	);
+
+	void AllocateCommandBuffers();
 	void FreeCommandBuffers();
 };
 

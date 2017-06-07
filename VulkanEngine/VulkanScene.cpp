@@ -64,12 +64,7 @@ VulkanScene::~VulkanScene()
 			}
 		}
 	}
-	/*
-	for (auto actor : Actors)
-	{
-		delete actor;
-	}
-	*/
+
 	for (auto vacantActor : VacantActors)
 	{
 		delete vacantActor;
@@ -200,12 +195,7 @@ void VulkanScene::SetCamera(std::shared_ptr<ICamera> camera, bool passToChildSce
 		}
 	}
 }
-/*
-void VulkanScene::QueueBufferUpdate(Buffer buffer)
-{
-	BufferUpdateQueue.push_back(buffer);
-}
-*/
+
 void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio)
 {
 	for (auto childScene : ChildScenes)
@@ -222,36 +212,6 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
-	//FreeCommandBuffers();
-
-	if (FrontCommandBuffer == VK_NULL_HANDLE)
-	{
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = CommandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-		allocInfo.commandBufferCount = 1;
-
-		if (vkAllocateCommandBuffers(Device, &allocInfo, &FrontCommandBuffer) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate scene command buffer!");
-		}
-	}
-
-	if (BackCommandBuffer == VK_NULL_HANDLE)
-	{
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = CommandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-		allocInfo.commandBufferCount = 1;
-
-		if (vkAllocateCommandBuffers(Device, &allocInfo, &BackCommandBuffer) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate scene command buffer!");
-		}
-	}
-
 	//TODO: Create secondary command buffers for all frame buffers for possible performance increase?
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -264,8 +224,6 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 	
-	//TODO: Use a better synchronization method.
-	//vkDeviceWaitIdle(Device);
 	vkBeginCommandBuffer(BackCommandBuffer, &beginInfo);
 	vkCmdBindPipeline(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 
@@ -287,21 +245,7 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 			}
 		}
 	}
-	/*
-	for (auto actor : Actors)
-	{
-		auto& model = static_cast<VulkanModel&>(actor->GetModel());
-		model.Bind(BackCommandBuffer);
 
-		dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
-		vkCmdBindDescriptorSets(BackCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
-
-		auto& texture = static_cast<VulkanTexture&>(actor->GetTexture());
-		texture.Bind(BackCommandBuffer, PipelineLayout);
-
-		vkCmdDrawIndexed(BackCommandBuffer, model.GetIndexCount(), 1, 0, 0, 0);
-	}
-	*/
 	if (vkEndCommandBuffer(BackCommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
@@ -341,15 +285,8 @@ void VulkanScene::Update()
 	if (Camera->HasChanged())
 	{
 		ViewProjection = Camera->GetViewProjection();
-		//DynamicBufferPool.UpdateBuffers(&ViewProjectionBuffer, 1);
 		DynamicBufferPool.Stage(ViewProjectionBuffer);
 	}
-	/*
-	if (BufferUpdateQueue.size() > 0)
-	{
-		DynamicBufferPool.UpdateBuffers(BufferUpdateQueue.data(), BufferUpdateQueue.size());
-		BufferUpdateQueue.clear();
-	}*/
 }
 
 VulkanScene::VulkanScene(
@@ -366,6 +303,34 @@ VulkanScene::VulkanScene(
 	ViewProjectionDescriptorSet = viewProjectionDescriptorSet;
 	ModelDescriptorSet = modelDescriptorSet;
 	RenderPass = renderPass;
+
+	AllocateCommandBuffers();
+}
+
+void VulkanScene::AllocateCommandBuffers()
+{
+	FreeCommandBuffers();
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = CommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+	allocInfo.commandBufferCount = 1;
+
+	if (vkAllocateCommandBuffers(Device, &allocInfo, &FrontCommandBuffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate scene command buffer!");
+	}
+
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = CommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+	allocInfo.commandBufferCount = 1;
+
+	if (vkAllocateCommandBuffers(Device, &allocInfo, &BackCommandBuffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to allocate scene command buffer!");
+	}
 }
 
 void VulkanScene::FreeCommandBuffers()
