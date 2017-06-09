@@ -125,3 +125,7 @@ void TestApplication::OnKey(KeyEvent key)
 void TestApplication::OnCursor(CursorPositionEvent cursor)
 {
 }
+
+void TestApplication::OnClick(ClickEvent click)
+{
+}

@@ -11,9 +11,6 @@ public:
 	const int GetMods() const { return Mods; }
 
 private:
-	const int ID;
-	const int Scancode;
-	const int Action;
-	const int Mods;
+	const int ID, Scancode, Action, Mods;
 };
 

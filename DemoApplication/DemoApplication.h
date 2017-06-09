@@ -20,6 +20,7 @@ protected:
 	virtual void OnUpdate(UpdateEvent update);
 	virtual void OnKey(KeyEvent key);
 	virtual void OnCursor(CursorPositionEvent cursor);
+	virtual void OnClick(ClickEvent click);
 
 private:
 	SpriteFont* Font;

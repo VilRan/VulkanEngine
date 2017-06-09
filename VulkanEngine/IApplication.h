@@ -8,6 +8,7 @@
 #include "UpdateEvent.h"
 #include "KeyEvent.h"
 #include "CursorPositionEvent.h"
+#include "ClickEvent.h"
 
 class IApplication
 {
@@ -30,6 +31,7 @@ public:
 	virtual Scene* GetRootScene() = 0;
 	virtual char* GetTitle() = 0;
 	virtual int GetKeyState(int keyId) = 0;
+	virtual int GetMouseButtonState(int buttonId) = 0;
 
 protected:
 	virtual void OnLoadContent() = 0;
@@ -37,4 +39,5 @@ protected:
 	virtual void OnUpdate(UpdateEvent update) = 0;
 	virtual void OnKey(KeyEvent key) = 0;
 	virtual void OnCursor(CursorPositionEvent cursor) = 0;
+	virtual void OnClick(ClickEvent click) = 0;
 };

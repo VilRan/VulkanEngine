@@ -66,6 +66,7 @@ public:
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
 	inline virtual Scene* GetRootScene() { return RootScene; }
 	virtual int GetKeyState(int keyId);
+	virtual int GetMouseButtonState(int buttonId);
 
 private:
 	GLFWwindow* Window;
@@ -133,6 +134,7 @@ private:
 	static void HandleWindowResized(GLFWwindow* window, int width, int height);
 	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void HandleCursorPosition(GLFWwindow* window, double x, double y);
+	static void HandleClickEvent(GLFWwindow* window, int button, int action, int mods);
 	void RecreateSwapChain();
 	void CreateInstance();
 	void SetupDebugCallback();

@@ -27,3 +27,7 @@ void TemplateApplication::OnKey(KeyEvent key)
 void TemplateApplication::OnCursor(CursorPositionEvent cursor)
 {
 }
+
+void TemplateApplication::OnClick(ClickEvent click)
+{
+}

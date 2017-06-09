@@ -11,6 +11,5 @@ public:
 	const double GetAverageFramesPerSecond() const { return 1.0 / AverageDeltaTime; }
 
 private:
-	const double DeltaTime;
-	const double AverageDeltaTime;
+	const double DeltaTime, AverageDeltaTime;
 };

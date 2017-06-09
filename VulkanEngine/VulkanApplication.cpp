@@ -138,6 +138,11 @@ int VulkanApplication::GetKeyState(int keyId)
 	return glfwGetKey(Window, keyId);
 }
 
+int VulkanApplication::GetMouseButtonState(int buttonId)
+{
+	return glfwGetMouseButton(Window, buttonId);
+}
+
 void VulkanApplication::InitWindow() 
 {
 	glfwInit();
@@ -157,6 +162,7 @@ void VulkanApplication::InitWindow()
 	glfwSetWindowSizeCallback(Window, VulkanApplication::HandleWindowResized);
 	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);
 	glfwSetCursorPosCallback(Window, VulkanApplication::HandleCursorPosition);
+	glfwSetMouseButtonCallback(Window, VulkanApplication::HandleClickEvent);
 }
 
 void VulkanApplication::InitVulkan() 
@@ -228,6 +234,12 @@ void VulkanApplication::HandleCursorPosition(GLFWwindow* window, double x, doubl
 	application->OnCursor(CursorPositionEvent(x, y, x - application->PreviousCursorX, y - application->PreviousCursorY));
 	application->PreviousCursorX = x;
 	application->PreviousCursorY = y;
+}
+
+void VulkanApplication::HandleClickEvent(GLFWwindow* window, int button, int action, int mods)
+{
+	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
+	application->OnClick(ClickEvent(button, action, mods, application->PreviousCursorX, application->PreviousCursorY));
 }
 
 void VulkanApplication::RecreateSwapChain() 
