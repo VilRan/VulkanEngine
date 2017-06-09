@@ -26,7 +26,7 @@ glm::mat4 FirstPersonCamera::GetViewProjection()
 void FirstPersonCamera::MoveBy(glm::vec3 delta)
 {
 	Position += delta;
-	Changed = true;
+	//Changed = true;
 }
 
 void FirstPersonCamera::Rotate(float x, float y)
@@ -48,13 +48,13 @@ void FirstPersonCamera::Rotate(float x, float y)
 	glm::quat q2 = glm::angleAxis(Angles.y, glm::vec3(0.0f, 0.0f, -1.0f));
 	Rotation = q1 * q2;
 
-	Changed = true;
+	//Changed = true;
 }
 
 void FirstPersonCamera::MoveForward(float delta)
 {
 	Position += glm::angleAxis(Angles.x, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(delta, 0.0f, 0.0f);
-	Changed = true;
+	//Changed = true;
 }
 
 void FirstPersonCamera::MoveBackward(float delta)
@@ -65,7 +65,7 @@ void FirstPersonCamera::MoveBackward(float delta)
 void FirstPersonCamera::MoveRight(float delta)
 {
 	Position += glm::angleAxis(Angles.x, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(0.0f, 0.0f, delta);
-	Changed = true;
+	//Changed = true;
 }
 
 void FirstPersonCamera::MoveLeft(float delta)

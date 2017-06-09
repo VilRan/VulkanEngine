@@ -477,14 +477,6 @@ void VulkanApplication::CreateRenderPass()
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	VkSubpassDependency dependency = {};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
 	VkAttachmentDescription depthAttachment = {};
 	depthAttachment.format = FindDepthFormat();
 	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -504,6 +496,14 @@ void VulkanApplication::CreateRenderPass()
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
 	subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+	VkSubpassDependency dependency = {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 
@@ -866,45 +866,12 @@ void VulkanApplication::CreateDescriptorSets()
 	{
 		throw std::runtime_error("Failed to allocate descriptor set!");
 	}
-
-	/*
-	VkDescriptorBufferInfo viewProjectionUniformBufferInfo = {};
-	viewProjectionUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
-	viewProjectionUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
-	viewProjectionUniformBufferInfo.range = DynamicBufferPool.GetSizePerDynamicBuffer();
-
-	VkDescriptorBufferInfo modelUniformBufferInfo = {};
-	modelUniformBufferInfo.buffer = DynamicBufferPool.GetBuffer().GetHandle();
-	modelUniformBufferInfo.offset = DynamicBufferPool.GetBuffer().GetOffset();
-	modelUniformBufferInfo.range = DynamicBufferPool.GetSizePerDynamicBuffer();
-
-	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-
-	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[0].dstSet = ViewProjectionDescriptorSet;
-	descriptorWrites[0].dstBinding = 0;
-	descriptorWrites[0].dstArrayElement = 0;
-	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	descriptorWrites[0].descriptorCount = 1;
-	descriptorWrites[0].pBufferInfo = &viewProjectionUniformBufferInfo;
-
-	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[1].dstSet = ModelDescriptorSet;
-	descriptorWrites[1].dstBinding = 0;
-	descriptorWrites[1].dstArrayElement = 0;
-	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pBufferInfo = &modelUniformBufferInfo;
-
-	vkUpdateDescriptorSets(Device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
-	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
-	*/
 }
 
 void VulkanApplication::CreateCommandBuffers() 
 {
 	//TODO: Use a better synchronization method.
-	vkDeviceWaitIdle(Device);
+	//vkDeviceWaitIdle(Device);
 
 	if (CommandBuffers.size() != SwapChainFramebuffers.size())
 	{

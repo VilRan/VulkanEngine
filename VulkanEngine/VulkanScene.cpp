@@ -242,7 +242,7 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 		return;
 	}
 
-	Camera->SetChanged(false);
+	//Camera->SetChanged(false);
 	vkCmdExecuteCommands(commandBuffer, 1, &FrontCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
@@ -261,12 +261,15 @@ void VulkanScene::Update()
 	{
 		BuildSecondaryCommandBuffer();
 	}
-
+	/*
 	if (Camera->HasChanged())
 	{
 		ViewProjection = Camera->GetViewProjection();
 		DynamicBufferPool.Stage(ViewProjectionBuffer);
 	}
+	*/
+	ViewProjection = Camera->GetViewProjection();
+	DynamicBufferPool.Stage(ViewProjectionBuffer);
 }
 
 VulkanScene::VulkanScene(

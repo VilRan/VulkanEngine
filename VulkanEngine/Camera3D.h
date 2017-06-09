@@ -20,17 +20,17 @@ public:
 	glm::vec3 GetRight();
 	glm::vec3 GetLeft();
 	const glm::vec3 GetPosition() const { return Position; }
-	void SetPosition(glm::vec3 position) { Position = position; Changed = true; }
+	void SetPosition(glm::vec3 position) { Position = position; }//Changed = true; }
 	const glm::vec3 GetTarget() const { return Target; }
-	void SetTarget(glm::vec3 target) { Target = target; Changed = true; }
+	void SetTarget(glm::vec3 target) { Target = target; }//Changed = true; }
 	const glm::vec3 GetUp() const { return Up; }
-	void SetUp(glm::vec3 up) { Up = up; Changed = true; }
+	void SetUp(glm::vec3 up) { Up = up; }//Changed = true; }
 	const float GetFieldOfView() const { return FieldOfView; }
-	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; Changed = true; }
+	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; }//Changed = true; }
 	const float GetNear() const { return Near; }
-	void SetNear(float near) { Near = near; Changed = true; }
+	void SetNear(float near) { Near = near; }//Changed = true; }
 	const float GetFar() const { return Far; }
-	void SetFar(float far) { Far = far; Changed = true; }
+	void SetFar(float far) { Far = far; }//Changed = true; }
 
 private:
 	glm::vec3 Position;
