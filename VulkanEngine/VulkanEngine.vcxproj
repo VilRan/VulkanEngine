@@ -45,6 +45,8 @@
     <ClInclude Include="SpriteManager.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="TimerEvent.h" />
     <ClInclude Include="UpdateEvent.h" />
     <ClInclude Include="VDeleter.h" />
     <ClInclude Include="Vertex.h" />
@@ -84,6 +86,8 @@
     <ClCompile Include="SpriteManager.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TimerEvent.cpp" />
     <ClCompile Include="UpdateEvent.cpp" />
     <ClCompile Include="VulkanActor.cpp" />
     <ClCompile Include="VulkanApplication.cpp" />

@@ -16,6 +16,15 @@ Buffer::~Buffer()
 {
 }
 
+const VkBufferCopy Buffer::GetCopyRegion()
+{
+	VkBufferCopy region;
+	region.srcOffset = Offset;
+	region.dstOffset = Offset;
+	region.size = Size;
+	return region;
+}
+
 bool Buffer::operator==(const Buffer other) const
 {
 	return

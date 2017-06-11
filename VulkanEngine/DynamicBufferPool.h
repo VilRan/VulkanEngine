@@ -26,8 +26,8 @@ public:
 	void Stage(DynamicBuffer buffer);
 	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
 	void UpdateDescriptorSets();
-	inline const Buffer GetBuffer() const { return Buffer; }
-	inline const size_t GetSizePerDynamicBuffer() const { return SizePerDynamicBuffer; }
+	const Buffer GetBuffer() const { return Buffer; }
+	const size_t GetSizePerDynamicBuffer() const { return SizePerDynamicBuffer; }
 
 private:
 	std::vector<DynamicBuffer> Vacancies;

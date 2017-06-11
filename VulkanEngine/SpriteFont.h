@@ -11,7 +11,7 @@ public:
 	virtual ~SpriteFont();
 
 	Sprite* GetSprite(char c);
-	inline const int GetSpaceWidth() const { return SpaceWidth; }
+	const int GetSpaceWidth() const { return SpaceWidth; }
 
 private:
 	std::unordered_map<char, Sprite*> Sprites;

@@ -21,8 +21,15 @@ Projectile::~Projectile()
 
 void Projectile::Update(UpdateEvent update)
 {
-	Velocity.y -= (float)update.GetDeltaTime() * 9.81f;
-	Position += Velocity;
+	if (Actor == nullptr)
+	{
+		return;
+	}
+
+	float time = (float)update.GetDeltaTime();
+	glm::vec3 acceleration(0.0f, time * -9.81f, 0.0f);
+	Position += Velocity * time + 0.5f * acceleration * time * time;
+	Velocity += acceleration;
 	Actor->SetPosition(Position);
 
 	if (Position.y < 0)

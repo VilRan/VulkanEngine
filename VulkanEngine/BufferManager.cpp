@@ -90,12 +90,12 @@ void BufferManager::AllocateReserved()
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 	);
 
+	Update(Reservations.data(), Reservations.size());
+
 	for (auto buffer : Staged)
 	{
 		StagingBuffer.Update(buffer);
 	}
-
-	Update(Reservations.data(), Reservations.size());
 }
 
 void BufferManager::Update(Buffer* buffers, size_t bufferCount)
@@ -106,7 +106,6 @@ void BufferManager::Update(Buffer* buffers, size_t bufferCount)
 	}
 	
 	CopyFromStagingToLocal(buffers, bufferCount);
-	//TODO: Find out if it's actually faster to copy the entire buffer at once or only the necessary regions.
 }
 
 void BufferManager::Stage(Buffer buffer)
@@ -123,7 +122,7 @@ void BufferManager::UpdateStaged()
 
 void BufferManager::CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount)
 {
-	if (bufferCount > 10000)
+	if (bufferCount > 1000)
 	{
 		StagingBuffer.CopyTo(LocalBuffer);
 	}

@@ -10,9 +10,9 @@ public:
 	Sprite(Model* model, Texture* texture, Rectangle bounds);
 	virtual ~Sprite();
 
-	inline Model* GetModel() const { return Model; }
-	inline Texture* GetTexture() const { return Texture; }
-	inline const Rectangle GetBounds() const { return Bounds; }
+	Model* GetModel() const { return Model; }
+	Texture* GetTexture() const { return Texture; }
+	const Rectangle GetBounds() const { return Bounds; }
 
 private:
 	Model* Model;

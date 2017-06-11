@@ -13,7 +13,7 @@ public:
 	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	void UpdateDescriptorSets(VkDescriptorPool descriptorPool, VkDescriptorSetLayout imageDescriptorSetLayout, VkSampler sampler);
 	virtual Texture* Load(const char* path);
-	inline const size_t GetTextureCount() const { return Textures.size(); }
+	const size_t GetTextureCount() const { return Textures.size(); }
 
 private:
 	std::vector<VulkanTexture*> Textures;

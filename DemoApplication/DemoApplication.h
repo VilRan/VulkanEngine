@@ -4,6 +4,7 @@
 #include "Ruleset.h"
 #include "GameMap.h"
 #include "FirstPersonCamera.h"
+#include "Timer.h"
 
 class DemoApplication :
 	public VulkanApplication
@@ -31,4 +32,10 @@ private:
 	GameMap Map;
 	std::shared_ptr<FirstPersonCamera> Camera;
 	Label* FpsLabel;
+	Timer FpsTimer;
+	UpdateEvent FpsUpdate;
+
+	void TryMoveCamera(UpdateEvent update);
+	void UpdateFpsLabel(UpdateEvent update);
+	void HandleFpsTimer(TimerEvent timer);
 };

@@ -1,28 +1,5 @@
 #include "VulkanScene.h"
 
-#include "Camera3D.h"
-
-VulkanScene::VulkanScene(
-	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
-	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
-	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
-)
-	: VulkanScene(
-		device, commandPool, graphicsPipeline, pipelineLayout, 
-		viewProjectionDescriptorSet, modelDescriptorSet, 
-		dynamicBufferPool, renderPass
-	)
-{
-	Camera = std::make_shared<Camera3D>(
-		glm::vec3(3.0f, 3.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		60.0f, aspectRatio, 0.1f, 10.0f
-	);
-	ViewProjection = Camera->GetViewProjection();
-	ViewProjectionBuffer = DynamicBufferPool.Reserve(&ViewProjection);
-}
-
 VulkanScene::VulkanScene(
 	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
 	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet, 
@@ -35,8 +12,20 @@ VulkanScene::VulkanScene(
 	)
 {
 	Camera = camera;
-	ViewProjection = Camera->GetViewProjection();
 	ViewProjectionBuffer = DynamicBufferPool.Reserve(&ViewProjection);
+}
+
+VulkanScene::VulkanScene(
+	VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
+	VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
+	::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
+)
+	: VulkanScene(
+		device, commandPool, graphicsPipeline, pipelineLayout,
+		viewProjectionDescriptorSet, modelDescriptorSet,
+		dynamicBufferPool, renderPass, CreateDefaultCamera(aspectRatio)
+	)
+{
 }
 
 VulkanScene::~VulkanScene()
@@ -242,7 +231,6 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 		return;
 	}
 
-	//Camera->SetChanged(false);
 	vkCmdExecuteCommands(commandBuffer, 1, &FrontCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
@@ -261,13 +249,7 @@ void VulkanScene::Update()
 	{
 		BuildSecondaryCommandBuffer();
 	}
-	/*
-	if (Camera->HasChanged())
-	{
-		ViewProjection = Camera->GetViewProjection();
-		DynamicBufferPool.Stage(ViewProjectionBuffer);
-	}
-	*/
+
 	ViewProjection = Camera->GetViewProjection();
 	DynamicBufferPool.Stage(ViewProjectionBuffer);
 }
@@ -352,4 +334,14 @@ void VulkanScene::FreeCommandBuffers()
 		vkFreeCommandBuffers(Device, CommandPool, 1, &BackCommandBuffer);
 		BackCommandBuffer = VK_NULL_HANDLE;
 	}
+}
+
+std::shared_ptr<Camera3D> VulkanScene::CreateDefaultCamera(float aspectRatio)
+{
+	return std::make_shared<Camera3D>(
+		glm::vec3(3.0f, 3.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		60.0f, aspectRatio, 0.1f, 10.0f
+	);
 }

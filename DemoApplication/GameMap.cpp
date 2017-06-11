@@ -52,21 +52,12 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 	}
 
 	ProjectileScene = Scene->AddScene();
+	ProjectileSpawnTimer.SetEvent(std::bind(&GameMap::SpawnProjectile, this, std::placeholders::_1));
+	ProjectileSpawnTimer.SetInterval(0.01);
 }
 
 void GameMap::Update(UpdateEvent update)
 {
-	for (size_t i = 0; i < 1; i++)
-	{
-		glm::vec3 position = {};
-		position.x = (float)(rand() % Width);
-		position.z = (float)(rand() % Depth);
-		position.y = 100.0f;
-
-		auto projectile = new Projectile(this, ProjectileScene, Ruleset->GetProjectileType("Icosphere"), position);
-		Projectiles.push_back(projectile);
-	}
-
 	for (size_t i = 0; i < Projectiles.size(); i++)
 	{
 		Projectile* projectile = Projectiles[i];
@@ -78,4 +69,18 @@ void GameMap::Update(UpdateEvent update)
 			i--;
 		}
 	}
+
+	ProjectileSpawnTimer.Update(update);
+}
+
+void GameMap::SpawnProjectile(TimerEvent timer)
+{
+	glm::vec3 position = {};
+	position.x = (float)(rand() % Width);
+	position.z = (float)(rand() % Depth);
+	position.y = 100.0f;
+
+	auto projectile = new Projectile(this, ProjectileScene, Ruleset->GetProjectileType("Icosphere"), position);
+	projectile->Update(UpdateEvent(timer.GetDeltaTime(), timer.GetDeltaTime()));
+	Projectiles.push_back(projectile);
 }

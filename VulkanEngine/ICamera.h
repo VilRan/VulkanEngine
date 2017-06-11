@@ -12,12 +12,8 @@ public:
 
 	virtual glm::mat4 GetViewProjection() = 0;
 	const float GetAspectRatio() const { return AspectRatio; }
-	void SetAspectRatio(float aspectRatio) { AspectRatio = aspectRatio; } //Changed = true; }
-	/*
-	inline const bool HasChanged() const { return Changed; }
-	inline void SetChanged(bool changed) { Changed = changed; }
-	*/
+	void SetAspectRatio(float aspectRatio) { AspectRatio = aspectRatio; }
+
 protected:
 	float AspectRatio = 1.0f;
-	//bool Changed = false;
 };

@@ -20,11 +20,11 @@ public:
 	void MoveRight(float delta);
 	void MoveLeft(float delta);
 	const float GetFieldOfView() const { return FieldOfView; }
-	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; }//Changed = true; }
+	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; }
 	const float GetNear() const { return Near; }
-	void SetNear(float near) { Near = near; }//Changed = true; }
+	void SetNear(float near) { Near = near; }
 	const float GetFar() const { return Far; }
-	void SetFar(float far) { Far = far; }//Changed = true; }
+	void SetFar(float far) { Far = far; }
 
 private:
 	glm::vec3 Position;

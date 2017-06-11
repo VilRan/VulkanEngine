@@ -6,12 +6,12 @@ public:
 	Rectangle(int left, int top, int width, int height);
 	virtual ~Rectangle();
 
-	inline const int GetLeft() const { return Left; }
-	inline const int GetTop() const { return Top; }
-	inline const int GetWidth() const { return Width; }
-	inline const int GetHeight() const { return Height; }
-	inline const int GetRight() const { return Left + Width; }
-	inline const int GetBottom() const { return Top + Height; }
+	const int GetLeft() const { return Left; }
+	const int GetTop() const { return Top; }
+	const int GetWidth() const { return Width; }
+	const int GetHeight() const { return Height; }
+	const int GetRight() const { return Left + Width; }
+	const int GetBottom() const { return Top + Height; }
 
 private:
 	int Left;

@@ -5,6 +5,7 @@
 #include "VulkanActor.h"
 #include "DynamicBufferPool.h"
 #include "VulkanTexture.h"
+#include "Camera3D.h"
 
 class VulkanActor;
 
@@ -19,14 +20,14 @@ class VulkanScene :
 {
 public:
 	VulkanScene(
-		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, 
-		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,  
-		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
+		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
+		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
+		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
 	);
 	VulkanScene(
 		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
 		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
-		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, std::shared_ptr<ICamera> camera
+		DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass, float aspectRatio
 	);
 	virtual ~VulkanScene();
 
@@ -78,5 +79,5 @@ private:
 
 	void AllocateCommandBuffers();
 	void FreeCommandBuffers();
+	std::shared_ptr<Camera3D> CreateDefaultCamera(float aspectRatio);
 };
-

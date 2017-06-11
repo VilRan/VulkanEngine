@@ -2,6 +2,7 @@
 class UpdateEvent
 {
 public:
+	UpdateEvent();
 	UpdateEvent(const double deltaTime, const double averageDeltaTime);
 	virtual ~UpdateEvent();
 
@@ -11,5 +12,5 @@ public:
 	const double GetAverageFramesPerSecond() const { return 1.0 / AverageDeltaTime; }
 
 private:
-	const double DeltaTime, AverageDeltaTime;
+	double DeltaTime, AverageDeltaTime;
 };

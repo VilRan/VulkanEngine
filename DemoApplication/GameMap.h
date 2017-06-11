@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "Projectile.h"
 #include "UpdateEvent.h"
+#include "Timer.h"
 
 class GameMap
 {
@@ -25,5 +26,8 @@ private:
 	uint32_t Width = 100;
 	uint32_t Height = 10;
 	uint32_t Depth = 100;
+	Timer ProjectileSpawnTimer;
+
+	void SpawnProjectile(TimerEvent timer);
 };
 

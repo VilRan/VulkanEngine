@@ -22,8 +22,8 @@ public:
 	virtual void RemoveScene(Scene* scene) = 0;
 	virtual std::shared_ptr<ICamera> GetCamera() = 0;
 	virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true) = 0;
-	inline void SetVisible(bool visible) { Visible = visible; }
-	inline const bool IsVisible() const { return Visible; }
+	void SetVisible(bool visible) { Visible = visible; }
+	const bool IsVisible() const { return Visible; }
 
 private:
 	bool Visible = true;

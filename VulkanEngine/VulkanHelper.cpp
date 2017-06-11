@@ -77,9 +77,7 @@ void VulkanHelper::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueu
 	std::vector<VkBufferCopy> copyRegions(bufferCount);
 	for (size_t i = 0; i < bufferCount; i++)
 	{
-		copyRegions[i].srcOffset = buffers[i].GetOffset();
-		copyRegions[i].dstOffset = buffers[i].GetOffset();
-		copyRegions[i].size = buffers[i].GetSize();
+		copyRegions[i] = buffers[i].GetCopyRegion();
 	}
 
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, bufferCount, copyRegions.data());
