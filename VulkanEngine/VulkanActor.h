@@ -18,13 +18,12 @@ public:
 	virtual void SetRotation(glm::quat rotation);
 	virtual void SetScale(glm::vec3 scale);
 	virtual void SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	void UpdateBuffer();
 	const DynamicBuffer GetDynamicBuffer() const { return DynamicBuffer; }
 
 private:
 	VulkanScene& Scene;
 	DynamicBufferPool& DynamicBufferPool;
 	DynamicBuffer DynamicBuffer;
-
-	void UpdateBuffer();
 };
 

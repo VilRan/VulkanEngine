@@ -245,7 +245,7 @@ void VulkanScene::Update()
 		childScene->Update();
 	}
 
-	if (Status == Changed)
+	if (Status == Changed || DynamicBufferPool.HasResized())
 	{
 		BuildSecondaryCommandBuffer();
 	}
@@ -288,6 +288,11 @@ void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
 			actorsByTexture.first->Bind(commandBuffer, PipelineLayout);
 			for (auto actor : actorsByTexture.second)
 			{
+				if (DynamicBufferPool.HasResized())
+				{
+					actor->UpdateBuffer();
+				}
+
 				dynamicOffset = actor->GetDynamicBuffer().GetDynamicOffset();
 				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 1, 1, &ModelDescriptorSet, 1, &dynamicOffset);
 				vkCmdDrawIndexed(commandBuffer, model->GetIndexCount(), 1, 0, 0, 0);

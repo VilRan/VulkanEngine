@@ -61,6 +61,7 @@ DynamicBuffer DynamicBufferPool::Reserve(void* data)
 		//TODO: Handle memory allocation failures.
 		//TODO: If buffer offset changes, move the offset of existing dynamic buffers.
 		UpdateDescriptorSets();
+		Resized = true;
 	}
 
 	DynamicBuffer buffer(data, Buffer.GetHandlePointer(), Buffer.GetOffset() + DynamicOffsetCounter, SizePerDynamicBuffer, DynamicOffsetCounter);

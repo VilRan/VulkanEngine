@@ -53,7 +53,8 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 
 	ProjectileScene = Scene->AddScene();
 	ProjectileSpawnTimer.SetEvent(std::bind(&GameMap::SpawnProjectile, this, std::placeholders::_1));
-	ProjectileSpawnTimer.SetInterval(0.01);
+	ProjectileSpawnTimer.SetInterval(0.001);
+	ProjectileSpawnTimer.Start();
 }
 
 void GameMap::Update(UpdateEvent update)

@@ -24,5 +24,5 @@ public:
 private:
 	std::function<void(TimerEvent)> Event;
 	double Interval = 1.0, Counter = 0.0;
-	bool Repeating = true, Running = true;
+	bool Repeating = true, Running = false;
 };

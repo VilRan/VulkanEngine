@@ -28,6 +28,8 @@ public:
 	void UpdateDescriptorSets();
 	const Buffer GetBuffer() const { return Buffer; }
 	const size_t GetSizePerDynamicBuffer() const { return SizePerDynamicBuffer; }
+	const bool HasResized() const { return Resized; }
+	void SetResized(bool resized) { Resized = resized; }
 
 private:
 	std::vector<DynamicBuffer> Vacancies;
@@ -35,6 +37,7 @@ private:
 	Buffer Buffer;
 	size_t SizePerDynamicBuffer = 0;
 	uint32_t DynamicOffsetCounter = 0;
+	bool Resized = false;
 
 	VkDevice Device = VK_NULL_HANDLE;
 	VkDescriptorPool DescriptorPool = VK_NULL_HANDLE;

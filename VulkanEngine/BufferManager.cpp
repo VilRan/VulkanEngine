@@ -81,6 +81,9 @@ void BufferManager::Release(Buffer buffer)
 
 void BufferManager::AllocateReserved()
 {
+	//TODO: This is here because a command buffer may be in the middle of using the old buffer when memory is reallocated. Look into better ways to solve this.
+	vkDeviceWaitIdle(Device);
+
 	StagingBuffer.Create(
 		PhysicalDevice, Device, CommandPool, GraphicsQueue, TotalBufferSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT

@@ -37,13 +37,13 @@ void DemoApplication::OnStart()
 
 	FpsTimer.SetEvent(std::bind(&DemoApplication::HandleFpsTimer, this, std::placeholders::_1));
 	FpsTimer.SetInterval(0.1);
+	FpsTimer.Start();
 }
 
 void DemoApplication::OnUpdate(UpdateEvent update)
 {
 	FpsUpdate = UpdateEvent(update.GetDeltaTime(), update.GetAverageDeltaTime());
 	FpsTimer.Update(update);
-	//UpdateFpsLabel(update);
 	TryMoveCamera(update);
 	Map.Update(update);
 }

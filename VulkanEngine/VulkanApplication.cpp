@@ -62,6 +62,7 @@ void VulkanApplication::Run()
 		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime));
 
 		RootScene->Update();
+		DynamicBufferPool.SetResized(false);
 		BufferManager.UpdateStaged();
 		CreateCommandBuffers();
 		DrawFrame();
