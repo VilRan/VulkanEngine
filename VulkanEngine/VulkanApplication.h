@@ -1,5 +1,4 @@
 #pragma once
-#include "IApplication.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -8,11 +7,11 @@
 #include <glm/gtx/hash.hpp>
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 #include <functional>
 #include <vector>
 #include <array>
+#include "GlfwApplication.h"
 #include "VDeleter.h"
 #include "DebugReportCallback.h"
 #include "Vertex.h"
@@ -44,19 +43,12 @@ struct SwapChainSupportDetails {
 };
 
 class VulkanApplication :
-	public IApplication
+	public GlfwApplication
 {
 public:
 	VulkanApplication();
 	~VulkanApplication();
 
-	virtual void Run();
-	virtual void Exit();
-	virtual void Resize(uint32_t width, uint32_t height);
-	virtual void SetBorder(bool enabled);
-	virtual float GetAspectRatio();
-	const uint32_t GetWidth() const { return Width; }
-	const uint32_t GetHeight() const { return Height; }
 	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 	virtual Model* LoadModel(const char* path);
 	virtual Texture* LoadTexture(const char* path);
@@ -65,12 +57,15 @@ public:
 	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
 	inline virtual Scene* GetRootScene() { return RootScene; }
-	virtual int GetKeyState(int keyId);
-	virtual int GetMouseButtonState(int buttonId);
+
+protected:
+	virtual void BeginRun();
+	virtual void BeginUpdate();
+	virtual void EndUpdate();
+	virtual void EndRun();
+	virtual void OnWindowResized();
 
 private:
-	GLFWwindow* Window;
-
 	VDeleter<VkInstance> Instance{ vkDestroyInstance };
 	VDeleter<VkDebugReportCallbackEXT> Callback{ Instance, DestroyDebugReportCallbackEXT };
 	VDeleter<VkSurfaceKHR> Surface{ Instance, vkDestroySurfaceKHR };
@@ -119,24 +114,9 @@ private:
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
 
 	VulkanScene* RootScene;
-	uint32_t Width = 800;
-	uint32_t Height = 600;
-	bool Border = false;
-	std::vector<double> DeltaTimes;
-	size_t DeltaTimeWritePosition = 0;
-	double PreviousTime = 0;
-	double PreviousCursorX = 0;
-	double PreviousCursorY = 0;
-	bool ExitCalled = false;
 
-	void InitWindow();
 	void InitVulkan();
 	void LoadContent();
-	static void HandleWindowResized(GLFWwindow* window, int width, int height);
-	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
-	static void HandleCursorPosition(GLFWwindow* window, double x, double y);
-	static void HandleClickEvent(GLFWwindow* window, int button, int action, int mods);
-	static void HandleScrollEvent(GLFWwindow* window, double deltaX, double deltaY);
 	void RecreateSwapChain();
 	void CreateInstance();
 	void SetupDebugCallback();

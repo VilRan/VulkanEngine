@@ -34,86 +34,6 @@ VulkanApplication::~VulkanApplication()
 	delete RootScene;
 }
 
-void VulkanApplication::Run()
-{
-	InitWindow();
-	InitVulkan();
-
-	OnStart();
-
-	DeltaTimes.resize(1000);
-	PreviousTime = glfwGetTime();
-
-	while (glfwWindowShouldClose(Window) == false && ExitCalled == false)
-	{
-		BufferManager.BeginUpdates();
-		glfwPollEvents();
-
-		double currentTime = glfwGetTime();
-		double deltaTime = currentTime - PreviousTime;
-		DeltaTimes[DeltaTimeWritePosition] = deltaTime;
-		DeltaTimeWritePosition++;
-		if (DeltaTimeWritePosition >= DeltaTimes.size())
-		{
-			DeltaTimeWritePosition = 0;
-		}
-
-		double totalDeltaTime = 0.0, minDeltaTime = DBL_MAX, maxDeltaTime = 0.0;
-		for (auto time : DeltaTimes)
-		{
-			totalDeltaTime += time;
-			if (time < minDeltaTime)
-			{
-				minDeltaTime = time;
-			}
-			else if (time > maxDeltaTime)
-			{
-				maxDeltaTime = time;
-			}
-		}
-		double averageDeltaTime = totalDeltaTime / DeltaTimes.size();
-
-		PreviousTime = currentTime;
-
-		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime));
-
-		RootScene->Update();
-		BufferManager.EndUpdates();
-		DynamicBufferPool.SetResized(false);
-		CreateCommandBuffers();
-		DrawFrame();
-	}
-
-	vkDeviceWaitIdle(Device);
-	glfwDestroyWindow(Window);
-	glfwTerminate();
-}
-
-void VulkanApplication::Exit()
-{
-	ExitCalled = true;
-}
-
-void VulkanApplication::Resize(uint32_t width, uint32_t height)
-{
-	Width = width;
-	Height = height;
-	if (Window != nullptr)
-	{
-		glfwSetWindowSize(Window, Width, Height);
-	}
-}
-
-void VulkanApplication::SetBorder(bool enabled)
-{
-	Border = enabled;
-}
-
-float VulkanApplication::GetAspectRatio()
-{
-	return Width / (float)Height;
-}
-
 Model* VulkanApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
 	return Models.Create(vertices, indices);
@@ -150,37 +70,33 @@ SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* met
 	return Fonts.Load(texture, metaPath);
 }
 
-int VulkanApplication::GetKeyState(int keyId)
+void VulkanApplication::BeginRun()
 {
-	return glfwGetKey(Window, keyId);
+	InitVulkan();
 }
 
-int VulkanApplication::GetMouseButtonState(int buttonId)
+void VulkanApplication::BeginUpdate()
 {
-	return glfwGetMouseButton(Window, buttonId);
+	BufferManager.BeginUpdates();
 }
 
-void VulkanApplication::InitWindow() 
+void VulkanApplication::EndUpdate()
 {
-	glfwInit();
+	RootScene->Update();
+	BufferManager.EndUpdates();
+	DynamicBufferPool.SetResized(false);
+	CreateCommandBuffers();
+	DrawFrame();
+}
 
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	Width = mode->width;
-	Height = mode->height;
+void VulkanApplication::EndRun()
+{
+	vkDeviceWaitIdle(Device);
+}
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_DECORATED, Border);
-
-	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
-
-	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetWindowUserPointer(Window, this);
-	glfwSetWindowSizeCallback(Window, VulkanApplication::HandleWindowResized);
-	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);
-	glfwSetCursorPosCallback(Window, VulkanApplication::HandleCursorPosition);
-	glfwSetMouseButtonCallback(Window, VulkanApplication::HandleClickEvent);
-	glfwSetScrollCallback(Window, VulkanApplication::HandleScrollEvent);
+void VulkanApplication::OnWindowResized()
+{
+	RecreateSwapChain();
 }
 
 void VulkanApplication::InitVulkan() 
@@ -227,43 +143,6 @@ void VulkanApplication::LoadContent()
 	BufferManager.AllocateReserved();
 	DynamicBufferPool.UpdateDescriptorSets();
 	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
-}
-
-void VulkanApplication::HandleWindowResized(GLFWwindow* window, int width, int height) 
-{
-	if (width == 0 || height == 0)
-	{
-		return;
-	}
-	
-	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->RecreateSwapChain();
-}
-
-void VulkanApplication::HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->OnKey(KeyEvent(key, scancode, action, mods));
-}
-
-void VulkanApplication::HandleCursorPosition(GLFWwindow* window, double x, double y)
-{
-	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->OnCursor(CursorPositionEvent(x, y, x - application->PreviousCursorX, y - application->PreviousCursorY));
-	application->PreviousCursorX = x;
-	application->PreviousCursorY = y;
-}
-
-void VulkanApplication::HandleClickEvent(GLFWwindow* window, int button, int action, int mods)
-{
-	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->OnMouseButton(MouseButtonEvent(button, action, mods, application->PreviousCursorX, application->PreviousCursorY));
-}
-
-void VulkanApplication::HandleScrollEvent(GLFWwindow* window, double deltaX, double deltaY)
-{
-	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->OnScroll(ScrollEvent(deltaX, deltaY));
 }
 
 void VulkanApplication::RecreateSwapChain() 
@@ -338,7 +217,7 @@ void VulkanApplication::SetupDebugCallback()
 
 void VulkanApplication::CreateSurface() 
 {
-	if (glfwCreateWindowSurface(Instance, Window, nullptr, Surface.replace()) != VK_SUCCESS) 
+	if (glfwCreateWindowSurface(Instance, GetWindow(), nullptr, Surface.replace()) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("Failed to create window surface!");
 	}
@@ -1098,7 +977,7 @@ VkExtent2D VulkanApplication::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& c
 	else 
 	{
 		int width, height;
-		glfwGetWindowSize(Window, &width, &height);
+		glfwGetWindowSize(GetWindow(), &width, &height);
 
 		VkExtent2D actualExtent = { (uint32_t)width, (uint32_t)height };
 
