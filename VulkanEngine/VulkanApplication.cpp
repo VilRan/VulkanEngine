@@ -56,14 +56,32 @@ void VulkanApplication::Run()
 		{
 			DeltaTimeWritePosition = 0;
 		}
-		double averageDeltaTime = std::accumulate(DeltaTimes.begin(), DeltaTimes.end(), 0.0) / DeltaTimes.size();
+
+		double totalDeltaTime = 0.0, minDeltaTime = DBL_MAX, maxDeltaTime = 0.0;
+		for (auto time : DeltaTimes)
+		{
+			totalDeltaTime += time;
+			if (time < minDeltaTime)
+			{
+				minDeltaTime = time;
+			}
+			else if (time > maxDeltaTime)
+			{
+				maxDeltaTime = time;
+			}
+		}
+		double averageDeltaTime = totalDeltaTime / DeltaTimes.size();
+
 		PreviousTime = currentTime;
 
-		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime));
+		BufferManager.BeginUpdates();
+
+		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime));
 
 		RootScene->Update();
-		DynamicBufferPool.SetResized(false);
+		BufferManager.EndUpdates();
 		BufferManager.UpdateStaged();
+		DynamicBufferPool.SetResized(false);
 		CreateCommandBuffers();
 		DrawFrame();
 	}
@@ -883,9 +901,6 @@ void VulkanApplication::CreateDescriptorSets()
 
 void VulkanApplication::CreateCommandBuffers() 
 {
-	//TODO: Use a better synchronization method.
-	//vkDeviceWaitIdle(Device);
-
 	if (CommandBuffers.size() != SwapChainFramebuffers.size())
 	{
 		if (CommandBuffers.size() > 0)

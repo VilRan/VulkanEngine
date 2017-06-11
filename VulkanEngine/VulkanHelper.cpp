@@ -72,6 +72,11 @@ void VulkanHelper::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, Buffer * b
 
 void VulkanHelper::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, Buffer* buffers, size_t bufferCount)
 {
+	if (bufferCount == 0)
+	{
+		return;
+	}
+
 	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(device, commandPool);
 
 	std::vector<VkBufferCopy> copyRegions(bufferCount);

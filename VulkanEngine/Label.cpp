@@ -35,6 +35,10 @@ void Label::SetText(const char* text)
 			offset += glm::vec3(Font.GetSpaceWidth(), 0.0f, 0.0f);
 			break;
 
+		case '\t':
+			offset += glm::vec3(4 * Font.GetSpaceWidth(), 0.0f, 0.0f);
+			break;
+
 		default:
 			Sprite* sprite = Font.GetSprite(c);
 			Rectangle bounds = sprite->GetBounds();

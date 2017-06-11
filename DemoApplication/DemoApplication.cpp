@@ -42,7 +42,7 @@ void DemoApplication::OnStart()
 
 void DemoApplication::OnUpdate(UpdateEvent update)
 {
-	FpsUpdate = UpdateEvent(update.GetDeltaTime(), update.GetAverageDeltaTime());
+	FpsUpdate = update;
 	FpsTimer.Update(update);
 	TryMoveCamera(update);
 	Map.Update(update);
@@ -110,8 +110,10 @@ void DemoApplication::UpdateFpsLabel(UpdateEvent update)
 {
 	std::stringstream fpsText;
 	fpsText << "FPS:          " << update.GetFramesPerSecond() << "\n";
-	fpsText << "FPS (avg.):   " << update.GetAverageFramesPerSecond() << "\n";
+	fpsText << "Avg:          " << update.GetAverageFramesPerSecond() << "\n";
 	fpsText << "Frame Time:   " << update.GetDeltaTime() << "\n";
+	fpsText << "Min:          " << update.GetMinDeltaTime() << "\n";
+	fpsText << "Max:          " << update.GetMaxDeltaTime() << "\n";
 	fpsText << "Actor Count:  " << GetRootScene()->GetActorCount() << "\n";
 	fpsText << "Vertex Count: " << GetRootScene()->GetVertexCount() << "\n";
 	FpsLabel->SetText(fpsText.str().c_str());

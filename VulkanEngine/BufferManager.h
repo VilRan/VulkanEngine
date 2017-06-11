@@ -19,12 +19,16 @@ public:
 	void Update(Buffer* buffers, size_t bufferCount);
 	void Stage(Buffer buffer);
 	void UpdateStaged();
+	void BeginUpdates();
+	void EndUpdates();
 
 private:
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkCommandBuffer UpdateCommandBuffer = VK_NULL_HANDLE;
+	bool BeginUpdatesCalled = false;
 
 	std::vector<Buffer> Reservations;
 	std::vector<Buffer> Vacancies;
