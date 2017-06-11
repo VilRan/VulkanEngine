@@ -20,6 +20,7 @@ protected:
 	virtual void OnKey(KeyEvent key);
 	virtual void OnCursor(CursorPositionEvent cursor);
 	virtual void OnClick(ClickEvent click);
+	virtual void OnScroll(ScrollEvent scroll);
 
 private:
 	std::shared_ptr<Camera3D> Camera;

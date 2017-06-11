@@ -112,7 +112,8 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
 
-	std::vector<VkCommandBuffer> CommandBuffers;
+	std::vector<VkCommandBuffer> FrontCommandBuffers;
+	std::vector<VkCommandBuffer> BackCommandBuffers;
 
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
@@ -135,6 +136,7 @@ private:
 	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void HandleCursorPosition(GLFWwindow* window, double x, double y);
 	static void HandleClickEvent(GLFWwindow* window, int button, int action, int mods);
+	static void HandleScrollEvent(GLFWwindow* window, double deltaX, double deltaY);
 	void RecreateSwapChain();
 	void CreateInstance();
 	void SetupDebugCallback();

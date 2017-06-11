@@ -40,6 +40,7 @@
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ScrollEvent.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteFont.h" />
     <ClInclude Include="SpriteManager.h" />
@@ -81,6 +82,7 @@
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="ScrollEvent.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteFont.cpp" />
     <ClCompile Include="SpriteManager.cpp" />

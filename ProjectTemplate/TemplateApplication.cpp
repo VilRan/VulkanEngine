@@ -31,3 +31,7 @@ void TemplateApplication::OnCursor(CursorPositionEvent cursor)
 void TemplateApplication::OnClick(ClickEvent click)
 {
 }
+
+void TemplateApplication::OnScroll(ScrollEvent scroll)
+{
+}

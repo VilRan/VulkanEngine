@@ -9,6 +9,7 @@
 #include "KeyEvent.h"
 #include "CursorPositionEvent.h"
 #include "ClickEvent.h"
+#include "ScrollEvent.h"
 
 class IApplication
 {
@@ -40,4 +41,5 @@ protected:
 	virtual void OnKey(KeyEvent key) = 0;
 	virtual void OnCursor(CursorPositionEvent cursor) = 0;
 	virtual void OnClick(ClickEvent click) = 0;
+	virtual void OnScroll(ScrollEvent scroll) = 0;
 };

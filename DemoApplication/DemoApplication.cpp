@@ -27,6 +27,7 @@ void DemoApplication::OnStart()
 	Camera->SetPosition({ 50.0f, 12.0f, 50.0f });
 	Camera->SetFar(200.0f);
 	Camera->SetFieldOfView(90.0f);
+	Camera->SetAspectRatio(GetAspectRatio());
 	MapScene->SetCamera(Camera);
 
 	UiScene = GetRootScene()->AddScene();
@@ -71,6 +72,10 @@ void DemoApplication::OnCursor(CursorPositionEvent cursor)
 void DemoApplication::OnClick(ClickEvent click)
 {
 
+}
+
+void DemoApplication::OnScroll(ScrollEvent scroll)
+{
 }
 
 void DemoApplication::TryMoveCamera(UpdateEvent update)

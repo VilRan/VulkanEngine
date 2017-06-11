@@ -18,4 +18,5 @@ protected:
 	virtual void OnKey(KeyEvent key);
 	virtual void OnCursor(CursorPositionEvent cursor);
 	virtual void OnClick(ClickEvent click);
+	virtual void OnScroll(ScrollEvent scroll);
 };

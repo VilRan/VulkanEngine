@@ -178,7 +178,7 @@ void BufferManager::EndUpdates()
 	submitInfo.pCommandBuffers = &UpdateCommandBuffer;
 
 	vkQueueSubmit(GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(GraphicsQueue);
+	//vkQueueWaitIdle(GraphicsQueue);
 
 	BeginUpdatesCalled = false;
 }

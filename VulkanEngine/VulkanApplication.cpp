@@ -44,8 +44,9 @@ void VulkanApplication::Run()
 	DeltaTimes.resize(1000);
 	PreviousTime = glfwGetTime();
 
-	while (!glfwWindowShouldClose(Window) && !ExitCalled)
+	while (glfwWindowShouldClose(Window) == false && ExitCalled == false)
 	{
+		BufferManager.BeginUpdates();
 		glfwPollEvents();
 
 		double currentTime = glfwGetTime();
@@ -73,8 +74,6 @@ void VulkanApplication::Run()
 		double averageDeltaTime = totalDeltaTime / DeltaTimes.size();
 
 		PreviousTime = currentTime;
-
-		BufferManager.BeginUpdates();
 
 		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime));
 
@@ -181,6 +180,7 @@ void VulkanApplication::InitWindow()
 	glfwSetKeyCallback(Window, VulkanApplication::HandleKeyboardEvent);
 	glfwSetCursorPosCallback(Window, VulkanApplication::HandleCursorPosition);
 	glfwSetMouseButtonCallback(Window, VulkanApplication::HandleClickEvent);
+	glfwSetScrollCallback(Window, VulkanApplication::HandleScrollEvent);
 }
 
 void VulkanApplication::InitVulkan() 
@@ -258,6 +258,12 @@ void VulkanApplication::HandleClickEvent(GLFWwindow* window, int button, int act
 {
 	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
 	application->OnClick(ClickEvent(button, action, mods, application->PreviousCursorX, application->PreviousCursorY));
+}
+
+void VulkanApplication::HandleScrollEvent(GLFWwindow* window, double deltaX, double deltaY)
+{
+	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
+	application->OnScroll(ScrollEvent(deltaX, deltaY));
 }
 
 void VulkanApplication::RecreateSwapChain() 
@@ -900,22 +906,22 @@ void VulkanApplication::CreateDescriptorSets()
 
 void VulkanApplication::CreateCommandBuffers() 
 {
-	if (CommandBuffers.size() != SwapChainFramebuffers.size())
+	if (BackCommandBuffers.size() != SwapChainFramebuffers.size())
 	{
-		if (CommandBuffers.size() > 0)
+		if (BackCommandBuffers.size() > 0)
 		{
-			vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
+			vkFreeCommandBuffers(Device, CommandPool, BackCommandBuffers.size(), BackCommandBuffers.data());
 		}
 
-		CommandBuffers.resize(SwapChainFramebuffers.size());
+		BackCommandBuffers.resize(SwapChainFramebuffers.size());
 
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = CommandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();
+		allocInfo.commandBufferCount = (uint32_t)BackCommandBuffers.size();
 
-		if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(Device, &allocInfo, BackCommandBuffers.data()) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}
@@ -937,20 +943,23 @@ void VulkanApplication::CreateCommandBuffers()
 	renderPassInfo.clearValueCount = clearValues.size();
 	renderPassInfo.pClearValues = clearValues.data();
 
-	for (size_t i = 0; i < CommandBuffers.size(); i++) 
+	for (size_t i = 0; i < BackCommandBuffers.size(); i++) 
 	{
-		vkBeginCommandBuffer(CommandBuffers[i], &beginInfo);
+		VkCommandBuffer commandBuffer = BackCommandBuffers[i];
+		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
 		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
-		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-		RootScene->BuildPrimaryCommandBuffer(CommandBuffers[i]);
-		vkCmdEndRenderPass(CommandBuffers[i]);
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+		RootScene->BuildPrimaryCommandBuffer(commandBuffer);
+		vkCmdEndRenderPass(commandBuffer);
 
-		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) 
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 	}
+
+	std::swap(FrontCommandBuffers, BackCommandBuffers);
 }
 
 void VulkanApplication::CreateSemaphores() 
@@ -990,12 +999,13 @@ void VulkanApplication::DrawFrame()
 	submitInfo.pWaitDstStageMask = waitStages;
 
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &CommandBuffers[imageIndex];
+	submitInfo.pCommandBuffers = &FrontCommandBuffers[imageIndex];
 
 	VkSemaphore signalSemaphores[] = { RenderFinishedSemaphore };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
+	vkQueueWaitIdle(GraphicsQueue);
 	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to submit draw command buffer!");
