@@ -251,7 +251,7 @@ void VulkanScene::Update()
 	}
 
 	ViewProjection = Camera->GetViewProjection();
-	DynamicBufferPool.Stage(ViewProjectionBuffer);
+	DynamicBufferPool.Update(ViewProjectionBuffer);
 }
 
 VulkanScene::VulkanScene(

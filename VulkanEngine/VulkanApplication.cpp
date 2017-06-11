@@ -80,7 +80,6 @@ void VulkanApplication::Run()
 
 		RootScene->Update();
 		BufferManager.EndUpdates();
-		BufferManager.UpdateStaged();
 		DynamicBufferPool.SetResized(false);
 		CreateCommandBuffers();
 		DrawFrame();

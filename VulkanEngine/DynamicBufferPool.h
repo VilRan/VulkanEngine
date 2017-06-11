@@ -23,8 +23,8 @@ public:
 	);
 	DynamicBuffer Reserve(void* data);
 	void Release(DynamicBuffer buffer);
-	void Stage(DynamicBuffer buffer);
-	void UpdateBuffers(Buffer* buffers, size_t bufferCount);
+	void Update(DynamicBuffer buffer);
+	void Update(Buffer* buffers, size_t bufferCount);
 	void UpdateDescriptorSets();
 	const Buffer GetBuffer() const { return Buffer; }
 	const size_t GetSizePerDynamicBuffer() const { return SizePerDynamicBuffer; }

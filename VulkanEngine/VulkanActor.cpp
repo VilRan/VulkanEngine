@@ -37,5 +37,5 @@ void VulkanActor::SetTransform(glm::vec3 position, glm::quat rotation, glm::vec3
 
 void VulkanActor::UpdateBuffer()
 {
-	DynamicBufferPool.Stage(DynamicBuffer);
+	DynamicBufferPool.Update(DynamicBuffer);
 }

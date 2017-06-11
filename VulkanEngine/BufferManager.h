@@ -16,9 +16,8 @@ public:
 	Buffer Reserve(void* data, VkDeviceSize size);
 	void Release(Buffer buffer);
 	void AllocateReserved();
+	void Update(Buffer buffer);
 	void Update(Buffer* buffers, size_t bufferCount);
-	void Stage(Buffer buffer);
-	void UpdateStaged();
 	void BeginUpdates();
 	void EndUpdates();
 

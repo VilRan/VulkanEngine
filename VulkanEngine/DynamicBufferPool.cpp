@@ -74,12 +74,12 @@ void DynamicBufferPool::Release(DynamicBuffer buffer)
 	Vacancies.push_back(buffer);
 }
 
-void DynamicBufferPool::Stage(DynamicBuffer buffer)
+void DynamicBufferPool::Update(DynamicBuffer buffer)
 {
-	BufferManager->Stage(buffer);
+	BufferManager->Update(buffer);
 }
 
-void DynamicBufferPool::UpdateBuffers(::Buffer* buffers, size_t bufferCount)
+void DynamicBufferPool::Update(::Buffer* buffers, size_t bufferCount)
 {
 	BufferManager->Update(buffers, bufferCount);
 }

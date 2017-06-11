@@ -128,18 +128,7 @@ void BufferManager::AllocateReserved()
 	Update(Reservations.data(), Reservations.size());
 }
 
-void BufferManager::Update(Buffer* buffers, size_t bufferCount)
-{
-	for (size_t i = 0; i < bufferCount; i++)
-	{
-		Stage(buffers[i]);
-		//StagingBuffer.Update(buffers[i]);
-	}
-	
-	//CopyFromStagingToLocal(buffers, bufferCount);
-}
-
-void BufferManager::Stage(Buffer buffer)
+void BufferManager::Update(Buffer buffer)
 {
 	if (BeginUpdatesCalled && buffer.GetSize() <= UINT16_MAX)
 	{
@@ -152,10 +141,12 @@ void BufferManager::Stage(Buffer buffer)
 	}
 }
 
-void BufferManager::UpdateStaged()
+void BufferManager::Update(Buffer* buffers, size_t bufferCount)
 {
-	CopyFromStagingToLocal(Staged.data(), Staged.size());
-	Staged.clear();
+	for (size_t i = 0; i < bufferCount; i++)
+	{
+		Update(buffers[i]);
+	}
 }
 
 void BufferManager::BeginUpdates()
@@ -171,6 +162,9 @@ void BufferManager::BeginUpdates()
 
 void BufferManager::EndUpdates()
 {
+	CopyFromStagingToLocal(Staged.data(), Staged.size());
+	Staged.clear();
+
 	if (BeginUpdatesCalled == false)
 	{
 		return;
