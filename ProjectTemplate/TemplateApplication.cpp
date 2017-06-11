@@ -28,7 +28,7 @@ void TemplateApplication::OnCursor(CursorPositionEvent cursor)
 {
 }
 
-void TemplateApplication::OnClick(ClickEvent click)
+void TemplateApplication::OnMouseButton(MouseButtonEvent mouse)
 {
 }
 

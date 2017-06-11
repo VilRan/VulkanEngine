@@ -141,9 +141,6 @@
     <ClInclude Include="ICamera.h">
       <Filter>Header Files\Cameras</Filter>
     </ClInclude>
-    <ClInclude Include="ClickEvent.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -151,6 +148,9 @@
       <Filter>Header Files\Events</Filter>
     </ClInclude>
     <ClInclude Include="ScrollEvent.h">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseButtonEvent.h">
       <Filter>Header Files\Events</Filter>
     </ClInclude>
   </ItemGroup>
@@ -257,9 +257,6 @@
     <ClCompile Include="ICamera.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="ClickEvent.cpp">
-      <Filter>Source Files\Events</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -267,6 +264,9 @@
       <Filter>Source Files\Events</Filter>
     </ClCompile>
     <ClCompile Include="ScrollEvent.cpp">
+      <Filter>Source Files\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseButtonEvent.cpp">
       <Filter>Source Files\Events</Filter>
     </ClCompile>
   </ItemGroup>

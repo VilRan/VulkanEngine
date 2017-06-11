@@ -19,7 +19,7 @@ protected:
 	virtual void OnUpdate(UpdateEvent update);
 	virtual void OnKey(KeyEvent key);
 	virtual void OnCursor(CursorPositionEvent cursor);
-	virtual void OnClick(ClickEvent click);
+	virtual void OnMouseButton(MouseButtonEvent mouse);
 	virtual void OnScroll(ScrollEvent scroll);
 
 private:

@@ -1,9 +1,9 @@
 #pragma once
-class ClickEvent
+class MouseButtonEvent
 {
 public:
-	ClickEvent(const int button, const int action, const int mods, const double x, const double y);
-	virtual ~ClickEvent();
+	MouseButtonEvent(const int button, const int action, const int mods, const double x, const double y);
+	virtual ~MouseButtonEvent();
 
 	const int GetButton() const { return Button; }
 	const int GetAction() const { return Action; }

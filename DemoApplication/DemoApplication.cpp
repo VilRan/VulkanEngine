@@ -69,9 +69,8 @@ void DemoApplication::OnCursor(CursorPositionEvent cursor)
 	Camera->Rotate((float)cursor.GetDeltaX() / -100.0f, (float)cursor.GetDeltaY() / 100.0f);
 }
 
-void DemoApplication::OnClick(ClickEvent click)
+void DemoApplication::OnMouseButton(MouseButtonEvent mouse)
 {
-
 }
 
 void DemoApplication::OnScroll(ScrollEvent scroll)

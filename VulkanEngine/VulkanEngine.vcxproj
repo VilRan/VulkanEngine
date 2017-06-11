@@ -24,7 +24,7 @@
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="Camera3D.h" />
-    <ClInclude Include="ClickEvent.h" />
+    <ClInclude Include="MouseButtonEvent.h" />
     <ClInclude Include="CursorPositionEvent.h" />
     <ClInclude Include="DebugReportCallback.h" />
     <ClInclude Include="DeviceBuffer.h" />
@@ -66,7 +66,7 @@
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
-    <ClCompile Include="ClickEvent.cpp" />
+    <ClCompile Include="MouseButtonEvent.cpp" />
     <ClCompile Include="CursorPositionEvent.cpp" />
     <ClCompile Include="DebugReportCallback.cpp" />
     <ClCompile Include="DeviceBuffer.cpp" />

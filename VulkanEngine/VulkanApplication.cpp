@@ -257,7 +257,7 @@ void VulkanApplication::HandleCursorPosition(GLFWwindow* window, double x, doubl
 void VulkanApplication::HandleClickEvent(GLFWwindow* window, int button, int action, int mods)
 {
 	VulkanApplication* application = reinterpret_cast<VulkanApplication*>(glfwGetWindowUserPointer(window));
-	application->OnClick(ClickEvent(button, action, mods, application->PreviousCursorX, application->PreviousCursorY));
+	application->OnMouseButton(MouseButtonEvent(button, action, mods, application->PreviousCursorX, application->PreviousCursorY));
 }
 
 void VulkanApplication::HandleScrollEvent(GLFWwindow* window, double deltaX, double deltaY)
