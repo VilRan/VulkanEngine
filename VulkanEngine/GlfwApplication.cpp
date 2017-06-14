@@ -20,9 +20,6 @@ void GlfwApplication::Run()
 
 	while (glfwWindowShouldClose(Window) == false && ExitCalled == false)
 	{
-		BeginUpdate();
-		glfwPollEvents();
-
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - PreviousTime;
 		DeltaTimes[DeltaTimeWritePosition] = deltaTime;
@@ -49,9 +46,14 @@ void GlfwApplication::Run()
 
 		PreviousTime = currentTime;
 
-		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, FrameNumber));
+		UpdateEvent update(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, FrameNumber);
 
-		EndUpdate();
+		BeginUpdate(update);
+		glfwPollEvents();
+
+		OnUpdate(update);
+
+		EndUpdate(update);
 		FrameNumber++;
 	}
 

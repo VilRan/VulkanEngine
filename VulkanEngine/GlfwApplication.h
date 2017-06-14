@@ -23,8 +23,8 @@ public:
 
 protected:
 	virtual void BeginRun() = 0;
-	virtual void BeginUpdate() = 0;
-	virtual void EndUpdate() = 0;
+	virtual void BeginUpdate(UpdateEvent update) = 0;
+	virtual void EndUpdate(UpdateEvent update) = 0;
 	virtual void EndRun() = 0;
 	virtual void OnWindowResized() = 0;
 

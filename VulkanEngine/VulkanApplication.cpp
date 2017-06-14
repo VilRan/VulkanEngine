@@ -93,21 +93,29 @@ void VulkanApplication::BeginRun()
 		ViewProjectionDescriptorSet, ModelDescriptorSet,
 		DynamicBufferPool, RenderPass, GetAspectRatio()
 	);
+
+	DrawTimer.SetEvent(std::bind(&VulkanApplication::Draw, this, std::placeholders::_1));
+	DrawTimer.SetFrequency(100);
+	DrawTimer.SetOncePerUpdate(true);
+	DrawTimer.Start();
 }
 
-void VulkanApplication::BeginUpdate()
+void VulkanApplication::BeginUpdate(UpdateEvent update)
 {
 	BufferManager.BeginUpdates();
 }
 
-void VulkanApplication::EndUpdate()
+void VulkanApplication::EndUpdate(UpdateEvent update)
 {
 	RootScene->Update();
 	BufferManager.EndUpdates();
 	DynamicBufferPool.SetResized(false);
+	DrawTimer.Update(update);
+	/*
 	AcquireNextImage();
 	CreateCommandBuffers();
 	DrawFrame();
+	*/
 }
 
 void VulkanApplication::EndRun()
@@ -789,6 +797,13 @@ void VulkanApplication::CreateSemaphores()
 	{
 		throw std::runtime_error("Failed to create semaphores!");
 	}
+}
+
+void VulkanApplication::Draw(TimerEvent timer)
+{
+	AcquireNextImage();
+	CreateCommandBuffers();
+	DrawFrame();
 }
 
 void VulkanApplication::AcquireNextImage()
