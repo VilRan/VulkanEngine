@@ -113,6 +113,7 @@ void DemoApplication::TryMoveCamera(UpdateEvent update)
 void DemoApplication::UpdateFpsLabel(UpdateEvent update)
 {
 	std::stringstream fpsText;
+	fpsText << "Frame Number: " << update.GetFrameNumber() << "\n";
 	fpsText << "FPS:          " << update.GetFramesPerSecond() << "\n";
 	fpsText << "Avg:          " << update.GetAverageFramesPerSecond() << "\n";
 	fpsText << "Frame Time:   " << update.GetDeltaTime() << "\n";

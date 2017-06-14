@@ -49,9 +49,10 @@ void GlfwApplication::Run()
 
 		PreviousTime = currentTime;
 
-		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime));
+		OnUpdate(UpdateEvent(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, FrameNumber));
 
 		EndUpdate();
+		FrameNumber++;
 	}
 
 	EndRun();
