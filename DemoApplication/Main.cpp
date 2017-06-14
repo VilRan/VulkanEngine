@@ -1,7 +1,7 @@
 #include "DemoApplication.h"
 
-int main() {
-	DemoApplication application;
-	application.Run();
+int main() 
+{
+	DemoApplication().Run();
 	return 0;
 }

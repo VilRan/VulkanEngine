@@ -64,29 +64,6 @@ void GlfwApplication::Exit()
 	ExitCalled = true;
 }
 
-void GlfwApplication::InitWindow()
-{
-	glfwInit();
-
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	Width = mode->width;
-	Height = mode->height;
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_DECORATED, Border);
-
-	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
-
-	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetWindowUserPointer(Window, this);
-	glfwSetWindowSizeCallback(Window, GlfwApplication::HandleWindowResized);
-	glfwSetKeyCallback(Window, GlfwApplication::HandleKeyboardEvent);
-	glfwSetCursorPosCallback(Window, GlfwApplication::HandleCursorPosition);
-	glfwSetMouseButtonCallback(Window, GlfwApplication::HandleClickEvent);
-	glfwSetScrollCallback(Window, GlfwApplication::HandleScrollEvent);
-}
-
 void GlfwApplication::Resize(uint32_t width, uint32_t height)
 {
 	Width = width;
@@ -115,6 +92,29 @@ int GlfwApplication::GetKeyState(int keyId)
 int GlfwApplication::GetMouseButtonState(int buttonId)
 {
 	return glfwGetMouseButton(Window, buttonId);
+}
+
+void GlfwApplication::InitWindow()
+{
+	glfwInit();
+
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	Width = mode->width;
+	Height = mode->height;
+
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_DECORATED, Border);
+
+	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
+
+	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetWindowUserPointer(Window, this);
+	glfwSetWindowSizeCallback(Window, GlfwApplication::HandleWindowResized);
+	glfwSetKeyCallback(Window, GlfwApplication::HandleKeyboardEvent);
+	glfwSetCursorPosCallback(Window, GlfwApplication::HandleCursorPosition);
+	glfwSetMouseButtonCallback(Window, GlfwApplication::HandleClickEvent);
+	glfwSetScrollCallback(Window, GlfwApplication::HandleScrollEvent);
 }
 
 void GlfwApplication::HandleWindowResized(GLFWwindow* window, int width, int height)

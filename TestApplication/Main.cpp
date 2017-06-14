@@ -1,7 +1,7 @@
 #include "TestApplication.h"
 
-int main() {
-	TestApplication application;
-	application.Run();
+int main() 
+{
+	TestApplication().Run();
 	return 0;
 }

@@ -71,6 +71,7 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	auto vulkanTexture = static_cast<VulkanTexture*>(texture);
 	VulkanActor* actor;
 
+	//TODO: Create a single actor pool shared by all scenes.
 	if (VacantActors.size() > 0)
 	{
 		actor = VacantActors.back();
@@ -199,6 +200,12 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
+	LastCommandBufferIndex++;
+	if (LastCommandBufferIndex >= CommandBuffers.size())
+	{
+		LastCommandBufferIndex = 0;
+	}
+
 	//TODO: Create secondary command buffers for all frame buffers for possible performance increase?
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -211,16 +218,16 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 	
-	vkBeginCommandBuffer(BackCommandBuffer, &beginInfo);
-	
-	BuildCommandBuffer(BackCommandBuffer);
+	VkCommandBuffer commandBuffer = CommandBuffers[LastCommandBufferIndex];
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-	if (vkEndCommandBuffer(BackCommandBuffer) != VK_SUCCESS)
+	BuildCommandBuffer(commandBuffer);
+
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
 	}
 
-	std::swap(FrontCommandBuffer, BackCommandBuffer);
 	Status = Ready;
 }
 
@@ -231,7 +238,8 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 		return;
 	}
 
-	vkCmdExecuteCommands(commandBuffer, 1, &FrontCommandBuffer);
+	VkCommandBuffer secondaryCommandBuffer = CommandBuffers[LastCommandBufferIndex];
+	vkCmdExecuteCommands(commandBuffer, 1, &secondaryCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
 		childScene->BuildPrimaryCommandBuffer(commandBuffer);
@@ -274,6 +282,8 @@ VulkanScene::VulkanScene(
 
 void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
 {
+	//TODO: Create a secondary command buffer for each actor group.
+
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 
 	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
@@ -305,17 +315,20 @@ void VulkanScene::AllocateCommandBuffers()
 {
 	FreeCommandBuffers();
 
+	CommandBuffers.resize(2);
+	LastCommandBufferIndex = CommandBuffers.size();
+
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = CommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = CommandBuffers.size();
 
-	if (vkAllocateCommandBuffers(Device, &allocInfo, &FrontCommandBuffer) != VK_SUCCESS)
+	if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate scene command buffer!");
 	}
-
+	/*
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = CommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
@@ -325,10 +338,18 @@ void VulkanScene::AllocateCommandBuffers()
 	{
 		throw std::runtime_error("Failed to allocate scene command buffer!");
 	}
+	*/
 }
 
 void VulkanScene::FreeCommandBuffers()
 {
+	if (CommandBuffers.size() > 0)
+	{
+		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
+		CommandBuffers.clear();
+	}
+
+	/*
 	if (FrontCommandBuffer != VK_NULL_HANDLE)
 	{
 		vkFreeCommandBuffers(Device, CommandPool, 1, &FrontCommandBuffer);
@@ -339,6 +360,7 @@ void VulkanScene::FreeCommandBuffers()
 		vkFreeCommandBuffers(Device, CommandPool, 1, &BackCommandBuffer);
 		BackCommandBuffer = VK_NULL_HANDLE;
 	}
+	*/
 }
 
 std::shared_ptr<Camera3D> VulkanScene::CreateDefaultCamera(float aspectRatio)

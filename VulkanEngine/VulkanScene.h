@@ -61,8 +61,7 @@ private:
 	size_t ActorCount = 0;
 	size_t VertexCount = 0;
 	DynamicBufferPool& DynamicBufferPool;
-	VkCommandBuffer FrontCommandBuffer = VK_NULL_HANDLE;
-	VkCommandBuffer BackCommandBuffer = VK_NULL_HANDLE;
+	std::vector<VkCommandBuffer> CommandBuffers;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
@@ -70,6 +69,7 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
 	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
+	uint32_t LastCommandBufferIndex;
 
 	VulkanScene(
 		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,

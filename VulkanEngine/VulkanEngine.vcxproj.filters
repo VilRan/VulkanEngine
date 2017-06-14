@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Cameras">
       <UniqueIdentifier>{fec48cef-78ac-4a2c-8e4c-ec04ff375610}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\OpenGL">
+      <UniqueIdentifier>{63f344c7-5eee-4f04-ad21-4526ce9e384d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OpenGL">
+      <UniqueIdentifier>{71febd8a-6e69-47d6-bed8-16eece5948c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IApplication.h">
@@ -157,7 +163,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OpenGLApplication.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="FencedCommandBufferPool.h">
+      <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -279,7 +288,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OpenGLApplication.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="FencedCommandBufferPool.cpp">
+      <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

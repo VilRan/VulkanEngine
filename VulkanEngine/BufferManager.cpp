@@ -12,16 +12,6 @@ BufferManager::BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, V
 
 BufferManager::~BufferManager()
 {
-	if (Device == VK_NULL_HANDLE)
-	{
-		return;
-	}
-
-	if (UpdateCommandBuffer != VK_NULL_HANDLE)
-	{
-		vkFreeCommandBuffers(Device, CommandPool, 1, &UpdateCommandBuffer);
-		UpdateCommandBuffer = VK_NULL_HANDLE;
-	}
 }
 
 void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
@@ -31,20 +21,11 @@ void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device,
 	CommandPool = commandPool;
 	GraphicsQueue = graphicsQueue;
 
+	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 2);
+
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(PhysicalDevice, &deviceProperties);
 	OffsetAlignment = deviceProperties.limits.minUniformBufferOffsetAlignment;
-
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
-
-	if (vkAllocateCommandBuffers(Device, &allocInfo, &UpdateCommandBuffer) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate scene command buffer!");
-	}
 }
 
 Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
@@ -102,10 +83,11 @@ void BufferManager::Release(Buffer buffer)
 
 void BufferManager::AllocateReserved()
 {
-	if (BeginUpdatesCalled)
+	if (ActiveCommandBuffer != VK_NULL_HANDLE)
 	{
-		vkEndCommandBuffer(UpdateCommandBuffer);
-		BeginUpdatesCalled = false;
+		vkEndCommandBuffer(ActiveCommandBuffer);
+		ActiveCommandBuffer = VK_NULL_HANDLE;
+		ActiveFence = VK_NULL_HANDLE;
 	}
 	
 	//TODO: This is here because a command buffer may be in the middle of using the old buffer when memory is reallocated. Look into better ways to solve this.
@@ -130,9 +112,9 @@ void BufferManager::AllocateReserved()
 
 void BufferManager::Update(Buffer buffer)
 {
-	if (BeginUpdatesCalled && buffer.GetSize() <= UINT16_MAX)
+	if (ActiveCommandBuffer != VK_NULL_HANDLE && buffer.GetSize() <= UINT16_MAX)
 	{
-		vkCmdUpdateBuffer(UpdateCommandBuffer, buffer.GetHandle(), buffer.GetOffset(), buffer.GetSize(), buffer.GetData());
+		vkCmdUpdateBuffer(ActiveCommandBuffer, buffer.GetHandle(), buffer.GetOffset(), buffer.GetSize(), buffer.GetData());
 	}
 	else
 	{
@@ -151,13 +133,13 @@ void BufferManager::Update(Buffer* buffers, size_t bufferCount)
 
 void BufferManager::BeginUpdates()
 {
+	FencedCommandBufferPool.WaitAndGet(&ActiveCommandBuffer, &ActiveFence);
+
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-	vkBeginCommandBuffer(UpdateCommandBuffer, &beginInfo);
-
-	BeginUpdatesCalled = true;
+	vkBeginCommandBuffer(ActiveCommandBuffer, &beginInfo);
 }
 
 void BufferManager::EndUpdates()
@@ -165,22 +147,26 @@ void BufferManager::EndUpdates()
 	CopyFromStagingToLocal(Staged.data(), Staged.size());
 	Staged.clear();
 
-	if (BeginUpdatesCalled == false)
+	if (ActiveCommandBuffer == VK_NULL_HANDLE)
 	{
 		return;
 	}
 
-	vkEndCommandBuffer(UpdateCommandBuffer);
+	vkEndCommandBuffer(ActiveCommandBuffer);
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &UpdateCommandBuffer;
+	submitInfo.pCommandBuffers = &ActiveCommandBuffer;
 
-	vkQueueSubmit(GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	//vkQueueWaitIdle(GraphicsQueue);
+	vkResetFences(Device, 1, &ActiveFence);
+	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, ActiveFence) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to submit buffer update!");
+	}
 
-	BeginUpdatesCalled = false;
+	ActiveCommandBuffer = VK_NULL_HANDLE;
+	ActiveFence = VK_NULL_HANDLE;
 }
 
 void BufferManager::CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount)

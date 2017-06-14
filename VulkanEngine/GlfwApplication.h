@@ -12,7 +12,6 @@ public:
 
 	virtual void Run();
 	virtual void Exit();
-	void InitWindow();
 
 	virtual void Resize(uint32_t width, uint32_t height);
 	virtual void SetBorder(bool enabled);
@@ -43,6 +42,7 @@ private:
 	double PreviousCursorY = 0;
 	bool ExitCalled = false;
 
+	void InitWindow();
 	static void HandleWindowResized(GLFWwindow* window, int width, int height);
 	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void HandleCursorPosition(GLFWwindow* window, double x, double y);

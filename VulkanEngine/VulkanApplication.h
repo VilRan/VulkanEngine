@@ -56,7 +56,7 @@ public:
 	virtual Sprite* CreateSprite(Texture* texture, Rectangle area);
 	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
-	inline virtual Scene* GetRootScene() { return RootScene; }
+	virtual Scene* GetRootScene() { return RootScene; }
 
 protected:
 	virtual void BeginRun();
@@ -107,15 +107,16 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
 
-	std::vector<VkCommandBuffer> FrontCommandBuffers;
-	std::vector<VkCommandBuffer> BackCommandBuffers;
+	FencedCommandBufferPool FencedCommandBufferPool;
+	VkCommandBuffer NextImageCommandBuffer;
+	VkFence NextImageFence;
+	uint32_t NextImageIndex;
 
 	VDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
 	VDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
 
 	VulkanScene* RootScene;
 
-	void InitVulkan();
 	void LoadContent();
 	void RecreateSwapChain();
 	void CreateInstance();
@@ -136,8 +137,9 @@ private:
 	void CreateTextureSampler();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
-	void CreateCommandBuffers();
 	void CreateSemaphores();
+	void AcquireNextImage();
+	void CreateCommandBuffers();
 	void DrawFrame();
 	void CreateShaderModule(const std::vector<char>& code, VDeleter<VkShaderModule>& shaderModule);
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

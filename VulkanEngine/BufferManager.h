@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "Vertex.h"
 #include "DeviceBuffer.h"
+#include "FencedCommandBufferPool.h"
 
 class BufferManager
 {
@@ -26,8 +27,9 @@ private:
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
-	VkCommandBuffer UpdateCommandBuffer = VK_NULL_HANDLE;
-	bool BeginUpdatesCalled = false;
+	FencedCommandBufferPool FencedCommandBufferPool;
+	VkCommandBuffer ActiveCommandBuffer = VK_NULL_HANDLE;
+	VkFence ActiveFence = VK_NULL_HANDLE;
 
 	std::vector<Buffer> Reservations;
 	std::vector<Buffer> Vacancies;

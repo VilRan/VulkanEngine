@@ -37,7 +37,7 @@ void DemoApplication::OnStart()
 	);
 
 	FpsTimer.SetEvent(std::bind(&DemoApplication::HandleFpsTimer, this, std::placeholders::_1));
-	FpsTimer.SetInterval(0.1);
+	FpsTimer.SetFrequency(20);
 	FpsTimer.Start();
 }
 

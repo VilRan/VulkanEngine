@@ -17,6 +17,8 @@ public:
 	void SetEvent(std::function<void(TimerEvent)> event) { Event = event; }
 	const double GetInterval() const { return Interval; }
 	void SetInterval(double interval) { Interval = interval; }
+	const double GetFrequency() const { return 1 / Interval; }
+	void SetFrequency(double frequency) { Interval = 1 / frequency; }
 	const bool IsRepeating() const { return Repeating; }
 	void SetRepeating(bool repeating) { Repeating = repeating; }
 	const bool IsRunning() const { return Running; }

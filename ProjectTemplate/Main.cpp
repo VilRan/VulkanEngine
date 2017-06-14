@@ -1,7 +1,7 @@
 #include "TemplateApplication.h"
 
-int main() {
-	TemplateApplication application;
-	application.Run();
+int main() 
+{
+	TemplateApplication().Run();
 	return 0;
 }
