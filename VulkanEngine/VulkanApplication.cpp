@@ -87,7 +87,11 @@ void VulkanApplication::BeginRun()
 	CreateFramebuffers();
 	CreateTextureSampler();
 	CreateSemaphores();
+
+	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, SwapChainFramebuffers.size());
+
 	LoadContent();
+
 	RootScene = new VulkanScene(
 		Device, CommandPool, GraphicsPipeline, PipelineLayout,
 		ViewProjectionDescriptorSet, ModelDescriptorSet,
@@ -107,6 +111,7 @@ void VulkanApplication::BeginUpdate(UpdateEvent update)
 
 void VulkanApplication::EndUpdate(UpdateEvent update)
 {
+	FencedCommandBufferPool.WaitAndGet(&NextImageCommandBuffer, &NextImageFence);
 	RootScene->Update();
 	BufferManager.EndUpdates();
 	DynamicBufferPool.SetResized(false);
@@ -823,11 +828,12 @@ void VulkanApplication::AcquireNextImage()
 
 void VulkanApplication::CreateCommandBuffers() 
 {
+	/*
 	if (FencedCommandBufferPool.Count() != SwapChainFramebuffers.size())
 	{
 		FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, SwapChainFramebuffers.size());
 	}
-
+	*/
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
@@ -845,7 +851,7 @@ void VulkanApplication::CreateCommandBuffers()
 	renderPassInfo.clearValueCount = clearValues.size();
 	renderPassInfo.pClearValues = clearValues.data();
 
-	FencedCommandBufferPool.WaitAndGet(&NextImageCommandBuffer, &NextImageFence);
+	//FencedCommandBufferPool.WaitAndGet(&NextImageCommandBuffer, &NextImageFence);
 	vkBeginCommandBuffer(NextImageCommandBuffer, &beginInfo);
 
 	vkCmdBeginRenderPass(NextImageCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
