@@ -37,7 +37,7 @@ private:
 	bool Border = false;
 	std::vector<double> DeltaTimes;
 	size_t DeltaTimeWritePosition = 0;
-	size_t FrameNumber = 0;
+	size_t UpdateNumber = 0;
 	double PreviousTime = 0;
 	double PreviousCursorX = 0;
 	double PreviousCursorY = 0;

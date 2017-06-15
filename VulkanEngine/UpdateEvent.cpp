@@ -11,7 +11,7 @@ UpdateEvent::UpdateEvent(const double deltaTime, const double averageDeltaTime)
 }
 
 UpdateEvent::UpdateEvent(const double deltaTime, const double averageDeltaTime, const double minDeltaTime, const double maxDeltaTime, size_t frameNumber)
-	: DeltaTime(deltaTime), AverageDeltaTime(averageDeltaTime), MinDeltaTime(minDeltaTime), MaxDeltaTime(maxDeltaTime), FrameNumber(frameNumber)
+	: DeltaTime(deltaTime), AverageDeltaTime(averageDeltaTime), MinDeltaTime(minDeltaTime), MaxDeltaTime(maxDeltaTime), UpdateNumber(frameNumber)
 {
 }
 

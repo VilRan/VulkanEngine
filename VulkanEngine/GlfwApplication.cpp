@@ -46,7 +46,7 @@ void GlfwApplication::Run()
 
 		PreviousTime = currentTime;
 
-		UpdateEvent update(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, FrameNumber);
+		UpdateEvent update(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, UpdateNumber);
 
 		BeginUpdate(update);
 		glfwPollEvents();
@@ -54,7 +54,7 @@ void GlfwApplication::Run()
 		OnUpdate(update);
 
 		EndUpdate(update);
-		FrameNumber++;
+		UpdateNumber++;
 	}
 
 	EndRun();
