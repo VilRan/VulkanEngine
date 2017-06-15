@@ -21,6 +21,7 @@ public:
 	void Update(Buffer* buffers, size_t bufferCount);
 	void BeginUpdates();
 	void EndUpdates();
+	void SubmitUpdates();
 
 private:
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;

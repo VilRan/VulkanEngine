@@ -99,7 +99,7 @@ void VulkanApplication::BeginRun()
 	);
 
 	DrawTimer.SetEvent(std::bind(&VulkanApplication::Draw, this, std::placeholders::_1));
-	DrawTimer.SetFrequency(100);
+	DrawTimer.SetFrequency(60);
 	DrawTimer.SetOncePerUpdate(true);
 	DrawTimer.Start();
 }
@@ -116,11 +116,6 @@ void VulkanApplication::EndUpdate(UpdateEvent update)
 	BufferManager.EndUpdates();
 	DynamicBufferPool.SetResized(false);
 	DrawTimer.Update(update);
-	/*
-	AcquireNextImage();
-	CreateCommandBuffers();
-	DrawFrame();
-	*/
 }
 
 void VulkanApplication::EndRun()
@@ -806,8 +801,9 @@ void VulkanApplication::CreateSemaphores()
 
 void VulkanApplication::Draw(TimerEvent timer)
 {
+	BufferManager.SubmitUpdates();
 	AcquireNextImage();
-	CreateCommandBuffers();
+	RecordDrawCommandBuffer();
 	DrawFrame();
 }
 
@@ -826,14 +822,8 @@ void VulkanApplication::AcquireNextImage()
 	}
 }
 
-void VulkanApplication::CreateCommandBuffers() 
+void VulkanApplication::RecordDrawCommandBuffer() 
 {
-	/*
-	if (FencedCommandBufferPool.Count() != SwapChainFramebuffers.size())
-	{
-		FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, SwapChainFramebuffers.size());
-	}
-	*/
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
@@ -851,7 +841,6 @@ void VulkanApplication::CreateCommandBuffers()
 	renderPassInfo.clearValueCount = clearValues.size();
 	renderPassInfo.pClearValues = clearValues.data();
 
-	//FencedCommandBufferPool.WaitAndGet(&NextImageCommandBuffer, &NextImageFence);
 	vkBeginCommandBuffer(NextImageCommandBuffer, &beginInfo);
 
 	vkCmdBeginRenderPass(NextImageCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);

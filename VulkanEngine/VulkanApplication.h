@@ -142,7 +142,7 @@ private:
 	void CreateSemaphores();
 	void Draw(TimerEvent timer);
 	void AcquireNextImage();
-	void CreateCommandBuffers();
+	void RecordDrawCommandBuffer();
 	void DrawFrame();
 	void CreateShaderModule(const std::vector<char>& code, VDeleter<VkShaderModule>& shaderModule);
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

@@ -153,6 +153,14 @@ void BufferManager::EndUpdates()
 	}
 
 	vkEndCommandBuffer(ActiveCommandBuffer);
+}
+
+void BufferManager::SubmitUpdates()
+{
+	if (ActiveCommandBuffer == VK_NULL_HANDLE)
+	{
+		return;
+	}
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
