@@ -16,9 +16,10 @@ public:
 	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	Buffer Reserve(void* data, VkDeviceSize size);
 	void Release(Buffer buffer);
-	void AllocateReserved();
+	void Allocate();
 	void Update(Buffer buffer);
 	void Update(Buffer* buffers, size_t bufferCount);
+	void UpdateReserved();
 	void BeginUpdates();
 	void EndUpdates();
 	void SubmitUpdates();
@@ -29,17 +30,15 @@ private:
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
 	FencedCommandBufferPool FencedCommandBufferPool;
-	VkCommandBuffer ActiveCommandBuffer = VK_NULL_HANDLE;
-	VkFence ActiveFence = VK_NULL_HANDLE;
+	VkCommandBuffer RecordingCommandBuffer = VK_NULL_HANDLE;
+	VkFence RecordingFence = VK_NULL_HANDLE;
+	VkCommandBuffer ExecutableCommandBuffer = VK_NULL_HANDLE;
+	VkFence ExecutableFence = VK_NULL_HANDLE;
 
 	std::vector<Buffer> Reservations;
 	std::vector<Buffer> Vacancies;
-	std::vector<Buffer> Staged;
-	DeviceBuffer StagingBuffer;
-	DeviceBuffer LocalBuffer;
+	DeviceBuffer DeviceBuffer;
 	VkDeviceSize TotalBufferSize = 0;
 	VkDeviceSize OffsetAlignment = 0;
-
-	void CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount);
 };
 

@@ -102,6 +102,11 @@ void VulkanApplication::BeginRun()
 	DrawTimer.SetFrequency(60);
 	DrawTimer.SetOncePerUpdate(true);
 	DrawTimer.Start();
+
+	BufferManager.BeginUpdates();
+	OnStart();
+	BufferManager.EndUpdates();
+	BufferManager.SubmitUpdates();
 }
 
 void VulkanApplication::BeginUpdate(UpdateEvent update)
@@ -144,7 +149,11 @@ void VulkanApplication::LoadContent()
 		&BufferManager, sizeof(glm::mat4), 1024, Device, DescriptorPool, 
 		ViewProjectionDescriptorSetLayout, ViewProjectionDescriptorSet, ModelDescriptorSetLayout, ModelDescriptorSet
 	);
-	BufferManager.AllocateReserved();
+	BufferManager.Allocate();
+	BufferManager.BeginUpdates();
+	BufferManager.UpdateReserved();
+	BufferManager.EndUpdates();
+	BufferManager.SubmitUpdates();
 	DynamicBufferPool.UpdateDescriptorSets();
 	Textures.UpdateDescriptorSets(DescriptorPool, ImageDescriptorSetLayout, TextureSampler);
 }

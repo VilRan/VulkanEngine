@@ -13,7 +13,7 @@ void GlfwApplication::Run()
 	InitWindow();
 	BeginRun();
 
-	OnStart();
+	//OnStart();
 
 	DeltaTimes.resize(1000);
 	PreviousTime = glfwGetTime();

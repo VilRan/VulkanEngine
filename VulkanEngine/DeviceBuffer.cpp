@@ -11,10 +11,10 @@ DeviceBuffer::~DeviceBuffer()
 	Destroy();
 }
 
-void DeviceBuffer::Create
+void DeviceBuffer::Initialize
 (
 	VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, 
-	VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties
+	VkBufferUsageFlags usage, VkMemoryPropertyFlags properties
 )
 {
 	Destroy();
@@ -22,8 +22,25 @@ void DeviceBuffer::Create
 	Device = device;
 	CommandPool = commandPool;
 	GraphicsQueue = graphicsQueue;
-	Size = size;
-	VulkanHelper::CreateBuffer(PhysicalDevice, Device, size, usage, properties, &Buffer, &Memory);
+	Usage = usage;
+	Properties = properties;
+}
+
+void DeviceBuffer::Resize(VkDeviceSize newSize)
+{
+	VkBuffer newBuffer;
+	VkDeviceMemory newMemory;
+	VulkanHelper::CreateBuffer(PhysicalDevice, Device, newSize, Usage, Properties, &newBuffer, &newMemory);
+	VulkanHelper::CopyBuffer(Device, CommandPool, GraphicsQueue, Buffer, newBuffer, Size);
+
+	//TODO: This is here because a command buffer may be in the middle of using the old buffer when memory is reallocated. Look into better ways to solve this.
+	vkDeviceWaitIdle(Device);
+
+	Destroy();
+
+	Buffer = newBuffer;
+	Memory = newMemory;
+	Size = newSize;
 }
 
 void DeviceBuffer::Update(::Buffer buffer)

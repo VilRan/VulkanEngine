@@ -56,6 +56,11 @@ void VulkanHelper::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
 
 void VulkanHelper::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
+	if (size == 0)
+	{
+		return;
+	}
+
 	VkCommandBuffer commandBuffer = BeginSingleTimeCommands(device, commandPool);
 
 	VkBufferCopy copyRegion = {};
@@ -65,7 +70,7 @@ void VulkanHelper::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueu
 	EndSingleTimeCommands(device, commandPool, graphicsQueue, commandBuffer);
 }
 
-void VulkanHelper::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, Buffer * buffers, size_t bufferCount)
+void VulkanHelper::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, Buffer* buffers, size_t bufferCount)
 {
 	CopyBuffer(Device, CommandPool, GraphicsQueue, srcBuffer, dstBuffer, buffers, bufferCount);
 }

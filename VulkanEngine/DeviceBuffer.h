@@ -9,7 +9,8 @@ public:
 	DeviceBuffer();
 	virtual ~DeviceBuffer();
 
-	void Create(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+	void Resize(VkDeviceSize newSize);
 	void Update(Buffer buffer);
 	void CopyTo(DeviceBuffer& destination);
 	void CopyTo(DeviceBuffer& destination, Buffer* regions, size_t regionCount);
@@ -23,8 +24,10 @@ private:
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkBufferUsageFlags Usage = 0;
+	VkMemoryPropertyFlags Properties = 0;
+	VkDeviceSize Size = 0;
 	VkBuffer Buffer = VK_NULL_HANDLE;
 	VkDeviceMemory Memory = VK_NULL_HANDLE;
-	VkDeviceSize Size = 0;
 };
 

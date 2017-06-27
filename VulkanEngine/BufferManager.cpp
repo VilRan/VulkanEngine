@@ -22,6 +22,12 @@ void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device,
 	GraphicsQueue = graphicsQueue;
 
 	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 2);
+	DeviceBuffer.Initialize(
+		PhysicalDevice, Device, CommandPool, GraphicsQueue,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+	);
 
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(PhysicalDevice, &deviceProperties);
@@ -46,21 +52,21 @@ Buffer BufferManager::Reserve(void* data, VkDeviceSize size)
 				//TODO: Test this.
 				if (vacancy.GetSize() > size)
 				{
-					Vacancies[i] = Buffer(nullptr, LocalBuffer.GetHandlePointer(), vacancy.GetOffset() + size, vacancy.GetSize() - size);
+					Vacancies[i] = Buffer(nullptr, DeviceBuffer.GetHandlePointer(), vacancy.GetOffset() + size, vacancy.GetSize() - size);
 				}
 				else
 				{
 					Vacancies.erase(Vacancies.begin() + i);
 				}
 
-				Buffer reservation(data, LocalBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
+				Buffer reservation(data, DeviceBuffer.GetHandlePointer(), vacancy.GetOffset(), size);
 				Reservations.push_back(reservation);
 				return reservation;
 			}
 		}
 	}
 
-	Buffer reservation(data, LocalBuffer.GetHandlePointer(), TotalBufferSize, size);
+	Buffer reservation(data, DeviceBuffer.GetHandlePointer(), TotalBufferSize, size);
 	Reservations.push_back(reservation);
 	TotalBufferSize += size;
 	return reservation;
@@ -81,45 +87,42 @@ void BufferManager::Release(Buffer buffer)
 	}
 }
 
-void BufferManager::AllocateReserved()
+void BufferManager::Allocate()
 {
-	if (ActiveCommandBuffer != VK_NULL_HANDLE)
-	{
-		vkEndCommandBuffer(ActiveCommandBuffer);
-		ActiveCommandBuffer = VK_NULL_HANDLE;
-		ActiveFence = VK_NULL_HANDLE;
-	}
-	
-	//TODO: This is here because a command buffer may be in the middle of using the old buffer when memory is reallocated. Look into better ways to solve this.
-	vkDeviceWaitIdle(Device);
+	EndUpdates();
+	SubmitUpdates();
 
-	StagingBuffer.Create(
-		PhysicalDevice, Device, CommandPool, GraphicsQueue, TotalBufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-	);
-	LocalBuffer.Create(
-		PhysicalDevice, Device, CommandPool, GraphicsQueue, TotalBufferSize, 
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-	);
+	DeviceBuffer.Resize(TotalBufferSize);
 
-	for (auto buffer : Staged)
-	{
-		StagingBuffer.Update(buffer);
-	}
-
-	Update(Reservations.data(), Reservations.size());
+	BeginUpdates();
 }
 
 void BufferManager::Update(Buffer buffer)
 {
-	if (ActiveCommandBuffer != VK_NULL_HANDLE && buffer.GetSize() <= UINT16_MAX)
+	if (buffer.GetData() == nullptr)
 	{
-		vkCmdUpdateBuffer(ActiveCommandBuffer, buffer.GetHandle(), buffer.GetOffset(), buffer.GetSize(), buffer.GetData());
+		return;
+	}
+
+	if (buffer.GetSize() <= UINT16_MAX)
+	{
+		vkCmdUpdateBuffer(RecordingCommandBuffer, buffer.GetHandle(), buffer.GetOffset(), buffer.GetSize(), buffer.GetData());
 	}
 	else
 	{
-		StagingBuffer.Update(buffer);
-		Staged.push_back(buffer);
+		size_t updateCount = static_cast<size_t>(1 + buffer.GetSize() / UINT16_MAX);
+		for (size_t i = 0; i < updateCount; i++)
+		{
+			VkDeviceSize offset = i * UINT16_MAX;
+			VkDeviceSize bufferOffset = buffer.GetOffset() + offset;
+			void* dataOffset = static_cast<char*>(buffer.GetData()) + offset;
+			VkDeviceSize size = buffer.GetSize() % UINT16_MAX;
+			if (size == 0)
+			{
+				size = UINT16_MAX;
+			}
+			vkCmdUpdateBuffer(RecordingCommandBuffer, buffer.GetHandle(), bufferOffset, size, dataOffset);
+		}
 	}
 }
 
@@ -131,33 +134,45 @@ void BufferManager::Update(Buffer* buffers, size_t bufferCount)
 	}
 }
 
+void BufferManager::UpdateReserved()
+{
+	Update(Reservations.data(), Reservations.size());
+}
+
 void BufferManager::BeginUpdates()
 {
-	FencedCommandBufferPool.WaitAndGet(&ActiveCommandBuffer, &ActiveFence);
+	if (RecordingCommandBuffer != VK_NULL_HANDLE)
+	{
+		return;
+	}
+
+	FencedCommandBufferPool.WaitAndGet(&RecordingCommandBuffer, &RecordingFence);
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-	vkBeginCommandBuffer(ActiveCommandBuffer, &beginInfo);
+	vkBeginCommandBuffer(RecordingCommandBuffer, &beginInfo);
 }
 
 void BufferManager::EndUpdates()
 {
-	CopyFromStagingToLocal(Staged.data(), Staged.size());
-	Staged.clear();
-
-	if (ActiveCommandBuffer == VK_NULL_HANDLE)
+	if (RecordingCommandBuffer == VK_NULL_HANDLE)
 	{
 		return;
 	}
 
-	vkEndCommandBuffer(ActiveCommandBuffer);
+	vkEndCommandBuffer(RecordingCommandBuffer);
+
+	ExecutableFence = RecordingFence;
+	ExecutableCommandBuffer = RecordingCommandBuffer;
+	RecordingFence = VK_NULL_HANDLE;
+	RecordingCommandBuffer = VK_NULL_HANDLE;
 }
 
 void BufferManager::SubmitUpdates()
 {
-	if (ActiveCommandBuffer == VK_NULL_HANDLE)
+	if (ExecutableCommandBuffer == VK_NULL_HANDLE)
 	{
 		return;
 	}
@@ -165,26 +180,14 @@ void BufferManager::SubmitUpdates()
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &ActiveCommandBuffer;
+	submitInfo.pCommandBuffers = &ExecutableCommandBuffer;
 
-	vkResetFences(Device, 1, &ActiveFence);
-	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, ActiveFence) != VK_SUCCESS)
+	vkResetFences(Device, 1, &ExecutableFence);
+	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, ExecutableFence) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to submit buffer update!");
 	}
 
-	ActiveCommandBuffer = VK_NULL_HANDLE;
-	ActiveFence = VK_NULL_HANDLE;
-}
-
-void BufferManager::CopyFromStagingToLocal(Buffer* buffers, size_t bufferCount)
-{
-	if (bufferCount > 1000)
-	{
-		StagingBuffer.CopyTo(LocalBuffer);
-	}
-	else
-	{
-		StagingBuffer.CopyTo(LocalBuffer, buffers, bufferCount);
-	}
+	ExecutableCommandBuffer = VK_NULL_HANDLE;
+	ExecutableFence = VK_NULL_HANDLE;
 }
