@@ -119,12 +119,12 @@ void VulkanScene::RemoveActor(Actor* actor)
 	{
 		actorGroup.erase(position);
 		VacantActors.push_back(vulkanActor);
+
+		ActorCount--;
+		VertexCount -= actorModel->GetVertexCount();
+
+		Status = Changed;
 	}
-
-	ActorCount--;
-	VertexCount -= actorModel->GetVertexCount();
-
-	Status = Changed;
 }
 
 int VulkanScene::GetActorCount()
