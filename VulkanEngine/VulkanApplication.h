@@ -25,7 +25,7 @@
 #include "VulkanModel.h"
 #include "Actor.h"
 #include "VulkanScene.h"
-#include "Timer.h"
+//#include "Timer.h"
 
 struct QueueFamilyIndices {
 	int GraphicsFamily = -1;
@@ -108,7 +108,7 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet;
 	VkDescriptorSet ModelDescriptorSet;
 
-	Timer DrawTimer;
+	//Timer DrawTimer;
 	FencedCommandBufferPool FencedCommandBufferPool;
 	VkCommandBuffer NextImageCommandBuffer;
 	VkFence NextImageFence;
@@ -140,7 +140,7 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 	void CreateSemaphores();
-	void Draw(TimerEvent timer);
+	//void Draw(TimerEvent timer);
 	void AcquireNextImage();
 	void RecordDrawCommandBuffer();
 	void DrawFrame();

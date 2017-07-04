@@ -1,5 +1,7 @@
 #include "GlfwApplication.h"
 
+#include <thread>
+
 GlfwApplication::GlfwApplication()
 {
 }
@@ -22,6 +24,14 @@ void GlfwApplication::Run()
 	{
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - PreviousTime;
+		
+		double frameTimeLimit = 1.0 / FpsLimit;
+		if (deltaTime < frameTimeLimit)
+		{
+			std::this_thread::sleep_for(std::chrono::duration<double>(frameTimeLimit - deltaTime));
+			deltaTime = frameTimeLimit;
+		}
+		
 		DeltaTimes[DeltaTimeWritePosition] = deltaTime;
 		DeltaTimeWritePosition++;
 		if (DeltaTimeWritePosition >= DeltaTimes.size())

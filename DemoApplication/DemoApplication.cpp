@@ -6,6 +6,7 @@
 
 DemoApplication::DemoApplication()
 {
+	SetFpsLimit(60);
 }
 
 DemoApplication::~DemoApplication()

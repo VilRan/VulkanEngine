@@ -20,6 +20,8 @@ public:
 	virtual int GetMouseButtonState(int buttonId);
 	const uint32_t GetWidth() const { return Width; }
 	const uint32_t GetHeight() const { return Height; }
+	const double GetFpsLimit() const { return FpsLimit; }
+	void SetFpsLimit(double fpsLimit) { FpsLimit = fpsLimit; }
 
 protected:
 	virtual void BeginRun() = 0;
@@ -41,6 +43,7 @@ private:
 	double PreviousTime = 0;
 	double PreviousCursorX = 0;
 	double PreviousCursorY = 0;
+	double FpsLimit = 1000;
 	bool ExitCalled = false;
 
 	void InitWindow();
