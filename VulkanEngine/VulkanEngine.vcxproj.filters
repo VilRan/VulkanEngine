@@ -168,6 +168,9 @@
     <ClInclude Include="FencedCommandBufferPool.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="OpenGLScene.h">
+      <Filter>Header Files\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IApplication.cpp">
@@ -292,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="FencedCommandBufferPool.cpp">
       <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLScene.cpp">
+      <Filter>Source Files\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

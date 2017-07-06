@@ -20,12 +20,17 @@ public:
 	virtual int GetVertexCount() = 0;
 	virtual Scene* AddScene() = 0;
 	virtual void RemoveScene(Scene* scene) = 0;
-	virtual std::shared_ptr<ICamera> GetCamera() = 0;
-	virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true) = 0;
-	void SetVisible(bool visible) { Visible = visible; }
+
+	const std::shared_ptr<ICamera> GetCamera() const { return Camera; }
+	void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true);
 	const bool IsVisible() const { return Visible; }
+	void SetVisible(bool visible) { Visible = visible; }
+
+protected:
+	std::vector<Scene*> ChildScenes;
 
 private:
+	std::shared_ptr<ICamera> Camera;
 	bool Visible = true;
 };
 

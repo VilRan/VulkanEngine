@@ -41,6 +41,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="OpenGLApplication.h" />
+    <ClInclude Include="OpenGLScene.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ScrollEvent.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="OpenGLApplication.cpp" />
+    <ClCompile Include="OpenGLScene.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ScrollEvent.cpp" />

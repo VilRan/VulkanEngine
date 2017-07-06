@@ -11,7 +11,7 @@ VulkanScene::VulkanScene(
 		dynamicBufferPool, renderPass
 	)
 {
-	Camera = camera;
+	SetCamera(camera, false);
 	ViewProjectionBuffer = DynamicBufferPool.Reserve(&ViewProjection);
 }
 
@@ -154,7 +154,7 @@ Scene* VulkanScene::AddScene()
 	auto scene = new VulkanScene(
 		Device, CommandPool, GraphicsPipeline, PipelineLayout, 
 		ViewProjectionDescriptorSet, ModelDescriptorSet, 
-		DynamicBufferPool, RenderPass, Camera
+		DynamicBufferPool, RenderPass, GetCamera()
 	);
 	ChildScenes.push_back(scene);
 	return scene;
@@ -166,35 +166,24 @@ void VulkanScene::RemoveScene(Scene* scene)
 	ChildScenes.erase(position);
 	delete scene;
 }
-
+/*
 std::shared_ptr<ICamera> VulkanScene::GetCamera()
 {
 	return Camera;
 }
-
-void VulkanScene::SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes)
-{
-	Camera = camera;
-	if (passToChildScenes)
-	{
-		for (auto childScene : ChildScenes)
-		{
-			childScene->SetCamera(camera);
-		}
-	}
-}
-
+*/
 void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio)
 {
 	for (auto childScene : ChildScenes)
 	{
-		childScene->Reset(graphicsPipeline, pipelineLayout, renderPass, aspectRatio);
+		auto childVulkanScene = static_cast<VulkanScene*>(childScene);
+		childVulkanScene->Reset(graphicsPipeline, pipelineLayout, renderPass, aspectRatio);
 	}
 
 	GraphicsPipeline = graphicsPipeline;
 	PipelineLayout = pipelineLayout;
 	RenderPass = renderPass;
-	Camera->SetAspectRatio(aspectRatio);
+	GetCamera()->SetAspectRatio(aspectRatio);
 	Status = Changed;
 }
 
@@ -242,7 +231,8 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 	vkCmdExecuteCommands(commandBuffer, 1, &secondaryCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
-		childScene->BuildPrimaryCommandBuffer(commandBuffer);
+		auto childVulkanScene = static_cast<VulkanScene*>(childScene);
+		childVulkanScene->BuildPrimaryCommandBuffer(commandBuffer);
 	}
 }
 
@@ -250,7 +240,8 @@ void VulkanScene::Update()
 {
 	for (auto childScene : ChildScenes)
 	{
-		childScene->Update();
+		auto childVulkanScene = static_cast<VulkanScene*>(childScene);
+		childVulkanScene->Update();
 	}
 
 	if (Status == Changed || DynamicBufferPool.HasResized())
@@ -258,7 +249,7 @@ void VulkanScene::Update()
 		BuildSecondaryCommandBuffer();
 	}
 
-	ViewProjection = Camera->GetViewProjection();
+	ViewProjection = GetCamera()->GetViewProjection();
 	DynamicBufferPool.Update(ViewProjectionBuffer);
 }
 
