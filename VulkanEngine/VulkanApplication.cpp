@@ -33,7 +33,7 @@ VulkanApplication::~VulkanApplication()
 {
 	delete RootScene;
 }
-
+/*
 Model* VulkanApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
 	return Models.Create(vertices, indices);
@@ -66,10 +66,9 @@ SpriteFont* VulkanApplication::LoadFont(Texture* texture, const char* metaPath)
 
 SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* metaPath)
 {
-	Texture* texture = Textures.Load(texturePath);
-	return Fonts.Load(texture, metaPath);
+	return Fonts.Load(texturePath, metaPath);
 }
-
+*/
 void VulkanApplication::BeginRun()
 {
 	CreateInstance();
@@ -88,6 +87,11 @@ void VulkanApplication::BeginRun()
 	CreateTextureSampler();
 	CreateSemaphores();
 
+	BufferManager.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
+	Models.Initialize(&BufferManager);
+	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
+	Sprites.Initialize(&Models);
+	Fonts.Initialize(&Textures, &Sprites);
 	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, SwapChainFramebuffers.size());
 
 	LoadContent();
@@ -133,12 +137,6 @@ void VulkanApplication::OnWindowResized()
 
 void VulkanApplication::LoadContent()
 {
-	BufferManager.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
-	Models.Initialize(&BufferManager);
-	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
-	Sprites.Initialize(&Models);
-	Fonts.Initialize(&Sprites);
-
 	OnLoadContent();
 
 	CreateDescriptorPool();

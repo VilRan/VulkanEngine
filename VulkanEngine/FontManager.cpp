@@ -7,9 +7,9 @@ FontManager::FontManager()
 {
 }
 
-FontManager::FontManager(::SpriteManager* spriteManager)
+FontManager::FontManager(::TextureManager* textureManager, ::SpriteManager* spriteManager)
 {
-	Initialize(spriteManager);
+	Initialize(textureManager, spriteManager);
 }
 
 FontManager::~FontManager()
@@ -20,8 +20,9 @@ FontManager::~FontManager()
 	}
 }
 
-void FontManager::Initialize(::SpriteManager* spriteManager)
+void FontManager::Initialize(::TextureManager* textureManager, ::SpriteManager* spriteManager)
 {
+	TextureManager = textureManager;
 	SpriteManager = spriteManager;
 }
 
@@ -32,3 +33,8 @@ SpriteFont* FontManager::Load(Texture* texture, const char* metaPath)
 	return font;
 }
 
+SpriteFont* FontManager::Load(const char* texturePath, const char* metaPath)
+{
+	auto texture = TextureManager->Load(texturePath);
+	return Load(texture, metaPath);
+}

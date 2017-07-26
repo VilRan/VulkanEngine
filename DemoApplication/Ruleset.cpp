@@ -12,15 +12,18 @@ Ruleset::~Ruleset()
 
 void Ruleset::Initialize(DemoApplication& application)
 {
-	Model* cube = application.LoadModel("../Models/Cube.obj");
-	Texture* blackAndWhiteCube = application.LoadTexture("../Textures/BlackAndWhiteCube.png");
-	Texture* coloredCube = application.LoadTexture("../Textures/ColoredCube.png");
+	auto& models = *application.GetModels();
+	auto& textures = *application.GetTextures();
+
+	Model* cube = models.Load("../Models/Cube.obj");
+	Texture* blackAndWhiteCube = textures.Load("../Textures/BlackAndWhiteCube.png");
+	Texture* coloredCube = textures.Load("../Textures/ColoredCube.png");
 	TileTypes.emplace("Empty", TileType(nullptr, nullptr));
 	TileTypes.emplace("Block", TileType(cube, blackAndWhiteCube));
 	TileTypes.emplace("Colored", TileType(cube, coloredCube));
 
-	Model* icosphere = application.LoadModel("../Models/Icosphere.obj");
-	Texture* blackAndWhiteTriangle = application.LoadTexture("../Textures/BlackAndWhiteTriangle.png");
+	Model* icosphere = models.Load("../Models/Icosphere.obj");
+	Texture* blackAndWhiteTriangle = textures.Load("../Textures/BlackAndWhiteTriangle.png");
 	ProjectileTypes.emplace("Icosphere", ProjectileType(icosphere, blackAndWhiteTriangle));
 }
 

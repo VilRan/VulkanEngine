@@ -49,6 +49,11 @@ public:
 	VulkanApplication();
 	~VulkanApplication();
 
+	virtual ModelManager* GetModels() { return &Models; }
+	virtual TextureManager* GetTextures() { return &Textures; }
+	virtual SpriteManager* GetSprites() { return &Sprites; }
+	virtual FontManager* GetFonts() { return &Fonts; }
+	/*
 	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 	virtual Model* LoadModel(const char* path);
 	virtual Texture* LoadTexture(const char* path);
@@ -56,6 +61,7 @@ public:
 	virtual Sprite* CreateSprite(Texture* texture, Rectangle area);
 	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
 	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
+	*/
 	virtual Scene* GetRootScene() { return RootScene; }
 
 protected:

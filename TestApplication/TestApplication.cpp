@@ -12,13 +12,18 @@ TestApplication::~TestApplication()
 
 void TestApplication::OnLoadContent()
 {
-	Model = LoadModel("../Models/Cube.obj");
-	Model2 = LoadModel("../Models/Icosphere.obj");
-	Texture = LoadTexture("../Textures/ColoredCube.png");
-	Texture2 = LoadTexture("../Textures/BlackAndWhiteCube.png");
-	Texture3 = LoadTexture("../Textures/BlackAndWhiteTriangle.png");
-	Sprite = CreateSprite(Texture);
-	Font = LoadFont("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
+	auto& models = *GetModels();
+	auto& textures = *GetTextures();
+	auto& sprites = *GetSprites();
+	auto& fonts = *GetFonts();
+
+	Model = models.Load("../Models/Cube.obj");
+	Model2 = models.Load("../Models/Icosphere.obj");
+	Texture = textures.Load("../Textures/ColoredCube.png");
+	Texture2 = textures.Load("../Textures/BlackAndWhiteCube.png");
+	Texture3 = textures.Load("../Textures/BlackAndWhiteTriangle.png");
+	Sprite = sprites.Create(Texture);
+	Font = fonts.Load("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
 }
 
 void TestApplication::OnStart()

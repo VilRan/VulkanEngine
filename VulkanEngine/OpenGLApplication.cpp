@@ -7,7 +7,7 @@ OpenGLApplication::OpenGLApplication()
 OpenGLApplication::~OpenGLApplication()
 {
 }
-
+/*
 Model* OpenGLApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
 	return nullptr;
@@ -42,7 +42,7 @@ SpriteFont* OpenGLApplication::LoadFont(const char* texturePath, const char* met
 {
 	return nullptr;
 }
-
+*/
 void OpenGLApplication::BeginRun()
 {
 }

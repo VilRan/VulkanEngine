@@ -6,7 +6,7 @@
 
 DemoApplication::DemoApplication()
 {
-	SetFpsLimit(60);
+	SetFpsLimit(1000);
 }
 
 DemoApplication::~DemoApplication()
@@ -16,7 +16,7 @@ DemoApplication::~DemoApplication()
 void DemoApplication::OnLoadContent()
 {
 	Ruleset.Initialize(*this);
-	Font = LoadFont("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
+	Font = GetFonts()->Load("../Fonts/Monospace.png", "../Fonts/Monospace.png.meta");
 }
 
 void DemoApplication::OnStart()
