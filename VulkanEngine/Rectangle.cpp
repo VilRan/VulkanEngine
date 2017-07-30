@@ -1,10 +1,10 @@
 #include "Rectangle.h"
 
-Rectangle::Rectangle()
+Engine::Rectangle::Rectangle()
 {
 }
 
-Rectangle::Rectangle(int left, int top, int width, int height)
+Engine::Rectangle::Rectangle(int left, int top, int width, int height)
 {
 	Left = left;
 	Top = top;
@@ -12,6 +12,6 @@ Rectangle::Rectangle(int left, int top, int width, int height)
 	Height = height;
 }
 
-Rectangle::~Rectangle()
+Engine::Rectangle::~Rectangle()
 {
 }

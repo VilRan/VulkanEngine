@@ -6,53 +6,38 @@ OpenGLApplication::OpenGLApplication()
 
 OpenGLApplication::~OpenGLApplication()
 {
-}
-/*
-Model* OpenGLApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-{
-	return nullptr;
+	delete RootScene;
 }
 
-Model* OpenGLApplication::LoadModel(const char* path)
-{
-	return nullptr;
-}
-
-Texture* OpenGLApplication::LoadTexture(const char* path)
-{
-	return nullptr;
-}
-
-Sprite* OpenGLApplication::CreateSprite(Texture* texture)
-{
-	return nullptr;
-}
-
-Sprite* OpenGLApplication::CreateSprite(Texture* texture, Rectangle area)
-{
-	return nullptr;
-}
-
-SpriteFont* OpenGLApplication::LoadFont(Texture* texture, const char* metaPath)
-{
-	return nullptr;
-}
-
-SpriteFont* OpenGLApplication::LoadFont(const char* texturePath, const char* metaPath)
-{
-	return nullptr;
-}
-*/
 void OpenGLApplication::BeginRun()
 {
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		throw std::runtime_error("Failed to initialize GLAD!");
+	}
+
+	glViewport(0, 0, GetWidth(), GetHeight());
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	Sprites.Initialize(&Models);
+	Fonts.Initialize(&Textures, &Sprites);
+
+	OnLoadContent();
+
+	RootScene = new OpenGLScene();
+
+	OnStart();
 }
 
-void OpenGLApplication::BeginUpdate()
+void OpenGLApplication::BeginUpdate(UpdateEvent update)
 {
 }
 
-void OpenGLApplication::EndUpdate()
+void OpenGLApplication::EndUpdate(UpdateEvent update)
 {
+	glfwSwapBuffers(GetWindow());
+	glClear(GL_COLOR_BUFFER_BIT);
+	RootScene->Draw();
 }
 
 void OpenGLApplication::EndRun()
@@ -61,4 +46,13 @@ void OpenGLApplication::EndRun()
 
 void OpenGLApplication::OnWindowResized()
 {
+	glViewport(0, 0, GetWidth(), GetHeight());
+}
+
+void OpenGLApplication::OnInitializeWindow()
+{
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 }

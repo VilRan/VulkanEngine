@@ -7,15 +7,15 @@
 class Sprite
 {
 public:
-	Sprite(Model* model, Texture* texture, Rectangle bounds);
+	Sprite(Model* model, Texture* texture, Engine::Rectangle bounds);
 	virtual ~Sprite();
 
 	Model* GetModel() const { return Model; }
 	Texture* GetTexture() const { return Texture; }
-	const Rectangle GetBounds() const { return Bounds; }
+	const Engine::Rectangle GetBounds() const { return Bounds; }
 
 private:
 	Model* Model;
 	Texture* Texture;
-	Rectangle Bounds;
+	Engine::Rectangle Bounds;
 };

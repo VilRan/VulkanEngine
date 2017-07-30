@@ -1,7 +1,11 @@
 #pragma once
+#include <glad/glad.h>
 #include "GlfwApplication.h"
 
+#include "OpenGLModelManager.h"
+#include "OpenGLTextureManager.h"
 #include "FontManager.h"
+#include "OpenGLScene.h"
 
 class OpenGLApplication :
 	public GlfwApplication
@@ -10,29 +14,24 @@ public:
 	OpenGLApplication();
 	virtual ~OpenGLApplication();
 
-	virtual ModelManager* GetModels() = 0;
-	virtual TextureManager* GetTextures() = 0;
+	virtual ModelManager* GetModels() { return &Models; }
+	virtual TextureManager* GetTextures() { return &Textures; }
 	virtual SpriteManager* GetSprites() { return &Sprites; }
 	virtual FontManager* GetFonts() { return &Fonts; }
-	/*
-	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
-	virtual Model* LoadModel(const char* path);
-	virtual Texture* LoadTexture(const char* path);
-	virtual Sprite* CreateSprite(Texture* texture);
-	virtual Sprite* CreateSprite(Texture* texture, Rectangle area);
-	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath);
-	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath);
-	*/
-	//virtual Scene* GetRootScene() { return RootScene; }
+	virtual Scene* GetRootScene() { return RootScene; }
 
 protected:
 	virtual void BeginRun();
-	virtual void BeginUpdate();
-	virtual void EndUpdate();
+	virtual void BeginUpdate(UpdateEvent update);
+	virtual void EndUpdate(UpdateEvent update);
 	virtual void EndRun();
 	virtual void OnWindowResized();
+	virtual void OnInitializeWindow();
 
 private:
+	OpenGLModelManager Models;
+	OpenGLTextureManager Textures;
 	SpriteManager Sprites;
 	FontManager Fonts;
+	OpenGLScene* RootScene;
 };

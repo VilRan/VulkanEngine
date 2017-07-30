@@ -41,7 +41,7 @@ void Label::SetText(const char* text)
 
 		default:
 			Sprite* sprite = Font.GetSprite(c);
-			Rectangle bounds = sprite->GetBounds();
+			Engine::Rectangle bounds = sprite->GetBounds();
 			Actor* actor = Scene.AddActor(sprite, offset);
 			Actors.push_back(actor);
 			offset += glm::vec3(bounds.GetWidth(), 0.0f, 0.0f);

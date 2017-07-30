@@ -6,6 +6,46 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+	for (auto childScene : ChildScenes)
+	{
+		delete childScene;
+	}
+}
+
+Label* Scene::AddLabel(const char* text, SpriteFont* font, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
+{
+	auto label = new Label(text, *font, *this, position);
+	Labels.push_back(label);
+	return label;
+}
+
+int Scene::GetActorCount()
+{
+	int count = 0;
+	for (auto childScene : ChildScenes)
+	{
+		count += childScene->GetActorCount();
+	}
+	count += ActorCount;
+	return count;
+}
+
+int Scene::GetVertexCount()
+{
+	int count = 0;
+	for (auto childScene : ChildScenes)
+	{
+		count += childScene->GetVertexCount();
+	}
+	count += VertexCount;
+	return count;
+}
+
+void Scene::RemoveScene(Scene* scene)
+{
+	auto position = std::find(ChildScenes.begin(), ChildScenes.end(), scene);
+	ChildScenes.erase(position);
+	delete scene;
 }
 
 void Scene::SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes)

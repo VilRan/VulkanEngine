@@ -33,11 +33,7 @@ VulkanScene::~VulkanScene()
 	DynamicBufferPool.Release(ViewProjectionBuffer);
 	FreeCommandBuffers();
 
-	for (auto childScene : ChildScenes)
-	{
-		delete childScene;
-	}
-
+	//This is here for now because - as it is - labels must be deleted before actors
 	for (auto label : Labels)
 	{
 		delete label;
@@ -95,13 +91,6 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	return actor;
 }
 
-Label* VulkanScene::AddLabel(const char* text, SpriteFont* font, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
-{
-	auto label = new Label(text, *font, *this, position);
-	Labels.push_back(label);
-	return label;
-}
-
 void VulkanScene::RemoveActor(Actor* actor)
 {
 	if (actor == nullptr)
@@ -127,28 +116,6 @@ void VulkanScene::RemoveActor(Actor* actor)
 	}
 }
 
-int VulkanScene::GetActorCount()
-{
-	int count = 0;
-	for (auto childScene : ChildScenes)
-	{
-		count += childScene->GetActorCount();
-	}
-	count += ActorCount;
-	return count;
-}
-
-int VulkanScene::GetVertexCount()
-{
-	int count = 0;
-	for (auto childScene : ChildScenes)
-	{
-		count += childScene->GetVertexCount();
-	}
-	count += VertexCount;
-	return count;
-}
-
 Scene* VulkanScene::AddScene()
 {
 	auto scene = new VulkanScene(
@@ -160,18 +127,6 @@ Scene* VulkanScene::AddScene()
 	return scene;
 }
 
-void VulkanScene::RemoveScene(Scene* scene)
-{
-	auto position = std::find(ChildScenes.begin(), ChildScenes.end(), scene);
-	ChildScenes.erase(position);
-	delete scene;
-}
-/*
-std::shared_ptr<ICamera> VulkanScene::GetCamera()
-{
-	return Camera;
-}
-*/
 void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio)
 {
 	for (auto childScene : ChildScenes)
@@ -319,17 +274,6 @@ void VulkanScene::AllocateCommandBuffers()
 	{
 		throw std::runtime_error("Failed to allocate scene command buffer!");
 	}
-	/*
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = 1;
-
-	if (vkAllocateCommandBuffers(Device, &allocInfo, &BackCommandBuffer) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate scene command buffer!");
-	}
-	*/
 }
 
 void VulkanScene::FreeCommandBuffers()
@@ -339,19 +283,6 @@ void VulkanScene::FreeCommandBuffers()
 		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
 		CommandBuffers.clear();
 	}
-
-	/*
-	if (FrontCommandBuffer != VK_NULL_HANDLE)
-	{
-		vkFreeCommandBuffers(Device, CommandPool, 1, &FrontCommandBuffer);
-		FrontCommandBuffer = VK_NULL_HANDLE;
-	}
-	if (BackCommandBuffer != VK_NULL_HANDLE)
-	{
-		vkFreeCommandBuffers(Device, CommandPool, 1, &BackCommandBuffer);
-		BackCommandBuffer = VK_NULL_HANDLE;
-	}
-	*/
 }
 
 std::shared_ptr<Camera3D> VulkanScene::CreateDefaultCamera(float aspectRatio)

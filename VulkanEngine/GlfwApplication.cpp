@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "GlfwApplication.h"
 
 #include <thread>
@@ -12,7 +13,7 @@ GlfwApplication::~GlfwApplication()
 
 void GlfwApplication::Run()
 {
-	InitWindow();
+	InitializeWindow();
 	BeginRun();
 
 	//OnStart();
@@ -107,7 +108,12 @@ int GlfwApplication::GetMouseButtonState(int buttonId)
 	return glfwGetMouseButton(Window, buttonId);
 }
 
-void GlfwApplication::InitWindow()
+void GlfwApplication::OnInitializeWindow()
+{
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+}
+
+void GlfwApplication::InitializeWindow()
 {
 	glfwInit();
 
@@ -116,7 +122,7 @@ void GlfwApplication::InitWindow()
 	Width = mode->width;
 	Height = mode->height;
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	OnInitializeWindow();
 	glfwWindowHint(GLFW_DECORATED, Border);
 
 	Window = glfwCreateWindow(Width, Height, GetTitle(), nullptr, nullptr);
@@ -128,6 +134,8 @@ void GlfwApplication::InitWindow()
 	glfwSetCursorPosCallback(Window, GlfwApplication::HandleCursorPosition);
 	glfwSetMouseButtonCallback(Window, GlfwApplication::HandleClickEvent);
 	glfwSetScrollCallback(Window, GlfwApplication::HandleScrollEvent);
+
+	glfwMakeContextCurrent(Window);
 }
 
 void GlfwApplication::HandleWindowResized(GLFWwindow* window, int width, int height)

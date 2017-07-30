@@ -40,8 +40,13 @@
     <ClInclude Include="Label.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="OpenGLActor.h" />
     <ClInclude Include="OpenGLApplication.h" />
+    <ClInclude Include="OpenGLModel.h" />
+    <ClInclude Include="OpenGLModelManager.h" />
     <ClInclude Include="OpenGLScene.h" />
+    <ClInclude Include="OpenGLTexture.h" />
+    <ClInclude Include="OpenGLTextureManager.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ScrollEvent.h" />
@@ -70,6 +75,7 @@
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
+    <ClCompile Include="D:\Kirjastot\glad\src\glad.c" />
     <ClCompile Include="FencedCommandBufferPool.cpp" />
     <ClCompile Include="GlfwApplication.cpp" />
     <ClCompile Include="MouseButtonEvent.cpp" />
@@ -86,8 +92,13 @@
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="OpenGLActor.cpp" />
     <ClCompile Include="OpenGLApplication.cpp" />
+    <ClCompile Include="OpenGLModel.cpp" />
+    <ClCompile Include="OpenGLModelManager.cpp" />
     <ClCompile Include="OpenGLScene.cpp" />
+    <ClCompile Include="OpenGLTexture.cpp" />
+    <ClCompile Include="OpenGLTextureManager.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ScrollEvent.cpp" />
@@ -178,7 +189,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\glad\include;..\Dependencies\glew-2.0.0\include;..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -210,7 +221,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Dependencies\glad\include;..\Dependencies\glew-2.0.0\include;..\Dependencies\tinyobjloader;..\Dependencies\stb-master;..\Dependencies\Vulkan-1.0.39.1\Include;..\Dependencies\glfw-3.2.1.bin.WIN32\include;..\Dependencies\glm-0.9.8.4\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

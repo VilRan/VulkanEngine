@@ -13,7 +13,7 @@ public:
 
 	virtual void Initialize(ModelManager* modelManager);
 	virtual Sprite* Create(Texture* texture);
-	virtual Sprite* Create(Texture* texture, Rectangle area);
+	virtual Sprite* Create(Texture* texture, Engine::Rectangle area);
 
 private:
 	std::vector<Sprite*> Sprites;

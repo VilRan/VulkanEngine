@@ -35,7 +35,7 @@ SpriteFont::SpriteFont(Texture* texture, const char* metaPath, SpriteManager& sp
 			int x = 0;
 			while (iss >> c)
 			{
-				Rectangle charArea(x, y, width, height);
+				Engine::Rectangle charArea(x, y, width, height);
 				Sprite* sprite = spriteManager.Create(texture, charArea);
 				Sprites.emplace(c, sprite);
 				x += width;

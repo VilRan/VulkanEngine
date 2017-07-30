@@ -33,14 +33,8 @@ public:
 
 	virtual Actor* AddActor(Sprite* sprite, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
 	virtual Actor* AddActor(Model* model, Texture* texture, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
-	virtual Label* AddLabel(const char* text, SpriteFont* font, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
 	virtual void RemoveActor(Actor* actor);
-	virtual int GetActorCount();
-	virtual int GetVertexCount();
 	virtual Scene* AddScene();
-	virtual void RemoveScene(Scene* scene);
-	//virtual std::shared_ptr<ICamera> GetCamera();
-	//virtual void SetCamera(std::shared_ptr<ICamera> camera, bool passToChildScenes = true);
 	void Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkRenderPass renderPass, float aspectRatio);
 	void BuildSecondaryCommandBuffer();
 	void BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer);
@@ -50,15 +44,11 @@ protected:
 	void BuildCommandBuffer(VkCommandBuffer commandBuffer);
 
 private:
-	//std::vector<VulkanScene*> ChildScenes;
 	std::unordered_map<VulkanModel*, std::unordered_map<VulkanTexture*, std::vector<VulkanActor*>>> GroupedActors;
 	std::vector<VulkanActor*> VacantActors;
-	std::vector<Label*> Labels;
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
 	SceneStatus Status = Changed;
-	size_t ActorCount = 0;
-	size_t VertexCount = 0;
 	DynamicBufferPool& DynamicBufferPool;
 	std::vector<VkCommandBuffer> CommandBuffers;
 	VkDevice Device = VK_NULL_HANDLE;

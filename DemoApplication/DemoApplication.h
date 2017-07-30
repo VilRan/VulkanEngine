@@ -1,6 +1,6 @@
 #pragma once
 #include "VulkanApplication.h"
-
+#include "OpenGLApplication.h"
 #include "Ruleset.h"
 #include "GameMap.h"
 #include "FirstPersonCamera.h"

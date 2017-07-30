@@ -29,6 +29,7 @@ protected:
 	virtual void EndUpdate(UpdateEvent update) = 0;
 	virtual void EndRun() = 0;
 	virtual void OnWindowResized() = 0;
+	virtual void OnInitializeWindow();
 
 	GLFWwindow* GetWindow() const { return Window; }
 
@@ -46,7 +47,7 @@ private:
 	double FpsLimit = 1000;
 	bool ExitCalled = false;
 
-	void InitWindow();
+	void InitializeWindow();
 	static void HandleWindowResized(GLFWwindow* window, int width, int height);
 	static void HandleKeyboardEvent(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void HandleCursorPosition(GLFWwindow* window, double x, double y);

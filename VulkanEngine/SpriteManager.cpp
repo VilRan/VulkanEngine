@@ -24,11 +24,11 @@ void SpriteManager::Initialize(::ModelManager * modelManager)
 
 Sprite* SpriteManager::Create(Texture* texture)
 {
-	Rectangle area(0, 0, texture->GetWidth(), texture->GetHeight());
+	Engine::Rectangle area(0, 0, texture->GetWidth(), texture->GetHeight());
 	return Create(texture, area);
 }
 
-Sprite* SpriteManager::Create(Texture* texture, Rectangle area)
+Sprite* SpriteManager::Create(Texture* texture, Engine::Rectangle area)
 {
 	float width = area.GetWidth() / 2.0f;
 	float height = area.GetHeight() / 2.0f;

@@ -33,42 +33,7 @@ VulkanApplication::~VulkanApplication()
 {
 	delete RootScene;
 }
-/*
-Model* VulkanApplication::CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-{
-	return Models.Create(vertices, indices);
-}
 
-Model* VulkanApplication::LoadModel(const char* path)
-{
-	return Models.Load(path);
-}
-
-Texture* VulkanApplication::LoadTexture(const char* path)
-{
-	return Textures.Load(path);
-}
-
-Sprite* VulkanApplication::CreateSprite(Texture* texture)
-{
-	return Sprites.Create(texture);
-}
-
-Sprite* VulkanApplication::CreateSprite(Texture* texture, Rectangle area)
-{
-	return Sprites.Create(texture, area);
-}
-
-SpriteFont* VulkanApplication::LoadFont(Texture* texture, const char* metaPath)
-{
-	return Fonts.Load(texture, metaPath);
-}
-
-SpriteFont* VulkanApplication::LoadFont(const char* texturePath, const char* metaPath)
-{
-	return Fonts.Load(texturePath, metaPath);
-}
-*/
 void VulkanApplication::BeginRun()
 {
 	CreateInstance();

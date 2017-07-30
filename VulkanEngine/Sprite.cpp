@@ -1,6 +1,6 @@
 #include "Sprite.h"
 
-Sprite::Sprite(::Model* model, ::Texture* texture, Rectangle bounds)
+Sprite::Sprite(::Model* model, ::Texture* texture, Engine::Rectangle bounds)
 {
 	Model = model;
 	Texture = texture;
