@@ -68,5 +68,5 @@ private:
 
 	void AllocateCommandBuffers();
 	void FreeCommandBuffers();
-	std::shared_ptr<Camera3D> CreateDefaultCamera(float aspectRatio);
+	//std::shared_ptr<Camera3D> CreateDefaultCamera(float aspectRatio);
 };

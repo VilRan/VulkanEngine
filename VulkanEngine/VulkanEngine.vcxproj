@@ -25,6 +25,7 @@
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="Camera3D.h" />
     <ClInclude Include="FencedCommandBufferPool.h" />
+    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GlfwApplication.h" />
     <ClInclude Include="MouseButtonEvent.h" />
     <ClInclude Include="CursorPositionEvent.h" />
@@ -70,13 +71,14 @@
     <ClInclude Include="VulkanTextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Dependencies\glad\src\glad.c" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
-    <ClCompile Include="D:\Kirjastot\glad\src\glad.c" />
     <ClCompile Include="FencedCommandBufferPool.cpp" />
+    <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="GlfwApplication.cpp" />
     <ClCompile Include="MouseButtonEvent.cpp" />
     <ClCompile Include="CursorPositionEvent.cpp" />

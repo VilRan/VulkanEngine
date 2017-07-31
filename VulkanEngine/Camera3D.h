@@ -9,7 +9,7 @@ class Camera3D
 {
 public:
 	Camera3D();
-	Camera3D(glm::vec3 position, glm::vec3 target, glm::vec3 up, float fieldOfView, float aspectRatio, float near, float far);
+	Camera3D(glm::vec3 position, glm::vec3 target, glm::vec3 up, float fieldOfView, float aspectRatio, float nearDistance, float farDistance);
 	virtual ~Camera3D();
 
 	virtual glm::mat4 GetViewProjection();
@@ -28,9 +28,9 @@ public:
 	const float GetFieldOfView() const { return FieldOfView; }
 	void SetFieldOfView(float fieldOfView) { FieldOfView = fieldOfView; }
 	const float GetNear() const { return Near; }
-	void SetNear(float near) { Near = near; }
+	void SetNear(float nearDistance) { Near = nearDistance; }
 	const float GetFar() const { return Far; }
-	void SetFar(float far) { Far = far; }
+	void SetFar(float farDistance) { Far = farDistance; }
 
 private:
 	glm::vec3 Position;

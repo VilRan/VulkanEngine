@@ -27,7 +27,7 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 	TileType colored = Ruleset->GetTileType("Colored");
 	TileType block = Ruleset->GetTileType("Block");
 	TileType empty = Ruleset->GetTileType("Empty");
-
+	
 	for (size_t y = 0; y < Height; y++)
 	{
 		for (size_t x = 0; x < Width; x++)
@@ -50,11 +50,11 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 			}
 		}
 	}
-
+	
 	ProjectileScene = Scene->AddScene();
 	ProjectileSpawnTimer.SetEvent(std::bind(&GameMap::SpawnProjectile, this, std::placeholders::_1));
 	ProjectileSpawnTimer.SetFrequency(1000);
-	ProjectileSpawnTimer.Start();
+	//ProjectileSpawnTimer.Start();
 }
 
 void GameMap::Update(UpdateEvent update)

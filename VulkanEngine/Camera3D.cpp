@@ -6,16 +6,15 @@ Camera3D::Camera3D()
 {
 }
 
-Camera3D::Camera3D(glm::vec3 position, glm::vec3 target, glm::vec3 up, float fieldOfView, float aspectRatio, float near, float far)
+Camera3D::Camera3D(glm::vec3 position, glm::vec3 target, glm::vec3 up, float fieldOfView, float aspectRatio, float nearDistance, float farDistance)
 {
 	Position = position;
 	Target = target;
 	Up = up;
 	FieldOfView = fieldOfView;
 	AspectRatio = aspectRatio;
-	Near = near;
-	Far = far;
-	//Changed = true;
+	Near = nearDistance;
+	Far = farDistance;
 }
 
 Camera3D::~Camera3D()
@@ -34,14 +33,12 @@ void Camera3D::MoveBy(glm::vec3 delta)
 {
 	Position += delta;
 	Target += delta;
-	//Changed = true;
 }
 
 void Camera3D::Rotate(glm::quat rotation)
 {
 	Target = Position + rotation * (Target - Position);
 	Up = rotation * Up;
-	//Changed = true;
 }
 
 glm::vec3 Camera3D::GetForward()

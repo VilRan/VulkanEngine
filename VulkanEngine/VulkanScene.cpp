@@ -284,13 +284,3 @@ void VulkanScene::FreeCommandBuffers()
 		CommandBuffers.clear();
 	}
 }
-
-std::shared_ptr<Camera3D> VulkanScene::CreateDefaultCamera(float aspectRatio)
-{
-	return std::make_shared<Camera3D>(
-		glm::vec3(3.0f, 3.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		60.0f, aspectRatio, 0.1f, 10.0f
-	);
-}

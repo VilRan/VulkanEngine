@@ -3,8 +3,8 @@
 #include <memory>
 #include "Actor.h"
 #include "Sprite.h"
-#include "ICamera.h"
 #include "Label.h"
+#include "Camera3D.h"
 
 class Scene
 {
@@ -31,6 +31,8 @@ protected:
 	std::vector<Label*> Labels;
 	size_t ActorCount = 0;
 	size_t VertexCount = 0;
+
+	std::shared_ptr<Camera3D> CreateDefaultCamera(float aspectRatio);
 
 private:
 	std::shared_ptr<ICamera> Camera;

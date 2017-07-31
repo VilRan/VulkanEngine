@@ -1,9 +1,18 @@
 #include "OpenGLScene.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "OpenGLModel.h"
 #include "OpenGLTexture.h"
 
-OpenGLScene::OpenGLScene()
+OpenGLScene::OpenGLScene(GLuint shaderProgram, std::shared_ptr<ICamera> camera)
+{
+	ShaderProgram = shaderProgram;
+	SetCamera(camera, false);
+}
+
+OpenGLScene::OpenGLScene(GLuint shaderProgram, float aspectRatio)
+	: OpenGLScene(shaderProgram, CreateDefaultCamera(aspectRatio))
 {
 }
 
@@ -47,20 +56,31 @@ void OpenGLScene::RemoveActor(Actor* actor)
 
 Scene* OpenGLScene::AddScene()
 {
-	auto scene = new OpenGLScene();
+	auto scene = new OpenGLScene(ShaderProgram, GetCamera());
 	ChildScenes.push_back(scene);
 	return scene;
 }
 
 void OpenGLScene::Draw()
 {
+	glUseProgram(ShaderProgram);
+	auto viewProjectionLocation = glGetUniformLocation(ShaderProgram, "camera.viewProjection");
+	auto modelLocation = glGetUniformLocation(ShaderProgram, "instance.model");
+	auto textureLocation = glGetUniformLocation(ShaderProgram, "texSampler");
+
+	auto viewProjection = GetCamera()->GetViewProjection();
+	glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
+
 	for (auto actor : Actors)
 	{
 		auto model = static_cast<OpenGLModel*>(actor->GetModel());
 		auto texture = static_cast<OpenGLTexture*>(actor->GetTexture());
+		auto modelTransform = actor->GetTransform();
 
 		model->Bind();
 		texture->Bind();
+		glUniform1i(textureLocation, 0);
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelTransform));
 
 		glDrawElements(GL_TRIANGLES, model->GetIndexCount(), GL_UNSIGNED_INT, 0);
 	}

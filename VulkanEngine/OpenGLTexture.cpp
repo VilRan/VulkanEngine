@@ -30,6 +30,6 @@ OpenGLTexture::~OpenGLTexture()
 
 void OpenGLTexture::Bind()
 {
-	glActiveTexture(GL_TEXTURE0 + Index);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Index);
 }

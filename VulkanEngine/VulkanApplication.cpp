@@ -3,13 +3,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <chrono>
-#include <fstream>
 #include <algorithm>
 #include <cstring>
 #include <set>
 #include <numeric>
 
 #include "VulkanHelper.h"
+#include "FileHelper.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation"
@@ -465,8 +465,8 @@ void VulkanApplication::CreateDescriptorSetLayouts()
 
 void VulkanApplication::CreateGraphicsPipeline() 
 {
-	auto vertShaderCode = ReadFile("../Shaders/vert.spv");
-	auto fragShaderCode = ReadFile("../Shaders/frag.spv");
+	auto vertShaderCode = FileHelper::ReadBinary("../Shaders/vert.spv");
+	auto fragShaderCode = FileHelper::ReadBinary("../Shaders/frag.spv");
 
 	VDeleter<VkShaderModule> vertShaderModule{ Device, vkDestroyShaderModule };
 	VDeleter<VkShaderModule> fragShaderModule{ Device, vkDestroyShaderModule };
@@ -1084,26 +1084,6 @@ bool VulkanApplication::CheckValidationLayerSupport()
 	}
 
 	return true;
-}
-
-std::vector<char> VulkanApplication::ReadFile(const std::string& filename) 
-{
-	std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-	if (!file.is_open())
-	{
-		throw std::runtime_error("Failed to open file!");
-	}
-
-	size_t fileSize = (size_t)file.tellg();
-	std::vector<char> buffer(fileSize);
-
-	file.seekg(0);
-	file.read(buffer.data(), fileSize);
-
-	file.close();
-
-	return buffer;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VulkanApplication::DebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 

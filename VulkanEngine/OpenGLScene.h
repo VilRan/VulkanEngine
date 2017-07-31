@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 #include "Scene.h"
 
 #include "OpenGLActor.h"
@@ -7,7 +8,8 @@ class OpenGLScene :
 	public Scene
 {
 public:
-	OpenGLScene();
+	OpenGLScene(GLuint shaderProgram, std::shared_ptr<ICamera> camera);
+	OpenGLScene(GLuint shaderProgram, float aspectRatio);
 	virtual ~OpenGLScene();
 
 	virtual Actor* AddActor(Sprite* sprite, glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 angles = { 0.0f, 0.0f, 0.0f }, glm::vec3 scale = { 1.0f, 1.0f, 1.0f });
@@ -19,4 +21,5 @@ public:
 
 private:
 	std::vector<OpenGLActor*> Actors;
+	GLuint ShaderProgram;
 };

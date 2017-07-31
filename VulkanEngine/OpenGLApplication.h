@@ -34,4 +34,9 @@ private:
 	SpriteManager Sprites;
 	FontManager Fonts;
 	OpenGLScene* RootScene;
+	GLuint ShaderProgram;
+	GLuint VertexShader;
+	GLuint FragmentShader;
+
+	void CreateShader(const char* path, GLenum type, GLuint program, GLuint* shader);
 };
