@@ -54,6 +54,7 @@ public:
 	virtual SpriteManager* GetSprites() { return &Sprites; }
 	virtual FontManager* GetFonts() { return &Fonts; }
 	virtual Scene* GetRootScene() { return RootScene; }
+	virtual char* GetRendererName() { return "Vulkan"; }
 
 protected:
 	virtual void BeginRun();

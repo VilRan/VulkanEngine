@@ -40,6 +40,9 @@ void Projectile::Update(UpdateEvent update)
 
 void Projectile::Destroy()
 {
-	Scene->RemoveActor(Actor);
-	Actor = nullptr;
+	if (Actor != nullptr)
+	{
+		Scene->RemoveActor(Actor);
+		Actor = nullptr;
+	}
 }

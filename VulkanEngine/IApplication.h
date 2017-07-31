@@ -28,17 +28,9 @@ public:
 	virtual TextureManager* GetTextures() = 0;
 	virtual SpriteManager* GetSprites() = 0;
 	virtual FontManager* GetFonts() = 0;
-	/*
-	virtual Model* CreateModel(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
-	virtual Model* LoadModel(const char* path) = 0;
-	virtual Texture* LoadTexture(const char* path) = 0;
-	virtual Sprite* CreateSprite(Texture* texture) = 0;
-	virtual Sprite* CreateSprite(Texture* texture, Rectangle area) = 0;
-	virtual SpriteFont* LoadFont(Texture* texture, const char* metaPath) = 0;
-	virtual SpriteFont* LoadFont(const char* texturePath, const char* metaPath) = 0;
-	*/
 	virtual Scene* GetRootScene() = 0;
 	virtual char* GetTitle() = 0;
+	virtual char* GetRendererName() = 0;
 	virtual int GetKeyState(int keyId) = 0;
 	virtual int GetMouseButtonState(int buttonId) = 0;
 

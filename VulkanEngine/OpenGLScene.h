@@ -3,6 +3,8 @@
 #include "Scene.h"
 
 #include "OpenGLActor.h"
+#include "OpenGLModel.h"
+#include "OpenGLTexture.h"
 
 class OpenGLScene :
 	public Scene
@@ -20,6 +22,8 @@ public:
 	void Draw();
 
 private:
-	std::vector<OpenGLActor*> Actors;
+	std::unordered_map<OpenGLModel*, std::unordered_map<OpenGLTexture*, std::vector<OpenGLActor*>>> GroupedActors;
+	std::vector<OpenGLActor*> VacantActors;
+
 	GLuint ShaderProgram;
 };
