@@ -15,7 +15,7 @@ public:
 	void SetHeight(float height) { Height = height; }
 	const float GetRotation() const { return Rotation; }
 	void SetRotation(float rotation) { Rotation = rotation; }
-	virtual glm::mat4 GetViewProjection();
+	virtual glm::mat4 GetViewProjection(bool invertY = true);
 
 private:
 	glm::vec2 Position;

@@ -23,7 +23,7 @@ void DemoApplication::OnStart()
 {
 	MapScene = GetRootScene()->AddScene();
 
-	Map.Initialize(MapScene, &Ruleset, 100, 1, 100);
+	Map.Initialize(MapScene, &Ruleset, 100, 10, 100);
 	Camera = std::make_shared<FirstPersonCamera>();
 	Camera->SetPosition({ 50.0f, 12.0f, 50.0f });
 	Camera->SetFar(200.0f);

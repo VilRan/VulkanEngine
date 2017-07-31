@@ -68,7 +68,7 @@ void OpenGLScene::Draw()
 	auto modelLocation = glGetUniformLocation(ShaderProgram, "instance.model");
 	auto textureLocation = glGetUniformLocation(ShaderProgram, "texSampler");
 
-	auto viewProjection = GetCamera()->GetViewProjection();
+	auto viewProjection = GetCamera()->GetViewProjection(false);
 	glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
 
 	for (auto actor : Actors)

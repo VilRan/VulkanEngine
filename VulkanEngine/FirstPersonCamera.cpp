@@ -13,13 +13,16 @@ FirstPersonCamera::~FirstPersonCamera()
 {
 }
 
-glm::mat4 FirstPersonCamera::GetViewProjection()
+glm::mat4 FirstPersonCamera::GetViewProjection(bool invertY)
 {
 	glm::vec3 target = Position + Rotation * glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 view = glm::lookAt(Position, target, up);
 	glm::mat4 projection = glm::perspective(glm::radians(FieldOfView), AspectRatio, Near, Far);
-	projection[1][1] *= -1;
+	if (invertY)
+	{
+		projection[1][1] *= -1;
+	}
 	return projection * view;
 }
 

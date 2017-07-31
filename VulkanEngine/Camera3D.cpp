@@ -21,11 +21,14 @@ Camera3D::~Camera3D()
 {
 }
 
-glm::mat4 Camera3D::GetViewProjection()
+glm::mat4 Camera3D::GetViewProjection(bool invertY)
 {
 	glm::mat4 view = glm::lookAt(Position, Target, Up);
 	glm::mat4 projection = glm::perspective(glm::radians(FieldOfView), AspectRatio, Near, Far);
-	projection[1][1] *= -1;
+	if (invertY)
+	{
+		projection[1][1] *= -1;
+	}
 	return projection * view;
 }
 

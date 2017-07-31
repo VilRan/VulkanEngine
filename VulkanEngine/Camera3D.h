@@ -12,7 +12,7 @@ public:
 	Camera3D(glm::vec3 position, glm::vec3 target, glm::vec3 up, float fieldOfView, float aspectRatio, float nearDistance, float farDistance);
 	virtual ~Camera3D();
 
-	virtual glm::mat4 GetViewProjection();
+	virtual glm::mat4 GetViewProjection(bool invertY = true);
 	void MoveBy(glm::vec3 delta);
 	void Rotate(glm::quat rotation);
 	glm::vec3 GetForward();

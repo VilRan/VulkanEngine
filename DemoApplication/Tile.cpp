@@ -28,5 +28,5 @@ void Tile::SetType(TileType type)
 		return;
 	}
 
-	Scene.AddActor(model, texture, glm::vec3(X, Y, Z));
+	Scene.AddActor(model, texture, glm::vec3(X, Y, Z), glm::vec3(0.0f), glm::vec3(1.0f));
 }

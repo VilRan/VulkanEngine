@@ -7,7 +7,7 @@
 #include "Timer.h"
 
 class DemoApplication :
-	public VulkanApplication
+	public OpenGLApplication
 {
 public:
 	DemoApplication();

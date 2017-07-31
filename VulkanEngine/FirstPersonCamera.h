@@ -11,7 +11,7 @@ public:
 	FirstPersonCamera();
 	virtual ~FirstPersonCamera();
 
-	virtual glm::mat4 GetViewProjection();
+	virtual glm::mat4 GetViewProjection(bool invertY = true);
 	void MoveBy(glm::vec3 delta);
 	void Rotate(float x, float y);
 	void SetPosition(glm::vec3 position) { Position = position; }

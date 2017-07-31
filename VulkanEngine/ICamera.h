@@ -10,7 +10,7 @@ public:
 	ICamera();
 	virtual ~ICamera();
 
-	virtual glm::mat4 GetViewProjection() = 0;
+	virtual glm::mat4 GetViewProjection(bool invertY = true) = 0;
 	const float GetAspectRatio() const { return AspectRatio; }
 	void SetAspectRatio(float aspectRatio) { AspectRatio = aspectRatio; }
 
