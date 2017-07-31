@@ -34,7 +34,7 @@ void OpenGLApplication::BeginRun()
 		glGetProgramInfoLog(ShaderProgram, 512, NULL, log);
 	}
 
-	stbi_set_flip_vertically_on_load(true);
+	//stbi_set_flip_vertically_on_load(true);
 	Sprites.Initialize(&Models);
 	Fonts.Initialize(&Textures, &Sprites);
 
