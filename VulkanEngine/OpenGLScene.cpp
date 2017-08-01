@@ -63,9 +63,14 @@ Actor* OpenGLScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 
 	auto rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
+
 	auto openGLModel = static_cast<OpenGLModel*>(actor->GetModel());
 	auto openGLTexture = static_cast<OpenGLTexture*>(actor->GetTexture());
 	GroupedActors[openGLModel][openGLTexture].push_back(actor);
+
+	ActorCount++;
+	VertexCount += model->GetVertexCount();
+
 	return actor;
 }
 
@@ -85,6 +90,9 @@ void OpenGLScene::RemoveActor(Actor* actor)
 	{
 		actorGroup.erase(position);
 		VacantActors.push_back(openGLActor);
+
+		ActorCount--;
+		VertexCount -= model->GetVertexCount();
 	}
 }
 
@@ -100,7 +108,6 @@ void OpenGLScene::Draw()
 	glUseProgram(ShaderProgram);
 	auto viewProjectionLocation = glGetUniformLocation(ShaderProgram, "camera.viewProjection");
 	auto modelLocation = glGetUniformLocation(ShaderProgram, "instance.model");
-	auto textureLocation = glGetUniformLocation(ShaderProgram, "texSampler");
 
 	auto viewProjection = GetCamera()->GetViewProjection(false);
 	glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
