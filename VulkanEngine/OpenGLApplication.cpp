@@ -23,6 +23,8 @@ void OpenGLApplication::BeginRun()
 	char log[512];
 	glViewport(0, 0, GetWidth(), GetHeight());
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	ShaderProgram = glCreateProgram();
 	CreateShader("../Shaders/shader-opengl.vert", GL_VERTEX_SHADER, ShaderProgram, &VertexShader);
 	CreateShader("../Shaders/shader-opengl.frag", GL_FRAGMENT_SHADER, ShaderProgram, &FragmentShader);
@@ -34,7 +36,6 @@ void OpenGLApplication::BeginRun()
 		glGetProgramInfoLog(ShaderProgram, 512, NULL, log);
 	}
 
-	//stbi_set_flip_vertically_on_load(true);
 	Sprites.Initialize(&Models);
 	Fonts.Initialize(&Textures, &Sprites);
 
