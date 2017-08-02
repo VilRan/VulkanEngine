@@ -10,10 +10,10 @@ class BufferManager
 {
 public:
 	BufferManager();
-	BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
+	BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t commandBufferCount);
 	virtual ~BufferManager();
 
-	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
+	void Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t commandBufferCount);
 	Buffer Reserve(void* data, VkDeviceSize size);
 	void Release(Buffer buffer);
 	void Allocate();

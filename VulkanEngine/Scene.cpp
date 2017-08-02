@@ -21,7 +21,7 @@ Label* Scene::AddLabel(const char* text, SpriteFont* font, glm::vec3 position, g
 
 int Scene::GetActorCount()
 {
-	int count = 0;
+	size_t count = 0;
 	for (auto childScene : ChildScenes)
 	{
 		count += childScene->GetActorCount();
@@ -32,7 +32,7 @@ int Scene::GetActorCount()
 
 int Scene::GetVertexCount()
 {
-	int count = 0;
+	size_t count = 0;
 	for (auto childScene : ChildScenes)
 	{
 		count += childScene->GetVertexCount();

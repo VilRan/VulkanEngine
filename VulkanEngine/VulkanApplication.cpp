@@ -1,6 +1,5 @@
 #include "VulkanApplication.h"
 
-#include <iostream>
 #include <stdexcept>
 #include <chrono>
 #include <algorithm>
@@ -52,7 +51,7 @@ void VulkanApplication::BeginRun()
 	CreateTextureSampler();
 	CreateSemaphores();
 
-	BufferManager.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
+	BufferManager.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue, SwapChainFramebuffers.size());
 	Models.Initialize(&BufferManager);
 	Textures.Initialize(PhysicalDevice, Device, CommandPool, GraphicsQueue);
 	Sprites.Initialize(&Models);
@@ -285,7 +284,7 @@ void VulkanApplication::CreateSwapChain()
 	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.PresentModes);
 	VkExtent2D extent = ChooseSwapExtent(swapChainSupport.Capabilities);
 
-	uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
+	uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 2;
 	if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount) 
 	{
 		imageCount = swapChainSupport.Capabilities.maxImageCount;
@@ -1084,11 +1083,4 @@ bool VulkanApplication::CheckValidationLayerSupport()
 	}
 
 	return true;
-}
-
-VKAPI_ATTR VkBool32 VKAPI_CALL VulkanApplication::DebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char* layerPrefix, const char* msg, void* userData) 
-{
-	std::cerr << "validation layer: " << msg << std::endl;
-
-	return VK_FALSE;
 }

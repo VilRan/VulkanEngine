@@ -18,7 +18,7 @@ void GlfwApplication::Run()
 
 	//OnStart();
 
-	DeltaTimes.resize(1000);
+	DeltaTimes.resize(100);
 	PreviousTime = glfwGetTime();
 
 	while (glfwWindowShouldClose(Window) == false && ExitCalled == false)

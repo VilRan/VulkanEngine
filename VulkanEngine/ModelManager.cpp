@@ -44,7 +44,7 @@ Model* ModelManager::Load(const char* path)
 		throw std::runtime_error(error);
 	}
 
-	std::unordered_map<Vertex, int> uniqueVertices = {};
+	std::unordered_map<Vertex, size_t> uniqueVertices = {};
 
 	for (const auto& shape : shapes)
 	{

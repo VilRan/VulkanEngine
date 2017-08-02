@@ -5,16 +5,16 @@ BufferManager::BufferManager()
 {
 }
 
-BufferManager::BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+BufferManager::BufferManager(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t commandBufferCount)
 {
-	Initialize(physicalDevice, device, commandPool, graphicsQueue);
+	Initialize(physicalDevice, device, commandPool, graphicsQueue, commandBufferCount);
 }
 
 BufferManager::~BufferManager()
 {
 }
 
-void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue)
+void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue, size_t commandBufferCount)
 {
 	PhysicalDevice = physicalDevice;
 	Device = device;
