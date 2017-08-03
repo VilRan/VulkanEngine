@@ -28,11 +28,11 @@ void GameMap::Initialize(::Scene* scene, ::Ruleset* ruleset, uint32_t width, uin
 	TileType block = Ruleset->GetTileType("Block");
 	TileType empty = Ruleset->GetTileType("Empty");
 	
-	for (size_t y = 0; y < Height; y++)
+	for (uint32_t y = 0; y < Height; y++)
 	{
-		for (size_t x = 0; x < Width; x++)
+		for (uint32_t x = 0; x < Width; x++)
 		{
-			for (size_t z = 0; z < Depth; z++)
+			for (uint32_t z = 0; z < Depth; z++)
 			{
 				int rn = rand() % 100;
 				if (rn < 10)
