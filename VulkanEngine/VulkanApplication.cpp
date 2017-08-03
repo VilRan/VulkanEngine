@@ -242,7 +242,8 @@ void VulkanApplication::CreateLogicalDevice()
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
-	VkPhysicalDeviceFeatures deviceFeatures = {};
+	VkPhysicalDeviceFeatures deviceFeatures = { };
+	vkGetPhysicalDeviceFeatures(PhysicalDevice, &deviceFeatures);
 
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -689,6 +690,9 @@ VkFormat VulkanApplication::FindSupportedFormat(const std::vector<VkFormat>& can
 
 void VulkanApplication::CreateTextureSampler() 
 {
+	VkPhysicalDeviceFeatures physicalDeviceFeatures;
+	vkGetPhysicalDeviceFeatures(PhysicalDevice, &physicalDeviceFeatures);
+
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -696,8 +700,18 @@ void VulkanApplication::CreateTextureSampler()
 	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_TRUE;
-	samplerInfo.maxAnisotropy = 16;
+
+	if (physicalDeviceFeatures.samplerAnisotropy)
+	{
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = 16;
+	}
+	else
+	{
+		samplerInfo.anisotropyEnable = VK_FALSE;
+		samplerInfo.maxAnisotropy = 1;
+	}
+
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
 	samplerInfo.compareEnable = VK_FALSE;
