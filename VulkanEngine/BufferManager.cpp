@@ -21,7 +21,7 @@ void BufferManager::Initialize(VkPhysicalDevice physicalDevice, VkDevice device,
 	CommandPool = commandPool;
 	GraphicsQueue = graphicsQueue;
 
-	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 2);
+	FencedCommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, commandBufferCount);
 	DeviceBuffer.Initialize(
 		PhysicalDevice, Device, CommandPool, GraphicsQueue,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |

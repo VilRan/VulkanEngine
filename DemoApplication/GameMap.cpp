@@ -81,7 +81,26 @@ void GameMap::SpawnProjectile(TimerEvent timer)
 	position.z = (float)(rand() % Depth);
 	position.y = 100.0f;
 
-	auto projectile = new Projectile(this, ProjectileScene, Ruleset->GetProjectileType("Icosphere"), position);
+	ProjectileType type;
+	auto rn = rand() % 100;
+	if (rn < 25)
+	{
+		type = Ruleset->GetProjectileType("Icosphere");
+	}
+	else if (rn < 50)
+	{
+		type = Ruleset->GetProjectileType("InverseIcosphere");
+	}
+	else if (rn < 75)
+	{
+		type = Ruleset->GetProjectileType("Torus");
+	}
+	else
+	{
+		type = Ruleset->GetProjectileType("InverseTorus");
+	}
+
+	Projectile* projectile = new Projectile(this, ProjectileScene, type, position);
 	projectile->Update(UpdateEvent(timer.GetDeltaTime(), timer.GetDeltaTime()));
 	Projectiles.push_back(projectile);
 }

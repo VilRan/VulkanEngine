@@ -24,7 +24,15 @@ void Ruleset::Initialize(DemoApplication& application)
 
 	Model* icosphere = models.Load("../Models/Icosphere.obj");
 	Texture* blackAndWhiteTriangle = textures.Load("../Textures/BlackAndWhiteTriangle.png");
+	Texture* whiteAndBlackTriangle = textures.Load("../Textures/WhiteAndBlackTriangle.png");
 	ProjectileTypes.emplace("Icosphere", ProjectileType(icosphere, blackAndWhiteTriangle));
+	ProjectileTypes.emplace("InverseIcosphere", ProjectileType(icosphere, whiteAndBlackTriangle));
+
+	Model* torus = models.Load("../Models/Torus.obj");
+	Texture* blackAndWhiteSquare = textures.Load("../Textures/BlackAndWhiteSquare.png");
+	Texture* whiteAndBlackSquare = textures.Load("../Textures/WhiteAndBlackSquare.png");
+	ProjectileTypes.emplace("Torus", ProjectileType(torus, blackAndWhiteSquare));
+	ProjectileTypes.emplace("InverseTorus", ProjectileType(torus, whiteAndBlackSquare));
 }
 
 TileType Ruleset::GetTileType(const char* uid)
