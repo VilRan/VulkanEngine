@@ -31,7 +31,7 @@ VulkanScene::VulkanScene(
 VulkanScene::~VulkanScene()
 {
 	DynamicBufferPool.Release(ViewProjectionBuffer);
-	FreeCommandBuffers();
+	//FreeCommandBuffers();
 
 	//This is here for now because - as it is - labels must be deleted before actors
 	for (auto label : Labels)
@@ -143,12 +143,13 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
+	/*
 	LastCommandBufferIndex++;
 	if (LastCommandBufferIndex >= CommandBuffers.size())
 	{
 		LastCommandBufferIndex = 0;
 	}
-
+	*/
 	//TODO: Create secondary command buffers for all frame buffers for possible performance increase?
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -161,12 +162,12 @@ void VulkanScene::BuildSecondaryCommandBuffer()
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 	
-	VkCommandBuffer commandBuffer = CommandBuffers[LastCommandBufferIndex];
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	CommandBuffer = CommandBufferPool.GetNext();
+	vkBeginCommandBuffer(CommandBuffer, &beginInfo);
 
-	BuildCommandBuffer(commandBuffer);
+	BuildCommandBuffer(CommandBuffer);
 
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+	if (vkEndCommandBuffer(CommandBuffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to record scene command buffer!");
 	}
@@ -181,7 +182,7 @@ void VulkanScene::BuildPrimaryCommandBuffer(VkCommandBuffer commandBuffer)
 		return;
 	}
 
-	VkCommandBuffer secondaryCommandBuffer = CommandBuffers[LastCommandBufferIndex];
+	VkCommandBuffer secondaryCommandBuffer = CommandBuffer;
 	vkCmdExecuteCommands(commandBuffer, 1, &secondaryCommandBuffer);
 	for (auto childScene : ChildScenes)
 	{
@@ -222,7 +223,8 @@ VulkanScene::VulkanScene(
 	ModelDescriptorSet = modelDescriptorSet;
 	RenderPass = renderPass;
 
-	AllocateCommandBuffers();
+	CommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 2);
+	//AllocateCommandBuffers();
 }
 
 void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
@@ -255,7 +257,7 @@ void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
 		}
 	}
 }
-
+/*
 void VulkanScene::AllocateCommandBuffers()
 {
 	FreeCommandBuffers();
@@ -283,3 +285,4 @@ void VulkanScene::FreeCommandBuffers()
 		CommandBuffers.clear();
 	}
 }
+*/

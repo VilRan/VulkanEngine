@@ -6,6 +6,7 @@
 #include "DynamicBufferPool.h"
 #include "VulkanTexture.h"
 #include "Camera3D.h"
+#include "CircularCommandBufferPool.h"
 
 class VulkanActor;
 
@@ -50,7 +51,9 @@ private:
 	DynamicBuffer ViewProjectionBuffer;
 	SceneStatus Status = Changed;
 	DynamicBufferPool& DynamicBufferPool;
-	std::vector<VkCommandBuffer> CommandBuffers;
+	CircularCommandBufferPool CommandBufferPool;
+	VkCommandBuffer CommandBuffer;
+	//std::vector<VkCommandBuffer> CommandBuffers;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
@@ -58,7 +61,7 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
 	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	uint32_t LastCommandBufferIndex;
+	//uint32_t LastCommandBufferIndex;
 
 	VulkanScene(
 		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
@@ -66,6 +69,6 @@ private:
 		::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
 	);
 
-	void AllocateCommandBuffers();
-	void FreeCommandBuffers();
+	//void AllocateCommandBuffers();
+	//void FreeCommandBuffers();
 };

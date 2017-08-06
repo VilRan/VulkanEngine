@@ -24,6 +24,8 @@
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="Camera2D.h" />
     <ClInclude Include="Camera3D.h" />
+    <ClInclude Include="CircularCommandBufferPool.h" />
+    <ClInclude Include="CommandBufferPool.h" />
     <ClInclude Include="FencedCommandBufferPool.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="GlfwApplication.h" />
@@ -77,6 +79,8 @@
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="Camera2D.cpp" />
     <ClCompile Include="Camera3D.cpp" />
+    <ClCompile Include="CircularCommandBufferPool.cpp" />
+    <ClCompile Include="CommandBufferPool.cpp" />
     <ClCompile Include="FencedCommandBufferPool.cpp" />
     <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="GlfwApplication.cpp" />
@@ -131,13 +135,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

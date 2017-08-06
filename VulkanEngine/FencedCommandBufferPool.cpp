@@ -6,28 +6,12 @@ FencedCommandBufferPool::FencedCommandBufferPool()
 
 FencedCommandBufferPool::~FencedCommandBufferPool()
 {
-	Destroy();
+	DestroyFences();
 }
 
 void FencedCommandBufferPool::Initialize(VkDevice device, VkCommandPool commandPool, VkCommandBufferLevel level, size_t commandBufferCount)
 {
-	Destroy();
-
-	Device = device;
-	CommandPool = commandPool;
-
-	CommandBuffers.resize(commandBufferCount);
-
-	VkCommandBufferAllocateInfo commandBufferInfo = {};
-	commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	commandBufferInfo.commandPool = CommandPool;
-	commandBufferInfo.level = level;
-	commandBufferInfo.commandBufferCount = CommandBuffers.size();
-
-	if (vkAllocateCommandBuffers(Device, &commandBufferInfo, CommandBuffers.data()) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate fenced command buffers!");
-	}
+	CommandBufferPool::Initialize(device, commandPool, level, commandBufferCount);
 
 	Fences.resize(CommandBuffers.size());
 
@@ -46,17 +30,9 @@ void FencedCommandBufferPool::Initialize(VkDevice device, VkCommandPool commandP
 
 void FencedCommandBufferPool::Destroy()
 {
-	if (CommandBuffers.size() > 0)
-	{
-		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
-		CommandBuffers.clear();
-	}
+	CommandBufferPool::Destroy();
 
-	for (auto fence : Fences)
-	{
-		vkDestroyFence(Device, fence, nullptr);
-	}
-	Fences.clear();
+	DestroyFences();
 }
 
 VkResult FencedCommandBufferPool::WaitAndGet(VkCommandBuffer* outputCommandBuffer, VkFence* outputFence, uint64_t timeout)
@@ -80,4 +56,13 @@ VkResult FencedCommandBufferPool::WaitAndGet(VkCommandBuffer* outputCommandBuffe
 	*outputCommandBuffer = VK_NULL_HANDLE;
 	*outputFence = VK_NULL_HANDLE;
 	return result;
+}
+
+void FencedCommandBufferPool::DestroyFences()
+{
+	for (auto fence : Fences)
+	{
+		vkDestroyFence(Device, fence, nullptr);
+	}
+	Fences.clear();
 }
