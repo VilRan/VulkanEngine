@@ -16,56 +16,12 @@ void GlfwApplication::Run()
 	InitializeWindow();
 	BeginRun();
 
-	//OnStart();
-
 	DeltaTimes.resize(100);
 	PreviousTime = glfwGetTime();
 
 	while (glfwWindowShouldClose(Window) == false && ExitCalled == false)
 	{
-		double currentTime = glfwGetTime();
-		double deltaTime = currentTime - PreviousTime;
-		
-		double frameTimeLimit = 1.0 / FpsLimit;
-		if (deltaTime < frameTimeLimit)
-		{
-			std::this_thread::sleep_for(std::chrono::duration<double>(frameTimeLimit - deltaTime));
-			deltaTime = frameTimeLimit;
-		}
-		
-		DeltaTimes[DeltaTimeWritePosition] = deltaTime;
-		DeltaTimeWritePosition++;
-		if (DeltaTimeWritePosition >= DeltaTimes.size())
-		{
-			DeltaTimeWritePosition = 0;
-		}
-
-		double totalDeltaTime = 0.0, minDeltaTime = DBL_MAX, maxDeltaTime = 0.0;
-		for (auto time : DeltaTimes)
-		{
-			totalDeltaTime += time;
-			if (time < minDeltaTime)
-			{
-				minDeltaTime = time;
-			}
-			else if (time > maxDeltaTime)
-			{
-				maxDeltaTime = time;
-			}
-		}
-		double averageDeltaTime = totalDeltaTime / DeltaTimes.size();
-
-		PreviousTime = currentTime;
-
-		UpdateEvent update(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, UpdateNumber);
-
-		BeginUpdate(update);
-		glfwPollEvents();
-
-		OnUpdate(update);
-
-		EndUpdate(update);
-		UpdateNumber++;
+		Update();
 	}
 
 	EndRun();
@@ -136,6 +92,54 @@ void GlfwApplication::InitializeWindow()
 	glfwSetScrollCallback(Window, GlfwApplication::HandleScrollEvent);
 
 	glfwMakeContextCurrent(Window);
+}
+
+void GlfwApplication::Update()
+{
+	double currentTime = glfwGetTime();
+	double deltaTime = currentTime - PreviousTime;
+
+	double frameTimeLimit = 1.0 / FpsLimit;
+	if (deltaTime < frameTimeLimit)
+	{
+		std::this_thread::sleep_for(std::chrono::duration<double>(frameTimeLimit - deltaTime));
+		currentTime = glfwGetTime();
+		deltaTime = currentTime - PreviousTime;
+	}
+
+	DeltaTimes[DeltaTimeWritePosition] = deltaTime;
+	DeltaTimeWritePosition++;
+	if (DeltaTimeWritePosition >= DeltaTimes.size())
+	{
+		DeltaTimeWritePosition = 0;
+	}
+
+	double totalDeltaTime = 0.0, minDeltaTime = DBL_MAX, maxDeltaTime = 0.0;
+	for (auto time : DeltaTimes)
+	{
+		totalDeltaTime += time;
+		if (time < minDeltaTime)
+		{
+			minDeltaTime = time;
+		}
+		else if (time > maxDeltaTime)
+		{
+			maxDeltaTime = time;
+		}
+	}
+	double averageDeltaTime = totalDeltaTime / DeltaTimes.size();
+
+	PreviousTime = currentTime;
+
+	UpdateEvent update(deltaTime, averageDeltaTime, minDeltaTime, maxDeltaTime, UpdateNumber);
+
+	BeginUpdate(update);
+	glfwPollEvents();
+
+	OnUpdate(update);
+
+	EndUpdate(update);
+	UpdateNumber++;
 }
 
 void GlfwApplication::HandleWindowResized(GLFWwindow* window, int width, int height)

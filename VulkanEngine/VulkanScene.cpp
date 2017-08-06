@@ -111,7 +111,6 @@ void VulkanScene::RemoveActor(Actor* actor)
 
 		ActorCount--;
 		VertexCount -= actorModel->GetVertexCount();
-
 		Status = Changed;
 	}
 }
