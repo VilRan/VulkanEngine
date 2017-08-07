@@ -22,7 +22,7 @@ public:
 	void Draw();
 
 private:
-	std::unordered_map<OpenGLModel*, std::unordered_map<OpenGLTexture*, std::vector<OpenGLActor*>>> GroupedActors;
+	std::unordered_map<OpenGLTexture*, std::unordered_map<OpenGLModel*, std::vector<OpenGLActor*>>> GroupedActors;
 	std::vector<OpenGLActor*> VacantActors;
 
 	GLuint ShaderProgram;

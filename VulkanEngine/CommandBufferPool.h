@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vulkan/vulkan.h>
 #include <vector>
 
@@ -21,4 +20,3 @@ protected:
 private:
 	void DestroyCommandBuffers();
 };
-

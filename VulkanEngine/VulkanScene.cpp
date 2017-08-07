@@ -31,7 +31,6 @@ VulkanScene::VulkanScene(
 VulkanScene::~VulkanScene()
 {
 	DynamicBufferPool.Release(ViewProjectionBuffer);
-	//FreeCommandBuffers();
 
 	//This is here for now because - as it is - labels must be deleted before actors
 	for (auto label : Labels)
@@ -39,11 +38,11 @@ VulkanScene::~VulkanScene()
 		delete label;
 	}
 
-	for (const auto& actorsByModel : GroupedActors)
+	for (const auto& actorsByTexture : GroupedActors)
 	{
-		for (const auto& actorsByTexture : actorsByModel.second)
+		for (const auto& actorsByModel : actorsByTexture.second)
 		{
-			for (auto actor : actorsByTexture.second)
+			for (auto actor : actorsByModel.second)
 			{
 				delete actor;
 			}
@@ -63,16 +62,16 @@ Actor* VulkanScene::AddActor(Sprite* sprite, glm::vec3 position, glm::vec3 angle
 
 Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position, glm::vec3 angles, glm::vec3 scale)
 {
-	auto vulkanModel = static_cast<VulkanModel*>(model);
 	auto vulkanTexture = static_cast<VulkanTexture*>(texture);
+	auto vulkanModel = static_cast<VulkanModel*>(model);
 	VulkanActor* actor;
 
 	//TODO: Create a single actor pool shared by all scenes.
 	if (VacantActors.size() > 0)
 	{
 		actor = VacantActors.back();
-		actor->SetModel(vulkanModel);
 		actor->SetTexture(vulkanTexture);
+		actor->SetModel(vulkanModel);
 		VacantActors.pop_back();
 	}
 	else
@@ -83,7 +82,7 @@ Actor* VulkanScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	glm::quat rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
 
-	GroupedActors[vulkanModel][vulkanTexture].push_back(actor);
+	GroupedActors[vulkanTexture][vulkanModel].push_back(actor);
 
 	ActorCount++;
 	VertexCount += model->GetVertexCount();
@@ -98,9 +97,9 @@ void VulkanScene::RemoveActor(Actor* actor)
 		return;
 	}
 
-	auto actorModel = static_cast<VulkanModel*>(actor->GetModel());
 	auto actorTexture = static_cast<VulkanTexture*>(actor->GetTexture());
-	auto& actorGroup = GroupedActors[actorModel][actorTexture];
+	auto actorModel = static_cast<VulkanModel*>(actor->GetModel());
+	auto& actorGroup = GroupedActors[actorTexture][actorModel];
 
 	auto vulkanActor = static_cast<VulkanActor*>(actor);
 	auto position = std::find(actorGroup.begin(), actorGroup.end(), actor);
@@ -143,13 +142,6 @@ void VulkanScene::Reset(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLa
 
 void VulkanScene::BuildSecondaryCommandBuffer()
 {
-	/*
-	LastCommandBufferIndex++;
-	if (LastCommandBufferIndex >= CommandBuffers.size())
-	{
-		LastCommandBufferIndex = 0;
-	}
-	*/
 	//TODO: Create secondary command buffers for all frame buffers for possible performance increase?
 	VkCommandBufferInheritanceInfo inheritanceInfo = {};
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -224,7 +216,6 @@ VulkanScene::VulkanScene(
 	RenderPass = renderPass;
 
 	CommandBufferPool.Initialize(Device, CommandPool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 2);
-	//AllocateCommandBuffers();
 }
 
 void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
@@ -236,14 +227,15 @@ void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
 	uint32_t dynamicOffset = ViewProjectionBuffer.GetDynamicOffset();
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &ViewProjectionDescriptorSet, 1, &dynamicOffset);
 
-	for (const auto& actorsByModel : GroupedActors)
+	for (const auto& actorsByTexture : GroupedActors)
 	{
-		auto model = actorsByModel.first;
-		model->Bind(commandBuffer);
-		for (const auto& actorsByTexture : actorsByModel.second)
+		auto texture = actorsByTexture.first;
+		texture->Bind(commandBuffer, PipelineLayout);
+		for (const auto& actorsByModel : actorsByTexture.second)
 		{
-			actorsByTexture.first->Bind(commandBuffer, PipelineLayout);
-			for (auto actor : actorsByTexture.second)
+			auto model = actorsByModel.first;
+			actorsByModel.first->Bind(commandBuffer);
+			for (auto actor : actorsByModel.second)
 			{
 				if (DynamicBufferPool.HasResized())
 				{
@@ -257,32 +249,3 @@ void VulkanScene::BuildCommandBuffer(VkCommandBuffer commandBuffer)
 		}
 	}
 }
-/*
-void VulkanScene::AllocateCommandBuffers()
-{
-	FreeCommandBuffers();
-
-	CommandBuffers.resize(2);
-	LastCommandBufferIndex = CommandBuffers.size();
-
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = CommandBuffers.size();
-
-	if (vkAllocateCommandBuffers(Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to allocate scene command buffer!");
-	}
-}
-
-void VulkanScene::FreeCommandBuffers()
-{
-	if (CommandBuffers.size() > 0)
-	{
-		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
-		CommandBuffers.clear();
-	}
-}
-*/

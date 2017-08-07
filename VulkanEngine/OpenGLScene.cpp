@@ -24,11 +24,11 @@ OpenGLScene::~OpenGLScene()
 		delete label;
 	}
 
-	for (const auto& actorsByModel : GroupedActors)
+	for (const auto& actorsByTexture : GroupedActors)
 	{
-		for (const auto& actorsByTexture : actorsByModel.second)
+		for (const auto& actorsByModel : actorsByTexture.second)
 		{
-			for (auto actor : actorsByTexture.second)
+			for (auto actor : actorsByModel.second)
 			{
 				delete actor;
 			}
@@ -52,8 +52,8 @@ Actor* OpenGLScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	if (VacantActors.size() > 0)
 	{
 		actor = VacantActors.back();
-		actor->SetModel(model);
 		actor->SetTexture(texture);
+		actor->SetModel(model);
 		VacantActors.pop_back();
 	}
 	else
@@ -64,9 +64,9 @@ Actor* OpenGLScene::AddActor(Model* model, Texture* texture, glm::vec3 position,
 	auto rotation = glm::quat(angles);
 	actor->SetTransform(position, rotation, scale);
 
-	auto openGLModel = static_cast<OpenGLModel*>(actor->GetModel());
 	auto openGLTexture = static_cast<OpenGLTexture*>(actor->GetTexture());
-	GroupedActors[openGLModel][openGLTexture].push_back(actor);
+	auto openGLModel = static_cast<OpenGLModel*>(actor->GetModel());
+	GroupedActors[openGLTexture][openGLModel].push_back(actor);
 
 	ActorCount++;
 	VertexCount += model->GetVertexCount();
@@ -82,9 +82,9 @@ void OpenGLScene::RemoveActor(Actor* actor)
 	}
 
 	auto openGLActor = static_cast<OpenGLActor*>(actor);
-	auto model = static_cast<OpenGLModel*>(actor->GetModel());
 	auto texture = static_cast<OpenGLTexture*>(actor->GetTexture());
-	auto& actorGroup = GroupedActors[model][texture];
+	auto model = static_cast<OpenGLModel*>(actor->GetModel());
+	auto& actorGroup = GroupedActors[texture][model];
 	auto position = std::find(actorGroup.begin(), actorGroup.end(), actor);
 	if (position != actorGroup.end())
 	{
@@ -112,15 +112,15 @@ void OpenGLScene::Draw()
 	auto viewProjection = GetCamera()->GetViewProjection(false);
 	glUniformMatrix4fv(viewProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
 
-	for (const auto& actorsByModel : GroupedActors)
+	for (const auto& actorsByTexture : GroupedActors)
 	{
-		auto model = actorsByModel.first;
-		model->Bind();
-		for (const auto& actorsByTexture : actorsByModel.second)
+		auto texture = actorsByTexture.first;
+		texture->Bind();
+		for (const auto& actorsByModel : actorsByTexture.second)
 		{
-			auto texture = actorsByTexture.first;
-			texture->Bind();
-			for (auto actor : actorsByTexture.second)
+			auto model = actorsByModel.first;
+			model->Bind();
+			for (auto actor : actorsByModel.second)
 			{
 				auto modelTransform = actor->GetTransform();
 				glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelTransform));
@@ -134,6 +134,4 @@ void OpenGLScene::Draw()
 		auto openGLScene = static_cast<OpenGLScene*>(scene);
 		openGLScene->Draw();
 	}
-
-	glBindVertexArray(0);
 }

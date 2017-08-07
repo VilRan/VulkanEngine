@@ -45,7 +45,7 @@ protected:
 	void BuildCommandBuffer(VkCommandBuffer commandBuffer);
 
 private:
-	std::unordered_map<VulkanModel*, std::unordered_map<VulkanTexture*, std::vector<VulkanActor*>>> GroupedActors;
+	std::unordered_map<VulkanTexture*, std::unordered_map<VulkanModel*, std::vector<VulkanActor*>>> GroupedActors;
 	std::vector<VulkanActor*> VacantActors;
 	glm::mat4 ViewProjection;
 	DynamicBuffer ViewProjectionBuffer;
@@ -53,7 +53,7 @@ private:
 	DynamicBufferPool& DynamicBufferPool;
 	CircularCommandBufferPool CommandBufferPool;
 	VkCommandBuffer CommandBuffer;
-	//std::vector<VkCommandBuffer> CommandBuffers;
+
 	VkDevice Device = VK_NULL_HANDLE;
 	VkCommandPool CommandPool = VK_NULL_HANDLE;
 	VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
@@ -61,14 +61,10 @@ private:
 	VkDescriptorSet ViewProjectionDescriptorSet = VK_NULL_HANDLE;
 	VkDescriptorSet ModelDescriptorSet = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	//uint32_t LastCommandBufferIndex;
 
 	VulkanScene(
 		VkDevice device, VkCommandPool commandPool, VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout,
 		VkDescriptorSet viewProjectionDescriptorSet, VkDescriptorSet modelDescriptorSet,
 		::DynamicBufferPool& dynamicBufferPool, VkRenderPass renderPass
 	);
-
-	//void AllocateCommandBuffers();
-	//void FreeCommandBuffers();
 };
